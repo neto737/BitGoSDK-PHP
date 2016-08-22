@@ -14,7 +14,7 @@
 
 require_once 'classes/BitGoSDK.php';
 
-$sdk = new BitGoSDK('YOUR_API_KEY_HERE');
+$sdk = new BitGoSDK('YOUR_API_KEY_HERE', true);
 
 //ADDRESS TO RECEIVE PAYMENTS (0-chain)
 $createAddress = $sdk->createAddress('YOUR_PRIMARY_WALLET_ADDRESS_HERE', 0);

@@ -14,15 +14,24 @@
 
 class BitGoSDK {
 
-    //const BITGO_API_ENDPOINT = 'https://bitgo.com/api/v1'; //PRODUCTION API ENDPOINT
-    const BITGO_API_ENDPOINT = 'https://test.bitgo.com/api/v1'; //TESTNET API ENDPOINT
-
+    const BITGO_PRODUCTION_API_ENDPOINT = 'https://bitgo.com/api/v1'; //PRODUCTION API ENDPOINT
+    const BITGO_TESTNET_API_ENDPOINT = 'https://test.bitgo.com/api/v1'; //TESTNET API ENDPOINT
+    private $API_Endpoint;
+    
     /**
-     * @param string $accessToken
+     * @param string $accessToken Your BitGo API Key to get access
+     * @param boolean $testNet    Enable or disable testnet API endpoint
      */
 
-    public function __construct($accessToken) {
+    public function __construct($accessToken, $testNet = false) {
         $this->accessToken = $accessToken;
+        $this->testNet = $testNet;
+        
+        if ($this->testNet) {
+            $this->API_Endpoint = self::BITGO_TESTNET_API_ENDPOINT;
+        } else {
+            $this->API_Endpoint = self::BITGO_PRODUCTION_API_ENDPOINT;
+        }
     }
 
     /**
@@ -32,7 +41,7 @@ class BitGoSDK {
      * @return string    Decoded JSON as a array
      */
     public function getTransactionDetails($tx) {
-        return json_decode(file_get_contents(self::BITGO_API_ENDPOINT . '/tx/' . $tx), true);
+        return json_decode(file_get_contents($this->API_Endpoint . '/tx/' . $tx), true);
     }
 
     /**
@@ -41,7 +50,7 @@ class BitGoSDK {
      * @return string Decoded JSON as a array
      */
     public function listWallets() {
-        $curl = curl_init(self::BITGO_API_ENDPOINT . '/wallet');
+        $curl = curl_init($this->API_Endpoint . '/wallet');
         curl_setopt($curl, CURLOPT_RETURNTRANSFER, true);
         curl_setopt($curl, CURLOPT_HTTPHEADER, [
             'Authorization: Bearer ' . $this->accessToken
@@ -59,7 +68,7 @@ class BitGoSDK {
      * @return string        Decoded JSON as a array
      */
     public function listWalletAddresses($wallet) {
-        $curl = curl_init(self::BITGO_API_ENDPOINT . '/wallet/' . $wallet . '/addresses');
+        $curl = curl_init($this->API_Endpoint . '/wallet/' . $wallet . '/addresses');
         curl_setopt($curl, CURLOPT_RETURNTRANSFER, true);
         curl_setopt($curl, CURLOPT_HTTPHEADER, [
             'Authorization: Bearer ' . $this->accessToken
@@ -77,7 +86,7 @@ class BitGoSDK {
      * @return string        Decoded JSON as a array
      */
     public function listWalletTransactions($wallet) {
-        $curl = curl_init(self::BITGO_API_ENDPOINT . '/wallet/' . $wallet . '/tx');
+        $curl = curl_init($this->API_Endpoint . '/wallet/' . $wallet . '/tx');
         curl_setopt($curl, CURLOPT_RETURNTRANSFER, true);
         curl_setopt($curl, CURLOPT_HTTPHEADER, [
             'Authorization: Bearer ' . $this->accessToken
@@ -99,7 +108,7 @@ class BitGoSDK {
      * @return string        Decoded JSON as a array
      */
     public function createAddress($wallet, $chain) {
-        $curl = curl_init(self::BITGO_API_ENDPOINT . '/wallet/' . $wallet . '/address/' . $chain);
+        $curl = curl_init($this->API_Endpoint . '/wallet/' . $wallet . '/address/' . $chain);
         curl_setopt($curl, CURLOPT_RETURNTRANSFER, true);
         curl_setopt($curl, CURLOPT_HTTPHEADER, [
             'Authorization: Bearer ' . $this->accessToken
@@ -124,7 +133,7 @@ class BitGoSDK {
      * @return string         Decoded JSON as a array
      */
     public function getAddressDetails($address) {
-        return json_decode(file_get_contents(self::BITGO_API_ENDPOINT . '/address/' . $address), true);
+        return json_decode(file_get_contents($this->API_Endpoint . '/address/' . $address), true);
     }
 
     /**
@@ -134,7 +143,7 @@ class BitGoSDK {
      * @return string         Decoded JSON as a array
      */
     public function getAddressTransactions($address) {
-        return json_decode(file_get_contents(self::BITGO_API_ENDPOINT . '/address/' . $address . '/tx'), true);
+        return json_decode(file_get_contents($this->API_Endpoint . '/address/' . $address . '/tx'), true);
     }
 
     /**
@@ -143,7 +152,7 @@ class BitGoSDK {
      * @return string Decoded JSON as a array
      */
     public function listAllWalletsLabels() {
-        $curl = curl_init(self::BITGO_API_ENDPOINT . '/labels');
+        $curl = curl_init($this->API_Endpoint . '/labels');
         curl_setopt($curl, CURLOPT_RETURNTRANSFER, true);
         curl_setopt($curl, CURLOPT_HTTPHEADER, [
             'Authorization: Bearer ' . $this->accessToken
@@ -161,7 +170,7 @@ class BitGoSDK {
      * @return string        Decoded JSON as a array
      */
     public function listWalletLabels($wallet) {
-        $curl = curl_init(self::BITGO_API_ENDPOINT . '/labels/' . $wallet);
+        $curl = curl_init($this->API_Endpoint . '/labels/' . $wallet);
         curl_setopt($curl, CURLOPT_RETURNTRANSFER, true);
         curl_setopt($curl, CURLOPT_HTTPHEADER, [
             'Authorization: Bearer ' . $this->accessToken
@@ -183,7 +192,7 @@ class BitGoSDK {
      * @return string         Decoded JSON as a array
      */
     public function setLabel($wallet, $address, $label) {
-        $curl = curl_init(self::BITGO_API_ENDPOINT . '/labels/' . $wallet . '/' . $address);
+        $curl = curl_init($this->API_Endpoint . '/labels/' . $wallet . '/' . $address);
         curl_setopt($curl, CURLOPT_CUSTOMREQUEST, 'PUT');
         curl_setopt($curl, CURLOPT_RETURNTRANSFER, true);
         curl_setopt($curl, CURLOPT_HTTPHEADER, [
@@ -206,7 +215,7 @@ class BitGoSDK {
      * @return string         Decoded JSON as a array
      */
     public function deleteLabel($wallet, $address) {
-        $curl = curl_init(self::BITGO_API_ENDPOINT . '/labels/' . $wallet . '/' . $address);
+        $curl = curl_init($this->API_Endpoint . '/labels/' . $wallet . '/' . $address);
         curl_setopt($curl, CURLOPT_CUSTOMREQUEST, 'DELETE');
         curl_setopt($curl, CURLOPT_RETURNTRANSFER, true);
         curl_setopt($curl, CURLOPT_HTTPHEADER, [
@@ -224,7 +233,7 @@ class BitGoSDK {
      * @return string Decoded JSON as a array
      */
     public function listKeychain() {
-        $curl = curl_init(self::BITGO_API_ENDPOINT . '/keychain');
+        $curl = curl_init($this->API_Endpoint . '/keychain');
         curl_setopt($curl, CURLOPT_RETURNTRANSFER, true);
         curl_setopt($curl, CURLOPT_HTTPHEADER, [
             'Authorization: Bearer ' . $this->accessToken
@@ -242,7 +251,7 @@ class BitGoSDK {
      * @return string      Decoded JSON as a array
      */
     public function getKeychain($xpub) {
-        $curl = curl_init(self::BITGO_API_ENDPOINT . '/keychain/' . $xpub);
+        $curl = curl_init($this->API_Endpoint . '/keychain/' . $xpub);
         curl_setopt($curl, CURLOPT_RETURNTRANSFER, true);
         curl_setopt($curl, CURLOPT_HTTPHEADER, [
             'Authorization: Bearer ' . $this->accessToken
@@ -265,7 +274,7 @@ class BitGoSDK {
      * @return string Decoded JSON as a array
      */
     public function createBitGoKeychain() {
-        $curl = curl_init(self::BITGO_API_ENDPOINT . '/keychain/bitgo');
+        $curl = curl_init($this->API_Endpoint . '/keychain/bitgo');
         curl_setopt($curl, CURLOPT_RETURNTRANSFER, true);
         curl_setopt($curl, CURLOPT_HTTPHEADER, [
             'Authorization: Bearer ' . $this->accessToken
