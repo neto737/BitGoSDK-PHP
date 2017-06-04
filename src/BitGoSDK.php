@@ -14,7 +14,7 @@
 
 class BitGoSDK {
 
-    const BITGO_PRODUCTION_API_ENDPOINT = 'https://bitgo.com/api/v1'; //PRODUCTION API ENDPOINT
+    const BITGO_PRODUCTION_API_ENDPOINT = 'https://www.bitgo.com/api/v1'; //PRODUCTION API ENDPOINT
     const BITGO_TESTNET_API_ENDPOINT = 'https://test.bitgo.com/api/v1'; //TESTNET API ENDPOINT
     private $API_Endpoint;
     
