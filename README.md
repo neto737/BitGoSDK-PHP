@@ -6,16 +6,32 @@ BitGoSDK written in PHP.
 - PHP 5.4 or earlier with:
   - cURL
 
-## Installation:
+## Installation
+
+BitGoSDK-PHP is available via [Composer/Packagist](https://packagist.org/packages/neto737/bitgosdk-php) (using semantic versioning), so just add this line to your `composer.json` file:
+
+```json
+"neto737/bitgosdk-php": "*"
+```
+
+or
+
+```sh
+composer require neto737/bitgosdk-php
+```
+  
+## A simple example:
 
 ```php
-require_once 'src/BitGoSDK.php';
+require 'vendor/autoload.php';
 
 $bitgo = new BitGoSDK('YOUR_API_KEY_HERE');
 ```
 
 ## Credits:
 - <a href="https://github.com/neto737" target="_blank">Neto Melo</a>
+- Wallace Calvet
+- Pedro Rodrigues
 
 ## Donations:
-#### Donate: 1DNAopnenZxPLiY4N4sHPwpaRZbxmYJQX7
+#### Donate: 12oyGgGHYp1NxtoQFUmaoqm1z8XAeTQKUb
