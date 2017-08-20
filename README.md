@@ -2,8 +2,6 @@
 
 BitGoSDK written in PHP.
 
-Build status: [![Build Status](https://travis-ci.org/neto737/BitGoSDK-PHP.svg?branch=master)](https://travis-ci.org/neto737/BitGoSDK-PHP)
-
 ## Requirements:
 - PHP 5.4 or earlier with:
   - cURL
