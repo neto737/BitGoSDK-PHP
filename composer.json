@@ -1,0 +1,28 @@
+{
+    "name": "neto737/bitgo-php-sdk",
+    "description": "A BitGo SDK written in PHP",
+    "type": "library",
+    "keywords": ["bitgo", "sdk", "bitcoin"],
+    "license": "LGPL-3.0",
+
+    "authors": [
+        {
+            "name": "Neto Melo",
+            "email": "neto737@live.com"
+        },
+        {
+            "name": "Wallace Calvet"
+        },
+        {
+            "name": "Pedro Rodrigues"
+        }
+    ],
+
+    "require": {
+        "php": ">=5.2.0"
+    },
+
+    "autoload": {
+        "files": ["src/BitGoSDK.php"]
+    }
+}
