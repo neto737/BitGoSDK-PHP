@@ -28,6 +28,11 @@ require 'vendor/autoload.php';
 $bitgo = new BitGoSDK('YOUR_API_KEY_HERE');
 ```
 
+## Attention:
+
+Keep your cacert.pem up to date. You can find updates on the site [curl.haxx.se](https://curl.haxx.se/docs/caextract.html).
+
+
 ## Credits:
 - <a href="https://github.com/neto737" target="_blank">Neto Melo</a>
 - Pedro Rodrigues
