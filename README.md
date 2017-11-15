@@ -3,7 +3,7 @@
 BitGoSDK written in PHP.
 
 ## Requirements:
-- PHP 5.4 or earlier with:
+- PHP 7.0 or earlier with:
   - cURL
 
 ## Installation
@@ -30,7 +30,6 @@ $bitgo = new BitGoSDK('YOUR_API_KEY_HERE');
 
 ## Credits:
 - <a href="https://github.com/neto737" target="_blank">Neto Melo</a>
-- Wallace Calvet
 - Pedro Rodrigues
 
 ## Donations:

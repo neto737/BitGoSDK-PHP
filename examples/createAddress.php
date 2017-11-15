@@ -10,6 +10,7 @@
  * @package BitGoSDK PHP
  * @author  Neto Melo <neto737@live.com>
  * @license https://www.gnu.org/licenses/gpl-3.0.html GNU General Public License v3
+ * @version 1.1
  */
 
 require_once 'classes/BitGoSDK.php';

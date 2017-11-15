@@ -11,15 +11,13 @@
             "email": "neto737@live.com"
         },
         {
-            "name": "Wallace Calvet"
-        },
-        {
             "name": "Pedro Rodrigues"
         }
     ],
 
     "require": {
-        "php": ">=5.4.0"
+        "php": ">=7.0",
+        "ext-curl": "*"
     },
 
     "autoload": {
