@@ -23,9 +23,5 @@
     "require": {
         "php": ">=7.0",
         "ext-curl": "*"
-    },
-
-    "autoload": {
-        "files": ["src/BitGoSDK.php"]
     }
 }
