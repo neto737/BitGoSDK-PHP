@@ -9,11 +9,16 @@
         {
             "name": "Neto Melo",
             "email": "neto737@live.com"
-        },
-        {
-            "name": "Pedro Rodrigues"
         }
     ],
+
+    "autoload": {
+        "psr-4": {
+            "neto737\\BitGoSDK\\": "src/"
+        }
+    },
+    
+    "license": "GPL-3.0",
 
     "require": {
         "php": ">=7.0",
