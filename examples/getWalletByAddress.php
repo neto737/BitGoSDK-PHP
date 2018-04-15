@@ -9,5 +9,5 @@ $coin = 'tbtc';
 
 $bitgo = new BitGoSDK($token, $coin, true);
 
-$createAddress = $bitgo->createWalletAddress('WALLET_ID_HERE');
-var_dump($createAddress);
+$getWalletByAddress = $bitgo->getWalletByAddress('WALLET_ADDRESS_HERE');
+var_dump($getWalletByAddress);

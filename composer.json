@@ -3,7 +3,7 @@
     "description": "A BitGo SDK written in PHP",
     "type": "library",
     "keywords": ["bitgo", "sdk", "bitcoin"],
-    "license": "LGPL-3.0",
+    "license": "GPL-3.0",
 
     "authors": [
         {
@@ -17,8 +17,6 @@
             "neto737\\BitGoSDK\\": "src/"
         }
     },
-    
-    "license": "GPL-3.0",
 
     "require": {
         "php": ">=7.0",
