@@ -56,4 +56,5 @@ Keep your cacert.pem always up to date. You can find updates on the site [curl.h
 
 ## Donations:
 **BTC: 12oyGgGHYp1NxtoQFUmaoqm1z8XAeTQKUb**
+
 **ETH: 0xE461A5aC39a86Ec651AB49277637e6d4417257fA**
