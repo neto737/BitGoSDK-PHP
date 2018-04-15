@@ -597,6 +597,7 @@ class BitGoSDK implements BitGoSDKInterface {
             curl_setopt($ch, CURLOPT_POSTFIELDS, http_build_query($this->params));
         } elseif ($requestType === 'DELETE') {
             curl_setopt($ch, CURLOPT_CUSTOMREQUEST, 'DELETE');
+            curl_setopt($ch, CURLOPT_POSTFIELDS, http_build_query($this->params));
         } elseif ($requestType === 'POST') {
             curl_setopt($ch, CURLOPT_POST, true);
             curl_setopt($ch, CURLOPT_POSTFIELDS, http_build_query($this->params));
