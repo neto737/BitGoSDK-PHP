@@ -5,7 +5,7 @@ BitGoSDK written in PHP. This SDK contains methods for easily interacting with t
 
 [![Latest Stable Version](https://poser.pugx.org/neto737/bitgosdk-php/version)](https://packagist.org/packages/neto737/bitgosdk-php) [![Total Downloads](https://poser.pugx.org/neto737/bitgosdk-php/downloads)](https://packagist.org/packages/neto737/bitgosdk-php) [![Latest Unstable Version](https://poser.pugx.org/neto737/bitgosdk-php/v/unstable)](//packagist.org/packages/neto737/bitgosdk-php) [![License](https://poser.pugx.org/neto737/bitgosdk-php/license)](https://packagist.org/packages/neto737/bitgosdk-php)
 
-## Requirements:
+## Requirements
 - PHP 7.0 or earlier with:
   - cURL
 
@@ -34,7 +34,7 @@ Or if put the following in your `composer.json`:
 "neto737/bitgosdk-php": "*"
 ```
   
-## A simple example:
+## Example
 
 ```php
 require 'vendor/autoload.php';
@@ -46,15 +46,15 @@ $bitgo = new BitGoSDK('YOUR_API_KEY_HERE', 'btc', false);
 $createAddress = $bitgo->createWalletAddress('YOUR_WALLET_ID_HERE');
 ```
 
-## Attention:
+## Attention
 
 Keep your cacert.pem always up to date. You can find updates on the site [curl.haxx.se](https://curl.haxx.se/docs/caextract.html).
 
 
-## Credits:
+## Credits
 - <a href="https://github.com/neto737" target="_blank">Neto Melo</a>
 
-## Donations:
+## Donations
 **BTC: 12oyGgGHYp1NxtoQFUmaoqm1z8XAeTQKUb**
 
 **ETH: 0xE461A5aC39a86Ec651AB49277637e6d4417257fA**
