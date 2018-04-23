@@ -8,6 +8,7 @@ BitGoSDK written in PHP. This SDK contains methods for easily interacting with t
 ## Requirements
 - PHP 7.0 or earlier with:
   - cURL
+  - BCMath
 
 ## Installation
 
@@ -40,8 +41,9 @@ Or if put the following in your `composer.json`:
 require 'vendor/autoload.php';
 
 use neto737\BitGoSDK\BitGoSDK;
+use neto737\BitGoSDK\Enum\CurrencyCode;
 
-$bitgo = new BitGoSDK('YOUR_API_KEY_HERE', 'btc', false);
+$bitgo = new BitGoSDK('YOUR_API_KEY_HERE', CurrencyCode::BITCOIN, false);
 
 $createAddress = $bitgo->createWalletAddress('YOUR_WALLET_ID_HERE');
 ```
