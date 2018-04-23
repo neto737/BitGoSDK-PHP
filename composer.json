@@ -20,6 +20,7 @@
 
     "require": {
         "php": ">=7.0",
-        "ext-curl": "*"
+        "ext-curl": "*",
+        "ext-bcmath": "*"
     }
 }
