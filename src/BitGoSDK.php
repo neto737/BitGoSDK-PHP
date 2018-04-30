@@ -221,7 +221,7 @@ class BitGoSDK implements BitGoSDKInterface {
         $this->params = [
             'id' => $this->walletId,
             'allowMigrated' => $allowMigrated,
-            'chain' => $this->coin === CurrencyCode::BITCOIN || $this->coin === CurrencyCode::BITCOIN_GOLD ? $chain : null,
+            'chain' => $this->coin === CurrencyCode::BITCOIN || $this->coin === CurrencyCode::BITCOIN_GOLD ? $chain : 0,
             'gasPrice' => $this->coin === CurrencyCode::ETHEREUM ? $gasPrice : null,
             'label' => $label
         ];
@@ -769,11 +769,14 @@ class BitGoSDK implements BitGoSDKInterface {
             curl_setopt($ch, CURLOPT_POSTFIELDS, http_build_query($this->params));
         } elseif ($requestType === 'POST') {
             curl_setopt($ch, CURLOPT_POST, true);
-            curl_setopt($ch, CURLOPT_POSTFIELDS, http_build_query($this->params));
+            curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode($this->params));
         }
         curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, true);
         curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-        curl_setopt($ch, CURLOPT_HTTPHEADER, ['Authorization: Bearer ' . $this->accessToken]);
+        curl_setopt($ch, CURLOPT_HTTPHEADER, [
+            'Content-Type: application/json',
+            'Authorization: Bearer ' . $this->accessToken
+        ]);
         curl_setopt($ch, CURLOPT_CAINFO, dirname(__FILE__) . '/cacert.pem');
 
         $response = curl_exec($ch);

@@ -21,9 +21,9 @@ interface BitGoExpressInterface {
     public function login(string $email, string $password, string $otp, bool $extensible = false);
 
     // WALLETS
-    public function generateWallet(string $label, string $passphrase, string $userKey = null, string $backupXpub = null, string $backupXpubProvider = null, string $enterprise = null, bool $disableTransactionNotifications = null, int $gasPrice = null, string $passcodeEncryptionCode = null);
+    public function generateWallet(string $label, string $passphrase, string $userKey = null, string $backupXpub = null, string $backupXpubProvider = null, string $enterprise = '', bool $disableTransactionNotifications = false, int $gasPrice = 0, string $passcodeEncryptionCode = null);
 
-    public function addWallet(string $label, int $m, int $n, array $keys, string $enterprise = null, bool $isCold = null, bool $disableTransactionNotifications = null);
+    public function addWallet(string $label, int $m, int $n, array $keys, string $enterprise = null, bool $isCold = null, bool $disableTransactionNotifications = false);
 
     // WALLET OPERATIONS
     public function sendTransaction(string $address, int $amount, string $walletPassphrase, string $prv = null, int $numBlocks = null, int $feeRate = null, string $comment = null, array $unspents = null, int $minConfirms = null, bool $enforceMinConfirmsForChange = null, int $targetWalletUnspents = null, bool $noSplitChange = null, int $minValue = null, int $maxValue = null, int $gasPrice = null, int $gasLimit = null, int $sequenceId = null, bool $segwit = null, int $lastLedgerSequence = null, string $ledgerSequenceDelta = null);

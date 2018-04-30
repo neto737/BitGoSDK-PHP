@@ -82,7 +82,7 @@ class BitGoExpress implements BitGoExpressInterface {
      * @param string $passcodeEncryptionCode        Encryption code for wallet passphrase (used for lost passphrase recovery)
      * @return array
      */
-    public function generateWallet(string $label, string $passphrase, string $userKey = null, string $backupXpub = null, string $backupXpubProvider = null, string $enterprise = null, bool $disableTransactionNotifications = null, int $gasPrice = null, string $passcodeEncryptionCode = null) {
+    public function generateWallet(string $label, string $passphrase, string $userKey = null, string $backupXpub = null, string $backupXpubProvider = null, string $enterprise = '', bool $disableTransactionNotifications = false, int $gasPrice = 0, string $passcodeEncryptionCode = null) {
         $this->url = $this->APIEndpoint . '/wallet/generate';
         $this->params = [
             'label' => $label,
@@ -92,7 +92,7 @@ class BitGoExpress implements BitGoExpressInterface {
             'backupXpubProvider' => $backupXpubProvider,
             'enterprise' => $enterprise,
             'disableTransactionNotifications' => $disableTransactionNotifications,
-            'gasPrice' => $this->coin === CurrencyCode::ETHEREUM ? $gasPrice : null,
+            'gasPrice' => $this->coin === CurrencyCode::ETHEREUM ? $gasPrice : 0,
             'passcodeEncryptionCode' => $passcodeEncryptionCode
         ];
         return $this->__execute('POST');
@@ -111,7 +111,7 @@ class BitGoExpress implements BitGoExpressInterface {
      * @param bool $disableTransactionNotifications Will prevent wallet transaction notifications if set to true.
      * @return array
      */
-    public function addWallet(string $label, int $m, int $n, array $keys, string $enterprise = null, bool $isCold = null, bool $disableTransactionNotifications = null) {
+    public function addWallet(string $label, int $m, int $n, array $keys, string $enterprise = null, bool $isCold = null, bool $disableTransactionNotifications = false) {
         $this->url = $this->APIEndpoint . '/wallet';
         $this->params = [
             'label' => $label,
@@ -484,15 +484,18 @@ class BitGoExpress implements BitGoExpressInterface {
         $ch = curl_init($this->url);
         if ($requestType === 'POST') {
             curl_setopt($ch, CURLOPT_POST, true);
-            curl_setopt($ch, CURLOPT_POSTFIELDS, http_build_query($this->params));
+            curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode($this->params));
         } elseif ($requestType === 'PUT') {
             curl_setopt($ch, CURLOPT_CUSTOMREQUEST, 'PUT');
-            curl_setopt($ch, CURLOPT_POSTFIELDS, http_build_query($this->params));
+            curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode($this->params));
         }
         curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, true);
         curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
         if (isset($this->accessToken) && !$this->login) {
-            curl_setopt($ch, CURLOPT_HTTPHEADER, ['Authorization: Bearer ' . $this->accessToken]);
+            curl_setopt($ch, CURLOPT_HTTPHEADER, [
+                'Content-Type: application/json',
+                'Authorization: Bearer ' . $this->accessToken
+            ]);
         }
         curl_setopt($ch, CURLOPT_CAINFO, dirname(__FILE__) . '/cacert.pem');
 
