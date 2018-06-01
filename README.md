@@ -57,7 +57,5 @@ Keep your cacert.pem always up to date. You can find updates on the site [curl.h
 ## Credits
 - <a href="https://github.com/neto737" target="_blank">Neto Melo</a>
 
-## Donations
-**BTC: 12oyGgGHYp1NxtoQFUmaoqm1z8XAeTQKUb**
-
-**ETH: 0xE461A5aC39a86Ec651AB49277637e6d4417257fA**
+## Donate
+[![Donate BTC](https://img.shields.io/badge/donate-BTC-ff9900.svg)](https://blockchain.info/address/12oyGgGHYp1NxtoQFUmaoqm1z8XAeTQKUb) [![Donate ETH](https://img.shields.io/badge/donate-ETH-3C3C3D.svg)](https://etherscan.io/address/0xE461A5aC39a86Ec651AB49277637e6d4417257fA)
