@@ -55,7 +55,7 @@ class BitGoSDK implements BitGoSDKInterface {
      * @param int $amount   amount in satoshi that you want to convert to BTC
      * @return float        value converted to BTC
      */
-    public function toBTC(int $amount) {
+    public static function toBTC(int $amount) {
         return (float) sprintf('%.8f', bcdiv($amount, 100000000, 8));
     }
 
@@ -65,7 +65,7 @@ class BitGoSDK implements BitGoSDKInterface {
      * @param float $amount amount in BTC that you want to convert to satoshi
      * @return int          value converted to satoshi
      */
-    public function toSatoshi(float $amount) {
+    public static function toSatoshi(float $amount) {
         return (int) bcmul(sprintf('%.8f', $amount), 100000000, 0);
     }
 
@@ -763,13 +763,13 @@ class BitGoSDK implements BitGoSDKInterface {
             curl_setopt($ch, CURLOPT_CUSTOMREQUEST, 'GET');
         } elseif ($requestType === 'PUT') {
             curl_setopt($ch, CURLOPT_CUSTOMREQUEST, 'PUT');
-            curl_setopt($ch, CURLOPT_POSTFIELDS, http_build_query($this->params));
+            curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode(array_filter($this->params)));
         } elseif ($requestType === 'DELETE') {
             curl_setopt($ch, CURLOPT_CUSTOMREQUEST, 'DELETE');
-            curl_setopt($ch, CURLOPT_POSTFIELDS, http_build_query($this->params));
+            curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode(array_filter($this->params)));
         } elseif ($requestType === 'POST') {
             curl_setopt($ch, CURLOPT_POST, true);
-            curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode($this->params));
+            curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode(array_filter($this->params)));
         }
         curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, true);
         curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);

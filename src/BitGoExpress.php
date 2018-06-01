@@ -484,10 +484,10 @@ class BitGoExpress implements BitGoExpressInterface {
         $ch = curl_init($this->url);
         if ($requestType === 'POST') {
             curl_setopt($ch, CURLOPT_POST, true);
-            curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode($this->params));
+            curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode(array_filter($this->params)));
         } elseif ($requestType === 'PUT') {
             curl_setopt($ch, CURLOPT_CUSTOMREQUEST, 'PUT');
-            curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode($this->params));
+            curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode(array_filter($this->params)));
         }
         curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, true);
         curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
