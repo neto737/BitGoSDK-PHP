@@ -21,5 +21,8 @@ $bitgoExpress->walletId = 'YOUR_WALLET_ID_HERE';
 /**
  * Send the amount in satoshi
  */
-$sendTransaction = $bitgoExpress->sendTransaction('DESTINATION_ADDRESS', 100000, 'YOUR_WALLET_PASSPHRASE');
+$value_in_btc = 0.25;
+$amount = BitGoSDK::toSatoshi($value_in_btc);
+
+$sendTransaction = $bitgoExpress->sendTransaction('DESTINATION_ADDRESS', $amount, 'YOUR_WALLET_PASSPHRASE');
 var_dump($sendTransaction);
