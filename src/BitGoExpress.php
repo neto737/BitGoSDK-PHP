@@ -154,7 +154,7 @@ class BitGoExpress implements BitGoExpressInterface {
         $this->url = $this->APIEndpoint . '/wallet/' . $this->walletId . '/sendcoins';
         $this->params = [
             'address' => $address,
-            'amount' => $amount,
+            'amount' => "$amount",
             'walletPassphrase' => $walletPassphrase,
             'prv' => $prv,
             'numBlocks' => in_array($this->coin, $this->UTXObased) ? $numBlocks : null,
