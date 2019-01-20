@@ -605,6 +605,14 @@ class BitGoSDK implements BitGoSDKInterface {
         return $this->__execute('GET');
     }
 
+    public function getWebhookPayload(bool $decodeJson = false, bool $decodeAsArray = false) {
+        if ($decodeJson) {
+            return json_decode(file_get_contents('php://input'), $decodeAsArray);
+        } else {
+            return file_get_contents('php://input');
+        }
+    }
+
     /**
      * List all webhooks set up on the wallet.
      * 
@@ -759,7 +767,7 @@ class BitGoSDK implements BitGoSDKInterface {
     private function __execute(string $requestType = 'POST') {
         $ch = curl_init($this->url);
         if ($requestType === 'GET') {
-            curl_setopt($ch, CURLOPT_URL, $this->url . '?' . http_build_query($this->params));
+            curl_setopt($ch, CURLOPT_URL, $this->url . '?' . http_build_query(array_filter($this->params)));
             curl_setopt($ch, CURLOPT_CUSTOMREQUEST, 'GET');
         } elseif ($requestType === 'PUT') {
             curl_setopt($ch, CURLOPT_CUSTOMREQUEST, 'PUT');

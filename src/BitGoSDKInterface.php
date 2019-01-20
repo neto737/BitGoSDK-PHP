@@ -17,7 +17,7 @@ namespace neto737\BitGoSDK;
 
 interface BitGoSDKInterface {
 
-    // USER AUTHENTICATION
+    // USER AUTHENTICATION   
     public function getCurrentUserProfile();
     
     public function getSessionInfo();
@@ -98,6 +98,8 @@ interface BitGoSDKInterface {
     public function listPendingApprovals(string $walletID = null, string $enterprise = null, bool $allTokens = false);
 
     // WEBHOOKS
+    public function getWebhookPayload(bool $decodeJson = false, bool $decodeAsArray = false);
+    
     public function listWalletWebhooks(bool $allTokens = false);
 
     public function addWalletWebhook(string $url, string $type, int $numConfirmations = null);
