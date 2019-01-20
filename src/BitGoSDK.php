@@ -605,7 +605,7 @@ class BitGoSDK implements BitGoSDKInterface {
         return $this->__execute('GET');
     }
 
-    public function getWebhookPayload(bool $decodeJson = false, bool $decodeAsArray = false) {
+    public function getWebhookPayload(bool $decodeJson = true, bool $decodeAsArray = true) {
         if ($decodeJson) {
             return json_decode(file_get_contents('php://input'), $decodeAsArray);
         } else {

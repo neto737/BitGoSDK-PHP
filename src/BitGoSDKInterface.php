@@ -98,7 +98,7 @@ interface BitGoSDKInterface {
     public function listPendingApprovals(string $walletID = null, string $enterprise = null, bool $allTokens = false);
 
     // WEBHOOKS
-    public function getWebhookPayload(bool $decodeJson = false, bool $decodeAsArray = false);
+    public function getWebhookPayload(bool $decodeJson = true, bool $decodeAsArray = true);
     
     public function listWalletWebhooks(bool $allTokens = false);
 

@@ -56,7 +56,7 @@ class BitGoExpress implements BitGoExpressInterface {
      * @param bool $extensible  True if the session is supposed to be extensible beyond a one-hour duration.
      * @return array
      */
-    public function login(string $email, string $password, string $otp, bool $extensible = false) {
+    public function login(string $email, string $password, string $otp, bool $extensible = null) {
         $this->url = 'http://' . $this->hostname . ':' . $this->port . '/api/v2/user/login';
         $this->params = [
             'email' => $email,
@@ -82,7 +82,7 @@ class BitGoExpress implements BitGoExpressInterface {
      * @param string $passcodeEncryptionCode        Encryption code for wallet passphrase (used for lost passphrase recovery)
      * @return array
      */
-    public function generateWallet(string $label, string $passphrase, string $userKey = null, string $backupXpub = null, string $backupXpubProvider = null, string $enterprise = '', bool $disableTransactionNotifications = false, int $gasPrice = 0, string $passcodeEncryptionCode = null) {
+    public function generateWallet(string $label, string $passphrase, string $userKey = null, string $backupXpub = null, string $backupXpubProvider = null, string $enterprise = null, bool $disableTransactionNotifications = null, int $gasPrice = null, string $passcodeEncryptionCode = null) {
         $this->url = $this->APIEndpoint . '/wallet/generate';
         $this->params = [
             'label' => $label,
@@ -111,7 +111,7 @@ class BitGoExpress implements BitGoExpressInterface {
      * @param bool $disableTransactionNotifications Will prevent wallet transaction notifications if set to true.
      * @return array
      */
-    public function addWallet(string $label, int $m, int $n, array $keys, string $enterprise = null, bool $isCold = null, bool $disableTransactionNotifications = false) {
+    public function addWallet(string $label, int $m, int $n, array $keys, string $enterprise = null, bool $isCold = null, bool $disableTransactionNotifications = null) {
         $this->url = $this->APIEndpoint . '/wallet';
         $this->params = [
             'label' => $label,
@@ -244,7 +244,7 @@ class BitGoExpress implements BitGoExpressInterface {
      * @param bool $enforceMinConfirmsForChange Apply the required confirmations set in minConfirms for change outputs
      * @return array
      */
-    public function consolidateWalletUnspents(string $walletPassphrase, int $numUnspentsToMake = 1, int $limit = 25, int $minValue = null, int $maxValue = null, int $minHeight = null, int $feeRate = null, int $feeTxConfirmTarget = null, int $maxFeePercentage = null, int $minConfirms = null, bool $enforceMinConfirmsForChange = null) {
+    public function consolidateWalletUnspents(string $walletPassphrase, int $numUnspentsToMake = null, int $limit = null, int $minValue = null, int $maxValue = null, int $minHeight = null, int $feeRate = null, int $feeTxConfirmTarget = null, int $maxFeePercentage = null, int $minConfirms = null, bool $enforceMinConfirmsForChange = null) {
         $this->url = $this->APIEndpoint . '/wallet/' . $this->walletId . '/consolidateunspents';
         $this->params = [
             'walletPassphrase' => $walletPassphrase,
