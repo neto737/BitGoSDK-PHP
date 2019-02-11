@@ -14,6 +14,10 @@ $payload = $bitgo->getWebhookPayload();
 
 $txDetails = $bitgo->getWalletTransaction($payload['hash']);
 
+if (isset($txDetails['error'])) {
+    exit($txDetails['error']);
+}
+
 if (!isset($txDetails['fromWallet'])) {
     //YOU ARE RECEIVING A TRANSACTION...
 } else {

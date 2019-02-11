@@ -24,10 +24,25 @@ $bitgoExpress->accessToken = 'YOUR_API_KEY_HERE';
 $bitgoExpress->walletId = 'YOUR_WALLET_ID_HERE';
 
 /**
- * Send the amount in satoshi
+ * $sendTo array needs to be a multidimensional array
+ * All amounts in this array needs to be integer (int) values
+ * If you need convert bitcoin value into satoshi value just use toSatoshi function 
  */
-$value_in_btc = 0.25;
-$amount = BitGoSDK::toSatoshi($value_in_btc);
+$sendTo = [
+    [
+        'address' => 'ADDRESS_1',
+        'amount' => BitGoSDK::toSatoshi(0.25)
+    ],
+    [
+        'address' => 'ADDRESS_2',
+        'amount' => 20000
+    ],
+    [
+        'address' => 'ADDRESS_3',
+        'amount' => BitGoSDK::toSatoshi(0.5)
+    ],
+    //...
+];
 
-$sendTransaction = $bitgoExpress->sendTransaction('DESTINATION_ADDRESS', $amount, 'YOUR_WALLET_PASSPHRASE');
-var_dump($sendTransaction);
+$sendToMany = $bitgoExpress->sendTransactionToMany($sendTo, 'YOUR_WALLET_PASSPHRASE');
+var_dump($sendToMany);

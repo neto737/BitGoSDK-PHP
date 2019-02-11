@@ -75,7 +75,7 @@ class BitGoSDK implements BitGoSDKInterface {
      * @return array
      */
     public function getCurrentUserProfile() {
-        $this->url = $this->AuthAPIEndpoint . '/user/me';
+        $this->url = $this->AuthAPIEndpoint . 'user/me';
         return $this->__execute('GET');
     }
 
@@ -85,7 +85,7 @@ class BitGoSDK implements BitGoSDKInterface {
      * @return array
      */
     public function getSessionInfo() {
-        $this->url = $this->AuthAPIEndpoint . '/user/session';
+        $this->url = $this->AuthAPIEndpoint . 'user/session';
         return $this->__execute('GET');
     }
 
@@ -95,7 +95,7 @@ class BitGoSDK implements BitGoSDKInterface {
      * @return array
      */
     public function lockSession() {
-        $this->url = $this->AuthAPIEndpoint . '/user/lock';
+        $this->url = $this->AuthAPIEndpoint . 'user/lock';
         return $this->__execute('POST');
     }
 
@@ -107,7 +107,7 @@ class BitGoSDK implements BitGoSDKInterface {
      * @return array
      */
     public function unlockSession(string $otp, int $duration = 600) {
-        $this->url = $this->AuthAPIEndpoint . '/user/unlock';
+        $this->url = $this->AuthAPIEndpoint . 'user/unlock';
         $this->params = [
             'otp' => $otp,
             'duration' => $duration
@@ -121,7 +121,7 @@ class BitGoSDK implements BitGoSDKInterface {
      * @return array
      */
     public function logout() {
-        $this->url = $this->AuthAPIEndpoint . '/user/logout';
+        $this->url = $this->AuthAPIEndpoint . 'user/logout';
         return $this->__execute('GET');
     }
 
@@ -605,7 +605,7 @@ class BitGoSDK implements BitGoSDKInterface {
         return $this->__execute('GET');
     }
 
-    public function getWebhookPayload(bool $decodeJson = true, bool $decodeAsArray = true) {
+    public static function getWebhookPayload(bool $decodeJson = true, bool $decodeAsArray = true) {
         if ($decodeJson) {
             return json_decode(file_get_contents('php://input'), $decodeAsArray);
         } else {
