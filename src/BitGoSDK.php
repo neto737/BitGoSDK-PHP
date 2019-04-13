@@ -26,7 +26,7 @@ class BitGoSDK implements BitGoSDKInterface {
     private $AuthAPIEndpoint = null;
     private $url = null;
     private $params = [];
-    private $allowedCoins = ['btc', 'bch', 'btg', 'eth', 'ltc', 'xrp', 'rmg', 'erc', 'omg', 'zrx', 'fun', 'gnt', 'rep', 'bat', 'knc', 'cvc', 'eos', 'qrl', 'nmr', 'pay', 'brd', 'tbtc', 'tbch', 'teth', 'tltc', 'txrp', 'trmg', 'terc'];
+    private $allowedCoins = ['btc', 'bch', 'bsv', 'btg', 'eth', 'dash', 'ltc', 'xrp', 'zec', 'rmg', 'erc', 'omg', 'zrx', 'fun', 'gnt', 'rep', 'bat', 'knc', 'cvc', 'eos', 'qrl', 'nmr', 'pay', 'brd', 'tbtc', 'tbch', 'tbsv', 'teth', 'tdash', 'tltc', 'txrp', 'tzec', 'trmg', 'terc'];
     public $walletId = null;
 
     /**

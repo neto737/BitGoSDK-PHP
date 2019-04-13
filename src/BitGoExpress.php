@@ -22,8 +22,8 @@ class BitGoExpress implements BitGoExpressInterface {
     private $APIEndpoint = null;
     private $url = null;
     private $params = [];
-    private $allowedCoins = ['btc', 'bch', 'btg', 'eth', 'ltc', 'xrp', 'rmg', 'erc', 'omg', 'zrx', 'fun', 'gnt', 'rep', 'bat', 'knc', 'cvc', 'eos', 'qrl', 'nmr', 'pay', 'brd', 'tbtc', 'tbch', 'teth', 'tltc', 'txrp', 'trmg', 'terc'];
-    private $UTXObased = ['btc', 'bch', 'btg', 'ltc', 'rmg', 'tbtc', 'tbch', 'tltc', 'trmg'];
+    private $allowedCoins = ['btc', 'bch', 'bsv', 'btg', 'eth', 'dash', 'ltc', 'xrp', 'zec', 'rmg', 'erc', 'omg', 'zrx', 'fun', 'gnt', 'rep', 'bat', 'knc', 'cvc', 'eos', 'qrl', 'nmr', 'pay', 'brd', 'tbtc', 'tbch', 'teth', 'tdash', 'tltc', 'tzec', 'txrp', 'trmg', 'terc'];
+    private $UTXObased = ['btc', 'bch', 'bsv', 'btg', 'dash', 'ltc', 'rmg', 'zec', 'tbtc', 'tbch', 'tbsv', 'tdash', 'tltc', 'tzec', 'trmg'];
     private $login = false;
     public $accessToken = null;
     public $walletId = null;
