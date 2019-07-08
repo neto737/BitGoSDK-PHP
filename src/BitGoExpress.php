@@ -17,9 +17,10 @@ namespace neto737\BitGoSDK;
 
 use neto737\BitGoSDK\Enum\CurrencyCode;
 
-class BitGoExpress implements BitGoExpressInterface {
+class BitGoExpress implements IBitGoExpress {
 
     private $APIEndpoint = null;
+    private $AuthAPIEndpoint = null;
     private $url = null;
     private $params = [];
     private $allowedCoins = ['btc', 'bch', 'bsv', 'btg', 'eth', 'dash', 'ltc', 'xrp', 'zec', 'rmg', 'erc', 'omg', 'zrx', 'fun', 'gnt', 'rep', 'bat', 'knc', 'cvc', 'eos', 'qrl', 'nmr', 'pay', 'brd', 'tbtc', 'tbch', 'teth', 'tdash', 'tltc', 'tzec', 'txrp', 'trmg', 'terc'];
@@ -40,6 +41,7 @@ class BitGoExpress implements BitGoExpressInterface {
         $this->hostname = $hostname;
         $this->port = $port;
         $this->coin = $coin;
+        $this->AuthAPIEndpoint = 'http://' . $this->hostname . ':' . $this->port . '/api/v2';
         $this->APIEndpoint = 'http://' . $this->hostname . ':' . $this->port . '/api/v2/' . $this->coin;
 
         if (!in_array($this->coin, $this->allowedCoins)) {
@@ -57,7 +59,7 @@ class BitGoExpress implements BitGoExpressInterface {
      * @return array
      */
     public function login(string $email, string $password, string $otp, bool $extensible = null) {
-        $this->url = 'http://' . $this->hostname . ':' . $this->port . '/api/v2/user/login';
+        $this->url = $this->AuthAPIEndpoint . '/user/login';
         $this->params = [
             'email' => $email,
             'password' => $password,
@@ -65,7 +67,17 @@ class BitGoExpress implements BitGoExpressInterface {
             'extensible' => $extensible
         ];
         $this->login = true;
-        return $this->__execute('POST');
+        return $this->__execute();
+    }
+
+    /**
+     * Ping bitgo express to ensure that it is still running. Unlike /ping, this does not try connecting to bitgo.com.
+     * 
+     * @return array
+     */
+    public function ping() {
+        $this->url = $this->AuthAPIEndpoint . '/ping';
+        return $this->__execute('GET');
     }
 
     /**
@@ -95,7 +107,7 @@ class BitGoExpress implements BitGoExpressInterface {
             'gasPrice' => $this->coin === CurrencyCode::ETHEREUM ? $gasPrice : 0,
             'passcodeEncryptionCode' => $passcodeEncryptionCode
         ];
-        return $this->__execute('POST');
+        return $this->__execute();
     }
 
     /**
@@ -122,7 +134,7 @@ class BitGoExpress implements BitGoExpressInterface {
             'isCold' => $isCold,
             'disableTransactionNotifications' => $disableTransactionNotifications
         ];
-        return $this->__execute('POST');
+        return $this->__execute();
     }
 
     /**
@@ -174,7 +186,7 @@ class BitGoExpress implements BitGoExpressInterface {
             'lastLedgerSequence' => $this->coin === CurrencyCode::RIPPLE ? $lastLedgerSequence : null,
             'ledgerSequenceDelta' => $this->coin === CurrencyCode::RIPPLE ? $ledgerSequenceDelta : null
         ];
-        return $this->__execute('POST');
+        return $this->__execute();
     }
 
     /**
@@ -225,7 +237,7 @@ class BitGoExpress implements BitGoExpressInterface {
             'lastLedgerSequence' => $this->coin === CurrencyCode::RIPPLE ? $lastLedgerSequence : null,
             'ledgerSequenceDelta' => $this->coin === CurrencyCode::RIPPLE ? $ledgerSequenceDelta : null
         ];
-        return $this->__execute('POST');
+        return $this->__execute();
     }
 
     /**
@@ -259,7 +271,7 @@ class BitGoExpress implements BitGoExpressInterface {
             'minConfirms' => $minConfirms,
             'enforceMinConfirmsForChange' => $enforceMinConfirmsForChange
         ];
-        return $this->__execute('POST');
+        return $this->__execute();
     }
 
     /**
@@ -295,7 +307,7 @@ class BitGoExpress implements BitGoExpressInterface {
             'feeRate' => $feeRate,
             'feeTxConfirmTarget' => $this->coin === CurrencyCode::BITCOIN ? $feeTxConfirmTarget : null
         ];
-        return $this->__execute('POST');
+        return $this->__execute();
     }
 
     /**
@@ -327,7 +339,7 @@ class BitGoExpress implements BitGoExpressInterface {
             'lastLedgerSequence' => $this->coin === CurrencyCode::RIPPLE ? $lastLedgerSequence : null,
             'ledgerSequenceDelta' => $this->coin === CurrencyCode::RIPPLE ? $ledgerSequenceDelta : null
         ];
-        return $this->__execute('POST');
+        return $this->__execute();
     }
 
     /**
@@ -408,7 +420,7 @@ class BitGoExpress implements BitGoExpressInterface {
             'txHex' => $txHex,
             'comment' => $comment
         ];
-        return $this->__execute('POST');
+        return $this->__execute();
     }
 
     /**
@@ -418,7 +430,7 @@ class BitGoExpress implements BitGoExpressInterface {
      */
     public function createKeychain() {
         $this->url = $this->APIEndpoint . '/keychain/local';
-        return $this->__execute('POST');
+        return $this->__execute();
     }
 
     /**
@@ -440,7 +452,7 @@ class BitGoExpress implements BitGoExpressInterface {
             'skipKeychain' => $skipKeychain,
             'disableEmail' => $disableEmail
         ];
-        return $this->__execute('POST');
+        return $this->__execute();
     }
 
     /**
@@ -460,7 +472,7 @@ class BitGoExpress implements BitGoExpressInterface {
             'userPassword' => $userPassword,
             'overrideEncryptedPrv' => $overrideEncryptedPrv
         ];
-        return $this->__execute('POST');
+        return $this->__execute();
     }
 
     /**
@@ -478,6 +490,52 @@ class BitGoExpress implements BitGoExpressInterface {
             'otp' => $otp
         ];
         return $this->__execute('PUT');
+    }
+
+    /**
+     * Symmetrically encrypt an arbitrary message with provided password
+     * 
+     * @param string $input     Plaintext message which should be encrypted
+     * @param string $password  Password which should be used to encrypt message
+     * @return string
+     */
+    public function encrypt(string $input, string $password) {
+        $this->url = $this->AuthAPIEndpoint . '/encrypt';
+        $this->params = [
+            'input' => $input,
+            'password' => $password
+        ];
+        return $this->__execute();
+    }
+
+    /**
+     * Decrypt a ciphertext generated by encrypt route with provided password
+     * 
+     * @param string $input     Ciphertext to decrypt
+     * @param string $password  Key which is used for decryption
+     * @return string
+     */
+    public function decrypt(string $input, string $password) {
+        $this->url = $this->AuthAPIEndpoint . '/decrypt';
+        $this->params = [
+            'input' => $input,
+            'password' => $password
+        ];
+        return $this->__execute();
+    }
+
+    /**
+     * Verify address for a given coin
+     * 
+     * @param string $address   Address which should be verified for correct format
+     * @return array
+     */
+    public function verifyAddress(string $address) {
+        $this->url = $this->APIEndpoint . '/verifyaddress';
+        $this->params = [
+            'address' => $address
+        ];
+        return $this->__execute();
     }
 
     private function __execute(string $requestType = 'POST', bool $array = true) {

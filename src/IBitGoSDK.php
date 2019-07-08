@@ -15,7 +15,7 @@
 
 namespace neto737\BitGoSDK;
 
-interface BitGoSDKInterface {
+interface IBitGoSDK {
 
     // USER AUTHENTICATION   
     public function getCurrentUserProfile();

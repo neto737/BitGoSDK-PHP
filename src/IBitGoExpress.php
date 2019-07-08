@@ -15,22 +15,20 @@
 
 namespace neto737\BitGoSDK;
 
-interface BitGoExpressInterface {
+interface IBitGoExpress {
 
-    // USER AUTHENTICATION
     public function login(string $email, string $password, string $otp, bool $extensible = null);
+    
+    public function ping();
 
-    // WALLETS
     public function generateWallet(string $label, string $passphrase, string $userKey = null, string $backupXpub = null, string $backupXpubProvider = null, string $enterprise = null, bool $disableTransactionNotifications = null, int $gasPrice = null, string $passcodeEncryptionCode = null);
 
     public function addWallet(string $label, int $m, int $n, array $keys, string $enterprise = null, bool $isCold = null, bool $disableTransactionNotifications = null);
 
-    // WALLET OPERATIONS
     public function sendTransaction(string $address, int $amount, string $walletPassphrase, string $prv = null, int $numBlocks = null, int $feeRate = null, string $comment = null, array $unspents = null, int $minConfirms = null, bool $enforceMinConfirmsForChange = null, int $targetWalletUnspents = null, bool $noSplitChange = null, int $minValue = null, int $maxValue = null, int $gasPrice = null, int $gasLimit = null, int $sequenceId = null, bool $segwit = null, int $lastLedgerSequence = null, string $ledgerSequenceDelta = null);
 
     public function sendTransactionToMany(array $recipients, string $walletPassphrase, string $prv = null, int $numBlocks = null, int $feeRate = null, string $comment = null, array $unspents = null, int $minConfirms = null, bool $enforceMinConfirmsForChange = null, int $targetWalletUnspents = null, bool $noSplitChange = null, int $minValue = null, int $maxValue = null, int $gasPrice = null, int $gasLimit = null, int $sequenceId = null, bool $segwit = null, int $lastLedgerSequence = null, string $ledgerSequenceDelta = null);
 
-    // WALLET OPERATIONS - ADVANCED
     public function consolidateWalletUnspents(string $walletPassphrase, int $numUnspentsToMake = null, int $limit = null, int $minValue = null, int $maxValue = null, int $minHeight = null, int $feeRate = null, int $feeTxConfirmTarget = null, int $maxFeePercentage = null, int $minConfirms = null, bool $enforceMinConfirmsForChange = null);
 
     public function funoutWalletUnspents(string $walletPassphrase, string $xprv = null, int $maxNumInputsToUse = null, int $numUnspentsToMake = null, int $minValue = null, int $maxValue = null, int $minHeight = null, int $maxFeePercentage = null, int $minConfirms = null, bool $enforceMinConfirmsForChange = null, int $feeRate = null, int $feeTxConfirmTarget = null);
@@ -43,14 +41,17 @@ interface BitGoExpressInterface {
 
     public function sendBuildTransaction($halfSigned, string $txHex, string $otp, string $comment = null);
 
-    // KEYCHAIN
     public function createKeychain();
 
-    // WALLET SHARING
     public function shareWallet(string $email, string $permissions, string $walletPassphrase = null, bool $skipKeychain = null, bool $disableEmail = null);
 
     public function acceptWalletShare(string $walletShareId, string $newWalletPassphrase = null, string $userPassword = null, string $overrideEncryptedPrv = null);
 
-    // PENDING APPROVALS
     public function updatePendingApproval(string $pendingApprovalId, string $state, string $otp);
+    
+    public function encrypt(string $input, string $password);
+    
+    public function decrypt(string $input, string $password);
+    
+    public function verifyAddress(string $address);
 }

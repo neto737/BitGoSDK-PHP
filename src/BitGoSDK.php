@@ -17,7 +17,7 @@ namespace neto737\BitGoSDK;
 
 use neto737\BitGoSDK\Enum\CurrencyCode;
 
-class BitGoSDK implements BitGoSDKInterface {
+class BitGoSDK implements IBitGoSDK {
 
     const BITGO_PRODUCTION_API_ENDPOINT = 'https://www.bitgo.com/api/v2/';
     const BITGO_TESTNET_API_ENDPOINT = 'https://test.bitgo.com/api/v2/';
@@ -56,7 +56,7 @@ class BitGoSDK implements BitGoSDKInterface {
      * @return float        value converted to BTC
      */
     public static function toBTC(int $amount) {
-        return sprintf('%.8f', bcdiv($amount, 100000000, 8));
+        return (float) sprintf('%.8f', bcdiv($amount, 100000000, 8));
     }
 
     /**
@@ -96,7 +96,7 @@ class BitGoSDK implements BitGoSDKInterface {
      */
     public function lockSession() {
         $this->url = $this->AuthAPIEndpoint . 'user/lock';
-        return $this->__execute('POST');
+        return $this->__execute();
     }
 
     /**
@@ -112,7 +112,7 @@ class BitGoSDK implements BitGoSDKInterface {
             'otp' => $otp,
             'duration' => $duration
         ];
-        return $this->__execute('POST');
+        return $this->__execute();
     }
 
     /**
@@ -225,7 +225,7 @@ class BitGoSDK implements BitGoSDKInterface {
             'gasPrice' => $this->coin === CurrencyCode::ETHEREUM ? $gasPrice : null,
             'label' => $label
         ];
-        return $this->__execute('POST');
+        return $this->__execute();
     }
 
     /**
@@ -370,7 +370,7 @@ class BitGoSDK implements BitGoSDKInterface {
             'otp' => $otp,
             'duration' => $duration
         ];
-        return $this->__execute('POST');
+        return $this->__execute();
     }
 
     /**
@@ -415,7 +415,7 @@ class BitGoSDK implements BitGoSDKInterface {
             'enterprise' => $this->coin === CurrencyCode::ETHEREUM ? $enterprise : null,
             'newFeeAddress' => $this->coin === CurrencyCode::ETHEREUM ? $newFeeAddress : null
         ];
-        return $this->__execute('POST');
+        return $this->__execute();
     }
 
     /**
@@ -431,7 +431,7 @@ class BitGoSDK implements BitGoSDKInterface {
             'source' => $source,
             'provider' => $provider
         ];
-        return $this->__execute('POST');
+        return $this->__execute();
     }
 
     /**
@@ -449,7 +449,7 @@ class BitGoSDK implements BitGoSDKInterface {
             'encryptedPrv' => $encryptedPrv,
             'source' => $source
         ];
-        return $this->__execute('POST');
+        return $this->__execute();
     }
 
     /**
@@ -470,7 +470,7 @@ class BitGoSDK implements BitGoSDKInterface {
             'condition' => $condition,
             'action' => $action
         ];
-        return $this->__execute('POST');
+        return $this->__execute();
     }
 
     /**
@@ -543,7 +543,7 @@ class BitGoSDK implements BitGoSDKInterface {
      */
     public function resendWalletShareInvite(string $shareId) {
         $this->url = $this->APIEndpoint . '/walletshare/' . $shareId . '/resendemail';
-        return $this->__execute('POST');
+        return $this->__execute();
     }
 
     /**
@@ -605,6 +605,13 @@ class BitGoSDK implements BitGoSDKInterface {
         return $this->__execute('GET');
     }
 
+    /**
+     * Get webhook payload
+     * 
+     * @param bool $decodeJson      Set true to decode the JSON
+     * @param bool $decodeAsArray   Set true to decode the JSON as array
+     * @return type
+     */
     public static function getWebhookPayload(bool $decodeJson = true, bool $decodeAsArray = true) {
         if ($decodeJson) {
             return json_decode(file_get_contents('php://input'), $decodeAsArray);
@@ -642,7 +649,7 @@ class BitGoSDK implements BitGoSDKInterface {
             'type' => $type,
             'numConfirmations' => $numConfirmations
         ];
-        return $this->__execute('POST');
+        return $this->__execute();
     }
 
     /**
@@ -676,7 +683,7 @@ class BitGoSDK implements BitGoSDKInterface {
             'transferId' => $transferId,
             'pendingApprovalId' => $pendingApprovalId
         ];
-        return $this->__execute('POST');
+        return $this->__execute();
     }
 
     /**
@@ -706,7 +713,7 @@ class BitGoSDK implements BitGoSDKInterface {
             'label' => $label,
             'numConfirmations' => $numConfirmations
         ];
-        return $this->__execute('POST');
+        return $this->__execute();
     }
 
     /**
@@ -737,7 +744,54 @@ class BitGoSDK implements BitGoSDKInterface {
             'webhookId' => $webhookId,
             'blockId' => $blockId
         ];
-        return $this->__execute('POST');
+        return $this->__execute();
+    }
+
+    /**
+     * Adds a webhook that will result in an HTTP callback at the specified URL from BitGo when events are triggered.
+     * 
+     * @param string $url           URL to fire the webhook to.
+     * @param string $type          Type of event to listen to (can be 'block' or 'wallet_confirmation').
+     * @param string $label         Label of the new webhook.
+     * @param int $numConfirmations Number of confirmations before triggering the webhook. If 0 or unspecified, requests will be sent to the callback endpoint when the transfer is first seen and when it is confirmed.
+
+     * @return array
+     */
+    public function addBlockWebhook(string $url, string $type = 'block', string $label = null, int $numConfirmations = null) {
+        $this->url = $this->APIEndpoint . '/webhooks';
+        $this->params = [
+            'url' => $url,
+            'type' => (in_array($type, ['block', 'wallet_confirmation'])) ? $type : 'block',
+            'label' => $label,
+            'numConfirmations' => $numConfirmations
+        ];
+        return $this->__execute();
+    }
+
+    /**
+     * Returns block webhooks. The types of webhooks are block and wallet_confirmation notifications.
+     * 
+     * @return array
+     */
+    public function listBlockWebhooks() {
+        $this->url = $this->APIEndpoint . '/webhooks';
+        return $this->__execute('GET');
+    }
+
+    /**
+     * Removing a webhook will cause new events of the specified type to no longer trigger HTTP callbacks to your URLs.
+     * 
+     * @param string $url
+     * @param string $type
+     * @return array
+     */
+    public function removeBlockWebhook(string $url, string $type = 'block') {
+        $this->url = $this->APIEndpoint . '/webhooks';
+        $this->params = [
+            'url' => $url,
+            'type' => (in_array($type, ['block', 'wallet_confirmation'])) ? $type : 'block'
+        ];
+        return $this->__execute('DELETE');
     }
 
     /**
