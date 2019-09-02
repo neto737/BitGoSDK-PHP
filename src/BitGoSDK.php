@@ -840,7 +840,7 @@ class BitGoSDK implements IBitGoSDK {
             'Authorization: Bearer ' . $this->accessToken
         ]);
         curl_setopt($ch, CURLOPT_CAINFO, dirname(__FILE__) . '/cacert.pem');
-		if (defined('CURLOPT_IPRESOLVE') && defined('CURL_IPRESOLVE_V4')){
+        if (defined('CURLOPT_IPRESOLVE') && defined('CURL_IPRESOLVE_V4')){
             curl_setopt($ch, CURLOPT_IPRESOLVE, CURL_IPRESOLVE_V4);
         }
 
