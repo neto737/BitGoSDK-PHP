@@ -556,6 +556,9 @@ class BitGoExpress implements IBitGoExpress {
             ]);
         }
         curl_setopt($ch, CURLOPT_CAINFO, dirname(__FILE__) . '/cacert.pem');
+		if (defined('CURLOPT_IPRESOLVE') && defined('CURL_IPRESOLVE_V4')){
+            curl_setopt($ch, CURLOPT_IPRESOLVE, CURL_IPRESOLVE_V4);
+        }
 
         $response = curl_exec($ch);
         curl_close($ch);
