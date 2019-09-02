@@ -1,0 +1,7 @@
+# These are supported funding model platforms
+
+custom: [
+'https://www.blockchain.com/btc/address/12oyGgGHYp1NxtoQFUmaoqm1z8XAeTQKUb',
+'https://etherscan.io/address/0xE461A5aC39a86Ec651AB49277637e6d4417257fA',
+'https://www.paypal.com/cgi-bin/webscr?cmd=_donations&business=T7RVRCXLZXB58&currency_code=USD'
+]
