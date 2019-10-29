@@ -28,6 +28,7 @@ class BitGoSDK implements IBitGoSDK {
     private $params = [];
     private $allowedCoins = ['btc', 'bch', 'bsv', 'btg', 'eth', 'dash', 'ltc', 'xrp', 'zec', 'rmg', 'erc', 'omg', 'zrx', 'fun', 'gnt', 'rep', 'bat', 'knc', 'cvc', 'eos', 'qrl', 'nmr', 'pay', 'brd', 'tbtc', 'tbch', 'tbsv', 'teth', 'tdash', 'tltc', 'txrp', 'tzec', 'trmg', 'terc'];
     public $walletId = null;
+    private $requestIP = null;
 
     /**
      * BitGoSDK Initialization
@@ -46,6 +47,17 @@ class BitGoSDK implements IBitGoSDK {
 
         if (!in_array($this->coin, $this->allowedCoins)) {
             throw new \Exception('You are trying to use an invalid coin');
+        }
+    }
+
+    /**
+     * Set the IP that will make requests on BitGo servers (useful feature to people who uses shared hosting)
+     * 
+     * @param string $ipAddress
+     */
+    public function setRequestIP(string $ipAddress) {
+        if (filter_var($ipAddress, FILTER_VALIDATE_IP)) {
+            $this->requestIP = $ipAddress;
         }
     }
 
@@ -840,7 +852,10 @@ class BitGoSDK implements IBitGoSDK {
             'Authorization: Bearer ' . $this->accessToken
         ]);
         curl_setopt($ch, CURLOPT_CAINFO, dirname(__FILE__) . '/cacert.pem');
-        if (defined('CURLOPT_IPRESOLVE') && defined('CURL_IPRESOLVE_V4')){
+        if (isset($this->requestIP)) {
+            curl_setopt($ch, CURLOPT_INTERFACE, $this->requestIP);
+        }
+        if (defined('CURLOPT_IPRESOLVE') && defined('CURL_IPRESOLVE_V4')) {
             curl_setopt($ch, CURLOPT_IPRESOLVE, CURL_IPRESOLVE_V4);
         }
 
