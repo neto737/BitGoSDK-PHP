@@ -16,8 +16,9 @@
 namespace neto737\BitGoSDK;
 
 use neto737\BitGoSDK\Enum\CurrencyCode;
+use neto737\BitGoSDK\Enum\AddressType;
 
-class BitGoSDK implements IBitGoSDK {
+class BitGoSDK {
 
     const BITGO_PRODUCTION_API_ENDPOINT = 'https://www.bitgo.com/api/v2/';
     const BITGO_TESTNET_API_ENDPOINT = 'https://test.bitgo.com/api/v2/';
@@ -222,20 +223,19 @@ class BitGoSDK implements IBitGoSDK {
     /**
      * This API call is used to create a new receive address for your wallet, which enhances your privacy.
      * 
-     * @param bool $allowMigrated   Set to true to enable address creation for migrated BCH wallets.
      * @param int $chain            Specifies the address format, defaults to 0, use 10 for SegWit (only on BTC and BTG)
-     * @param int $gasPrice         Custom gas price to be used for deployment of receive addresses (only for Ethereum)
      * @param string $label         Human-readable name for the address
+     * @param int $gasPrice         Custom gas price to be used for deployment of receive addresses (only for Ethereum)
+     * @param bool $lowPriority     Whether the deployment of the address forwarder contract should use a low priority fee key (ETH only)
      * @return array
      */
-    public function createWalletAddress(bool $allowMigrated = false, int $chain = 0, int $gasPrice = null, string $label = null) {
+    public function createWalletAddress(int $chain = AddressType::P2SH_DEPOSIT, string $label = null, bool $lowPriority = false, int $gasPrice = null) {
         $this->url = $this->APIEndpoint . '/wallet/' . $this->walletId . '/address';
         $this->params = [
-            'id' => $this->walletId,
-            'allowMigrated' => $allowMigrated,
-            'chain' => $this->coin === CurrencyCode::BITCOIN || $this->coin === CurrencyCode::BITCOIN_GOLD ? $chain : 0,
+            'chain' => $chain,
+            'label' => $label,
+            'lowPriority' => $this->coin === CurrencyCode::ETHEREUM ? $lowPriority : null,
             'gasPrice' => $this->coin === CurrencyCode::ETHEREUM ? $gasPrice : null,
-            'label' => $label
         ];
         return $this->__execute();
     }
