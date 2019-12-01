@@ -15,7 +15,8 @@
 
 namespace neto737\BitGoSDK\Enum;
 
-abstract class CurrencyCode {    
+abstract class CurrencyCode {
+
     //PRODUCTION
     const BITCOIN = 'btc';
     const BITCOIN_CASH = 'bch';
@@ -27,6 +28,7 @@ abstract class CurrencyCode {
     const RIPPLE = 'xrp';
     const ROYAL_MINT_GOLD = 'rmg';
     const ZCASH = 'zec';
+    const STELLAR = 'xlm';
     
     //ERC20 TOKENS
     const ERC = 'erc'; //BitGo’s sample ERC20 token
@@ -40,7 +42,7 @@ abstract class CurrencyCode {
     const CIVIC_REP = 'cvc';
     const EOS = 'eos';
     const QRL = 'qrl';
-    const NUMERAIRE = 'nmr'; 
+    const NUMERAIRE = 'nmr';
     const TENXPAY = 'pay';
     const BREAD = 'brd';
     
@@ -55,4 +57,6 @@ abstract class CurrencyCode {
     const RIPPLE_TESTNET = 'txrp';
     const ROYAL_MINT_GOLD_TESTNET = 'trmg';
     const ERC_TESTNET = 'terc';
+    const STELLAR_TESTNET = 'txlm';
+
 }
