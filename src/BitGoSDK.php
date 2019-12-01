@@ -274,12 +274,15 @@ class BitGoSDK {
      * @param int $sortOrder    Order the addresses by creation date. -1 is newest first, 1 is for oldest first.
      * @return array
      */
-    public function getWalletAddresses(int $limit = null, string $prevId = null, int $sortOrder = null) {
+    public function getWalletAddresses(string $labelContains = null, int $limit = null, bool $mine = null, string $prevId = null, array $chains = [], int $sort = null) {
         $this->url = $this->APIEndpoint . '/wallet/' . $this->walletId . '/addresses';
         $this->params = [
+            'labelContains' => $labelContains,
             'limit' => $limit,
+            'mine' => $mine,
             'prevId' => $prevId,
-            'sortOrder' => $sortOrder
+            'chains' => $chains,
+            'sort' => $sort
         ];
         return $this->__execute('GET');
     }
