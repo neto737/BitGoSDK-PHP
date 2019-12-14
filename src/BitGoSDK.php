@@ -69,7 +69,7 @@ class BitGoSDK {
      * @return float        value converted to BTC
      */
     public static function toBTC(int $amount) {
-        return (float) sprintf('%.8f', bcdiv($amount, 100000000, 8));
+        return sprintf('%.8f', bcdiv($amount, 100000000, 8));
     }
 
     /**
