@@ -60,3 +60,8 @@ Keep your cacert.pem always up to date. You can find updates on the site [curl.h
 ## Donate
 [![Donate BTC](https://img.shields.io/badge/donate-BTC-ff9900.svg)](https://blockchain.info/address/12oyGgGHYp1NxtoQFUmaoqm1z8XAeTQKUb) [![Donate ETH](https://img.shields.io/badge/donate-ETH-3C3C3D.svg)](https://etherscan.io/address/0xE461A5aC39a86Ec651AB49277637e6d4417257fA)
 [![Donate with PayPal](https://img.shields.io/badge/donate-PayPal-blue.svg)](https://www.paypal.com/cgi-bin/webscr?cmd=_donations&business=T7RVRCXLZXB58&currency_code=USD)
+
+## Support on Beerpay
+Hey dude! Help me out for a couple of :beers:!
+
+[![Beerpay](https://beerpay.io/neto737/BitGoSDK-PHP/badge.svg?style=beer-square)](https://beerpay.io/neto737/BitGoSDK-PHP)  [![Beerpay](https://beerpay.io/neto737/BitGoSDK-PHP/make-wish.svg?style=flat-square)](https://beerpay.io/neto737/BitGoSDK-PHP?focus=wish)
