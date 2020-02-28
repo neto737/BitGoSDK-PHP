@@ -57,7 +57,7 @@ class BitGoSDK {
      * @param string $ipAddress
      */
     public function setRequestIP(string $ipAddress) {
-        if (filter_var($ipAddress, FILTER_VALIDATE_IP)) {
+        if (!$this->testNet && filter_var($ipAddress, FILTER_VALIDATE_IP)) {
             $this->requestIP = $ipAddress;
         }
     }
