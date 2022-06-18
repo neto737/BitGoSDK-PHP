@@ -25,4 +25,8 @@ class AddressType {
     
     const BECH32_DEPOSIT = 20;
     const BECH32_CHANGE = 21;
+
+    // Taproot fork address format
+    const BECH32M_DEPOSIT = 30;
+    const BECH32M_CHANGE = 31;
 }

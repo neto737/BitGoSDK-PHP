@@ -249,8 +249,8 @@ class BitGoSDK {
     public function getWalletAddress(string $addressOrId, string $dt = null, string $memoId = null) {
         $this->url = $this->APIEndpoint . '/wallet/' . $this->walletId . '/address/' . $addressOrId;
         $this->params = [
-            'dt' => $this->coin === CurrencyCode::RIPPLE ? $label : null,
-            'memoId' => $this->coin === CurrencyCode::STELLAR ? $label : null
+            'dt' => $this->coin === CurrencyCode::RIPPLE ? $dt : null,
+            'memoId' => $this->coin === CurrencyCode::STELLAR ? $memoId : null
         ];
         return $this->__execute('GET');
     }
@@ -265,8 +265,8 @@ class BitGoSDK {
     public function updateWalletAddress(string $addressOrId, string $dt = null, string $memoId = null, string $label = null) {
         $this->url = $this->APIEndpoint . '/wallet/' . $this->walletId . '/address/' . $addressOrId;
         $this->params = [
-            'dt' => $this->coin === CurrencyCode::RIPPLE ? $label : null,
-            'memoId' => $this->coin === CurrencyCode::STELLAR ? $label : null,
+            'dt' => $this->coin === CurrencyCode::RIPPLE ? $dt : null,
+            'memoId' => $this->coin === CurrencyCode::STELLAR ? $memoId : null,
             'label' => $label
         ];
         return $this->__execute('PUT');
