@@ -3,65 +3,68 @@
 
 BitGoSDK written in PHP. This SDK contains methods for easily interacting with the BitGo API.
 
-[![Latest Stable Version](https://poser.pugx.org/neto737/bitgosdk-php/version)](https://packagist.org/packages/neto737/bitgosdk-php) [![Total Downloads](https://poser.pugx.org/neto737/bitgosdk-php/downloads)](https://packagist.org/packages/neto737/bitgosdk-php) [![Latest Unstable Version](https://poser.pugx.org/neto737/bitgosdk-php/v/unstable)](//packagist.org/packages/neto737/bitgosdk-php) [![License](https://poser.pugx.org/neto737/bitgosdk-php/license)](https://packagist.org/packages/neto737/bitgosdk-php)
+[![Latest Stable Version](https://poser.pugx.org/neto737/bitgosdk-php/version?style=for-the-badge)](https://packagist.org/packages/neto737/bitgosdk-php)
+[![Total Downloads](https://poser.pugx.org/neto737/bitgosdk-php/downloads?style=for-the-badge)](https://packagist.org/packages/neto737/bitgosdk-php)
+[![Latest Unstable Version](https://poser.pugx.org/neto737/bitgosdk-php/v/unstable?style=for-the-badge)](//packagist.org/packages/neto737/bitgosdk-php)  
+[![License](https://poser.pugx.org/neto737/bitgosdk-php/license?style=for-the-badge)](https://packagist.org/packages/neto737/bitgosdk-php)
+[![PHP Version Require](https://poser.pugx.org/neto737/bitgosdk-php/require/php?style=for-the-badge)](https://packagist.org/packages/neto737/bitgosdk-php)
 
 ## Requirements
-- PHP 7.0 or earlier with:
-  - cURL
+
+- PHP 7.2 or newer with:
+
   - BCMath
 
 ## Installation
 
-To install the SDK, you will need to be using [Composer](http://getcomposer.org/) in your project. If you aren't using Composer yet, it's really simple! Here's how to install composer and the BitGoSDK PHP.
+Install the library using Composer. Please read the [Composer Documentation](https://getcomposer.org/doc/01-basic-usage.md) if you are unfamiliar with Composer or dependency managers in general.
+
 ```sh
-# Install Composer
-curl -sS https://getcomposer.org/installer | php
-
 # Add the BitGoSDK as a dependency
-php composer.phar require neto737/bitgosdk-php
-```
-
-Next, require Composer's autoloader, in your application, to automatically load the BitGoSDK in your project:
-
-```php
-require 'vendor/autoload.php';
-
-use neto737\BitGoSDK\BitGoSDK;
+composer require neto737/bitgosdk-php
 ```
 
 Or if put the following in your `composer.json`:
 
 ```json
-"neto737/bitgosdk-php": "*"
+"require": {
+    "neto737/bitgosdk-php": "~3.0"
+}
 ```
-  
+
 ## Example
 
 ```php
 require 'vendor/autoload.php';
 
-use neto737\BitGoSDK\BitGoSDK;
-use neto737\BitGoSDK\Enum\CurrencyCode;
+use neto737\BitGoSDK\Authentication\Authentication;
+use neto737\BitGoSDK\Authentication\Environment;
+use neto737\BitGoSDK\Enum\Environments;
+use neto737\BitGoSDK\Client;
 
-$bitgo = new BitGoSDK('YOUR_API_KEY_HERE', CurrencyCode::BITCOIN, false);
-$bitgo->walletId = 'YOUR_WALLET_ID_HERE';
+// Authenticate
+$auth = new Authentication('YOUR_API_KEY_HERE');
 
-$createAddress = $bitgo->createWalletAddress();
+// Create a new environment
+$env = new Environment(Environments::TESTNET, 'YOUR_WALLET_ID_HERE', 'tbtc');
+
+// Create a new Client instance
+$client = new Client($auth, $env);
+
+// Create a new Address instance
+$address = $client->Address();
+
+// Create a new wallet address
+var_dump($address->create());
 ```
 
-## Attention
-
-Keep your cacert.pem always up to date. You can find updates on the site [curl.haxx.se](https://curl.haxx.se/docs/caextract.html).
-
-
 ## Credits
-- <a href="https://github.com/neto737" target="_blank">Neto Melo</a>
+
+- [Neto Melo](https://github.com/neto737)
 
 ## Donate
-[![Donate BTC](https://img.shields.io/badge/donate-BTC-ff9900.svg)](https://blockchain.info/address/12oyGgGHYp1NxtoQFUmaoqm1z8XAeTQKUb) [![Donate ETH](https://img.shields.io/badge/donate-ETH-3C3C3D.svg)](https://etherscan.io/address/0xE461A5aC39a86Ec651AB49277637e6d4417257fA)
-[![Donate with PayPal](https://img.shields.io/badge/donate-PayPal-blue.svg)](https://www.paypal.com/cgi-bin/webscr?cmd=_donations&business=T7RVRCXLZXB58&currency_code=USD)
 
-## Support on Beerpay
-Hey dude! Help me out for a couple of :beers:!
-
-[![Beerpay](https://beerpay.io/neto737/BitGoSDK-PHP/badge.svg?style=beer-square)](https://beerpay.io/neto737/BitGoSDK-PHP)  [![Beerpay](https://beerpay.io/neto737/BitGoSDK-PHP/make-wish.svg?style=flat-square)](https://beerpay.io/neto737/BitGoSDK-PHP?focus=wish)
+[![Donate BTC](https://img.shields.io/badge/donate-BTC-ff9900.svg?style=for-the-badge)](https://www.blockchain.com/btc/address/bc1pduj90df9cs3md3gym3q809slfv2x5phnpv8xznajys5q3tlulnzqt3flwn)
+[![Donate ETH](https://img.shields.io/badge/donate-ETH-3C3C3D.svg?style=for-the-badge)](https://etherscan.io/address/0xeef9220639F14E7A0FD825AAAd0574e5a8aD7A4B)
+[![Donate LTC](https://img.shields.io/badge/donate-LTC-D3D3D3.svg?style=for-the-badge)](https://blockchair.com/litecoin/address/ltc1q508qfkd09vyya6c5zkfx4r248pf3ezj9ngjdr2)
+[![Donate with PayPal](https://img.shields.io/badge/donate-PayPal-blue.svg?style=for-the-badge)](https://www.paypal.com/donate/?business=T7RVRCXLZXB58&no_recurring=0&currency_code=USD)
