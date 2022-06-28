@@ -5,7 +5,7 @@ BitGoSDK written in PHP. This SDK contains methods for easily interacting with t
 
 [![Latest Stable Version](https://poser.pugx.org/neto737/bitgosdk-php/version?style=for-the-badge)](https://packagist.org/packages/neto737/bitgosdk-php)
 [![Total Downloads](https://poser.pugx.org/neto737/bitgosdk-php/downloads?style=for-the-badge)](https://packagist.org/packages/neto737/bitgosdk-php)
-[![Latest Unstable Version](https://poser.pugx.org/neto737/bitgosdk-php/v/unstable?style=for-the-badge)](//packagist.org/packages/neto737/bitgosdk-php)  
+[![Latest Unstable Version](https://poser.pugx.org/neto737/bitgosdk-php/v/unstable?style=for-the-badge)](//packagist.org/packages/neto737/bitgosdk-php)
 [![License](https://poser.pugx.org/neto737/bitgosdk-php/license?style=for-the-badge)](https://packagist.org/packages/neto737/bitgosdk-php)
 [![PHP Version Require](https://poser.pugx.org/neto737/bitgosdk-php/require/php?style=for-the-badge)](https://packagist.org/packages/neto737/bitgosdk-php)
 
