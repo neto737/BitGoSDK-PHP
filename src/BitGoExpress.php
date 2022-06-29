@@ -10,7 +10,7 @@
  * @package BitGoSDK PHP
  * @author  Neto Melo <neto737@live.com>
  * @license https://www.gnu.org/licenses/gpl-3.0.html GNU General Public License v3
- * @version 2.1
+ * @version 2.2
  */
 
 namespace neto737\BitGoSDK;
@@ -23,8 +23,7 @@ class BitGoExpress {
     private $AuthAPIEndpoint = null;
     private $url = null;
     private $params = [];
-    private $allowedCoins = ['btc', 'bch', 'bsv', 'btg', 'eth', 'dash', 'ltc', 'xrp', 'zec', 'rmg', 'erc', 'omg', 'zrx', 'fun', 'gnt', 'rep', 'bat', 'knc', 'cvc', 'eos', 'qrl', 'nmr', 'pay', 'brd', 'tbtc', 'tbch', 'teth', 'tdash', 'tltc', 'tzec', 'txrp', 'trmg', 'terc'];
-    private $UTXObased = ['btc', 'bch', 'bsv', 'btg', 'dash', 'ltc', 'rmg', 'zec', 'tbtc', 'tbch', 'tbsv', 'tdash', 'tltc', 'tzec', 'trmg'];
+    private $UTXObased = ['btc', 'bch', 'btg', 'dash', 'ltc', 'stx', 'zec', 'tbtc', 'tbch', 'tdash', 'tltc', 'tstx', 'tzec'];
     private $login = false;
     public $accessToken = null;
     public $walletId = null;
@@ -43,10 +42,6 @@ class BitGoExpress {
         $this->coin = $coin;
         $this->AuthAPIEndpoint = 'http://' . $this->hostname . ':' . $this->port . '/api/v2';
         $this->APIEndpoint = 'http://' . $this->hostname . ':' . $this->port . '/api/v2/' . $this->coin;
-
-        if (!in_array($this->coin, $this->allowedCoins)) {
-            throw new \Exception('You are trying to use an invalid coin!');
-        }
     }
 
     /**
