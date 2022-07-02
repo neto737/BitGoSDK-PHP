@@ -32,6 +32,12 @@ jobs:
     - name: Install dependencies
       run: composer install --prefer-dist --no-progress
 
+    - name: CodeCov
+      uses: codecov/codecov-action@v3
+      with:
+        fail_ci_if_error: true # optional (default = false)
+        verbose: true # optional (default = false)
+
     # Add a test script to composer.json, for instance: "test": "vendor/bin/phpunit"
     # Docs: https://getcomposer.org/doc/articles/scripts.md
 
