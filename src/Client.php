@@ -35,7 +35,8 @@ class Client {
             'headers' => [
                 'Content-Type'  => 'application/json',
                 'Authorization' => "Bearer {$this->auth->getApiKey()}"
-            ]
+            ],
+            'verify' => false
         ]);
 
         return $this;
@@ -47,8 +48,8 @@ class Client {
         return strtr($this->env->getEnvironment() . $command->getEndpoint() . $this->queryParams, [
             '{walletId}'    => $this->env->getWalletId(),
             '{coin}'        => $this->env->getCurrency(),
-            '{addressId}'   => '',
-            '{addressOrId}' => ''
+            '{addressId}'   => $command->getPathParam(),
+            '{addressOrId}' => $command->getPathParam()
         ]);
     }
 

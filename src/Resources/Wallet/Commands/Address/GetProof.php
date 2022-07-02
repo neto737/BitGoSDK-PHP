@@ -6,11 +6,18 @@ use neto737\BitGoSDK\Resources\Wallet\Commands\Command;
 
 class GetProof extends Command {
 
-    public function __construct() {
+    private $addressOrId;
+
+    public function __construct(string $addressOrId) {
+        $this->addressOrId = $addressOrId;
     }
 
     public function getRequestMethod(): string {
         return 'GET';
+    }
+
+    public function getPathParam(): string {
+        return $this->addressOrId;
     }
 
     public function getEndpoint(): string {

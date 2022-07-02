@@ -6,11 +6,13 @@ use neto737\BitGoSDK\Resources\Wallet\Commands\Command;
 
 class Deploy extends Command {
 
+    private $addressId;
     private $forceDeploy;
     private $gasPrice;
     private $eip1559;
 
-    public function __construct(?bool $forceDeploy = null, ?int $gasPrice = null, ?array $eip1559 = null) {
+    public function __construct(string $addressId, ?bool $forceDeploy = null, ?int $gasPrice = null, ?array $eip1559 = null) {
+        $this->addressId    = $addressId;
         $this->forceDeploy  = $forceDeploy;
         $this->gasPrice     = $gasPrice;
         $this->eip1559      = $eip1559;
@@ -24,8 +26,11 @@ class Deploy extends Command {
         return '{coin}/wallet/{walletId}/address/{addressId}/deployment';
     }
 
-    public function getBodyParameters(): array
-    {
+    public function getPathParam(): string {
+        return $this->addressId;
+    }
+
+    public function getBodyParameters(): array {
         return [
             'forceDeploy'   => $this->forceDeploy,
             'gasPrice'      => $this->gasPrice,

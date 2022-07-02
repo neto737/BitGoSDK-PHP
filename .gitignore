@@ -1,3 +1,4 @@
 /vendor
 composer.lock
-/local_tests/*
+/cover
+*phpunit*

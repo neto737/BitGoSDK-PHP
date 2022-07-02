@@ -6,12 +6,14 @@ use neto737\BitGoSDK\Resources\Wallet\Commands\Command;
 
 class ForwardTokens extends Command {
 
+    private $addressId;
     private $tokenName;
     private $forceFlush;
     private $gasPrice;
     private $eip1559;
 
-    public function __construct(?string $tokenName = null, ?bool $forceFlush = null, ?int $gasPrice = null, ?array $eip1559) {
+    public function __construct(string $addressId, ?string $tokenName = null, ?bool $forceFlush = null, ?int $gasPrice = null, ?array $eip1559) {
+        $this->addressId    = $addressId;
         $this->tokenName    = $tokenName;
         $this->forceFlush   = $forceFlush;
         $this->gasPrice     = $gasPrice;
@@ -24,6 +26,10 @@ class ForwardTokens extends Command {
 
     public function getEndpoint(): string {
         return '{coin}/wallet/{walletId}/address/{addressId}/tokenforward';
+    }
+
+    public function getPathParam(): string {
+        return $this->addressId;
     }
 
     public function getBodyParameters(): array {

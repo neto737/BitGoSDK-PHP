@@ -10,6 +10,9 @@ use PHPUnit\Framework\TestCase;
 
 class clientTest extends TestCase {
 
+    /**
+     * @covers \neto737\BitGoSDK\Authentication\Authentication
+     */
     public function testAuthentication(): void {
         $auth = new Authentication('YOUR_API_KEY');
 
@@ -20,6 +23,9 @@ class clientTest extends TestCase {
         $this->assertSame('YOUR_SECOND_API_KEY', $auth->getApiKey());
     }
 
+    /**
+     * @covers \neto737\BitGoSDK\Authentication\Environment
+     */
     public function testEnvironment(): void {
         $env = new Environment(Environments::MAINNET, '59cd72485007a239fb00282ed480da1f', CurrencyCode::BTC);
 
@@ -28,12 +34,21 @@ class clientTest extends TestCase {
         $this->assertSame('BTC', $env->getCurrency());
     }
 
+    /**
+     * @covers \neto737\BitGoSDK\Authentication\Environment
+     */
     public function testEnvironmentInvalidWalletId(): void {
         $this->expectExceptionMessage('Invalid wallet id format.');
 
         $env = new Environment(Environments::MAINNET, 'YOUR_WALLET_ID', CurrencyCode::BTC);
     }
 
+    /**
+     * @covers \neto737\BitGoSDK\Authentication\Authentication
+     * @covers \neto737\BitGoSDK\Authentication\Environment
+     * @covers \neto737\BitGoSDK\Client
+     * @covers \neto737\BitGoSDK\Resources\Wallet\Address
+     */
     public function testAddress(): void {
         $auth = new Authentication('YOUR_API_KEY');
         $env = new Environment(Environments::TESTNET, '59cd72485007a239fb00282ed480da1f', CurrencyCode::BTC);

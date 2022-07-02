@@ -60,19 +60,21 @@ class Address {
     /**
      * This API call is to manually deploy an ETH address
      *
+     * @param string $addressId
      * @param bool|null $forceDeploy
      * @param int|null $gasPrice
      * @param array|null $eip1559
      * 
      * @return array
      */
-    public function deploy(?bool $forceDeploy = null, ?int $gasPrice = null, ?array $eip1559 = null): array {
-        return $this->client->send(new Deploy($forceDeploy, $gasPrice, $eip1559));
+    public function deploy(string $addressId, ?bool $forceDeploy = null, ?int $gasPrice = null, ?array $eip1559 = null): array {
+        return $this->client->send(new Deploy($addressId, $forceDeploy, $gasPrice, $eip1559));
     }
 
     /**
      * This API call is to manually forward tokens from an ETH or CELO address
-     *
+     * 
+     * @param string $addressId
      * @param string|null $tokenName
      * @param bool|null $forceFlush
      * @param int|null $gasPrice
@@ -80,41 +82,45 @@ class Address {
      * 
      * @return array
      */
-    public function forwardTokens(?string $tokenName = null, ?bool $forceFlush = null, ?int $gasPrice = null, ?array $eip1559): array {
-        return $this->client->send(new ForwardTokens($tokenName, $forceFlush, $gasPrice, $eip1559));
+    public function forwardTokens(string $addressId, ?string $tokenName = null, ?bool $forceFlush = null, ?int $gasPrice = null, ?array $eip1559): array {
+        return $this->client->send(new ForwardTokens($addressId, $tokenName, $forceFlush, $gasPrice, $eip1559));
     }
 
     /**
      * Gets a receive address on a wallet
-     *
+     * 
+     * @param string $addressOrId
      * @param string|null $dt
      * @param string|null $memoId
      * 
      * @return array
      */
-    public function get(?string $dt = null, ?string $memoId = null): array {
-        return $this->client->send(new Get($dt, $memoId));
+    public function get(string $addressOrId, ?string $dt = null, ?string $memoId = null): array {
+        return $this->client->send(new Get($addressOrId, $dt, $memoId));
     }
 
     /**
      * Update a receive address on a wallet
-     *
+     * 
+     * @param string $addressOrId
      * @param string|null $label
      * @param string|null $dt
      * @param string|null $memoId
      * 
      * @return array
      */
-    public function update(?string $label = null, ?string $dt = null, ?string $memoId = null): array {
-        return $this->client->send(new Update($label, $dt, $memoId));
+    public function update(string $addressOrId, ?string $label = null, ?string $dt = null, ?string $memoId = null): array {
+        return $this->client->send(new Update($addressOrId, $label, $dt, $memoId));
     }
 
     /**
      * Gets proof of ownership for an address on a wallet
-     *
+     * 
+     * @param string $addressOrId
+     * 
      * @return array
      */
-    public function getOwnershipProof(): array {
-        return $this->client->send(new GetProof);
+    public function getOwnershipProof(string $addressOrId): array {
+        return $this->client->send(new GetProof($addressOrId));
     }
 }
