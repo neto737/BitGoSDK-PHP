@@ -8,6 +8,8 @@ BitGoSDK written in PHP. This SDK contains methods for easily interacting with t
 [![Latest Unstable Version](https://poser.pugx.org/neto737/bitgosdk-php/v/unstable?style=for-the-badge)](//packagist.org/packages/neto737/bitgosdk-php)
 [![License](https://poser.pugx.org/neto737/bitgosdk-php/license?style=for-the-badge)](https://packagist.org/packages/neto737/bitgosdk-php)
 [![PHP Version Require](https://poser.pugx.org/neto737/bitgosdk-php/require/php?style=for-the-badge)](https://packagist.org/packages/neto737/bitgosdk-php)
+[![GitHub Workflow Status](https://img.shields.io/github/workflow/status/neto737/BitGoSDK-PHP/PHP%20Composer?logo=github&style=for-the-badge)](https://github.com/neto737/BitGoSDK-PHP)
+[![Codecov branch](https://img.shields.io/codecov/c/gh/neto737/BitGoSDK-PHP/v3?logo=codecov&style=for-the-badge&token=38KPL9BX5F)](https://app.codecov.io/gh/neto737/BitGoSDK-PHP)
 
 ## Requirements
 
