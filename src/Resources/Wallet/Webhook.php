@@ -9,7 +9,7 @@ use neto737\BitGoSDK\Resources\Wallet\Commands\Webhook\Wallet\Remove as RemoveWa
 use neto737\BitGoSDK\Resources\Wallet\Commands\Webhook\Wallet\Simulate as SimulateWalletWebhook;
 use neto737\BitGoSDK\Resources\Wallet\Commands\Webhook\Block\Add as AddBlockWebhhok;
 use neto737\BitGoSDK\Resources\Wallet\Commands\Webhook\Block\ListWebhooks as ListBlockWebhooks;
-use neto737\BitGoSDK\Resources\Wallet\Commands\Webhook\Block\Remove as RemoveWBlockWebhook;
+use neto737\BitGoSDK\Resources\Wallet\Commands\Webhook\Block\Remove as RemoveBlockWebhook;
 use neto737\BitGoSDK\Resources\Wallet\Commands\Webhook\Block\Simulate as SimulateBlockWebhook;
 
 class Webhook {
@@ -104,7 +104,7 @@ class Webhook {
      * @return array
      */
     public function removeBlockWebhook(string $type, string $url, ?string $id = null): array {
-        return $this->client->send(new RemoveWBlockWebhook($type, $url, $id));
+        return $this->client->send(new RemoveBlockWebhook($type, $url, $id));
     }
 
     /**
