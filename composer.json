@@ -3,7 +3,7 @@
     "description": "A BitGo SDK written in PHP",
     "type": "library",
     "keywords": ["bitgo", "sdk", "bitcoin"],
-    "license": "GPL-3.0",
+    "license": "MIT",
 
     "authors": [
         {
