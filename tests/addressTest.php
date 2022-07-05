@@ -56,81 +56,81 @@ class addressTest extends TestCase {
      * @covers \neto737\BitGoSDK\Resources\Wallet\Commands\Address\AddressesList
      */
     public function testAddressList(): void {
-        $list = new AddressesList;
+        $command = new AddressesList;
 
-        $this->assertSame('GET', $list->getRequestMethod());
-        $this->assertSame('{coin}/wallet/{walletId}/addresses', $list->getEndpoint());
-        $this->assertIsArray($list->getQueryParameters());
+        $this->assertSame('GET', $command->getRequestMethod());
+        $this->assertSame('{coin}/wallet/{walletId}/addresses', $command->getEndpoint());
+        $this->assertIsArray($command->getQueryParameters());
     }
 
     /**
      * @covers \neto737\BitGoSDK\Resources\Wallet\Commands\Address\Create
      */
     public function testCreate(): void {
-        $create = new Create;
+        $command = new Create;
 
-        $this->assertSame('POST', $create->getRequestMethod());
-        $this->assertSame('{coin}/wallet/{walletId}/address', $create->getEndpoint());
-        $this->assertIsArray($create->getBodyParameters());
+        $this->assertSame('POST', $command->getRequestMethod());
+        $this->assertSame('{coin}/wallet/{walletId}/address', $command->getEndpoint());
+        $this->assertIsArray($command->getBodyParameters());
     }
 
     /**
      * @covers \neto737\BitGoSDK\Resources\Wallet\Commands\Address\Deploy
      */
     public function testDeploy(): void {
-        $deploy = new Deploy('ADDRESS_ID');
+        $command = new Deploy('ADDRESS_ID');
 
-        $this->assertSame('POST', $deploy->getRequestMethod());
-        $this->assertSame('{coin}/wallet/{walletId}/address/{addressId}/deployment', $deploy->getEndpoint());
-        $this->assertSame('ADDRESS_ID', $deploy->getPathParam());
-        $this->assertIsArray($deploy->getBodyParameters());
+        $this->assertSame('POST', $command->getRequestMethod());
+        $this->assertSame('{coin}/wallet/{walletId}/address/{addressId}/deployment', $command->getEndpoint());
+        $this->assertSame('ADDRESS_ID', $command->getPathParam());
+        $this->assertIsArray($command->getBodyParameters());
     }
 
     /**
      * @covers \neto737\BitGoSDK\Resources\Wallet\Commands\Address\ForwardTokens
      */
     public function testForwardTokens(): void {
-        $forward = new ForwardTokens('ADDRESS_ID', 'Token', false, 0, []);
+        $command = new ForwardTokens('ADDRESS_ID', 'Token', false, 0, []);
 
-        $this->assertSame('POST', $forward->getRequestMethod());
-        $this->assertSame('{coin}/wallet/{walletId}/address/{addressId}/tokenforward', $forward->getEndpoint());
-        $this->assertSame('ADDRESS_ID', $forward->getPathParam());
-        $this->assertIsArray($forward->getBodyParameters());
+        $this->assertSame('POST', $command->getRequestMethod());
+        $this->assertSame('{coin}/wallet/{walletId}/address/{addressId}/tokenforward', $command->getEndpoint());
+        $this->assertSame('ADDRESS_ID', $command->getPathParam());
+        $this->assertIsArray($command->getBodyParameters());
     }
 
     /**
      * @covers \neto737\BitGoSDK\Resources\Wallet\Commands\Address\Get
      */
     public function testGet(): void {
-        $get = new Get('ADDRESS_OR_ID');
+        $command = new Get('ADDRESS_OR_ID');
 
-        $this->assertSame('GET', $get->getRequestMethod());
-        $this->assertSame('{coin}/wallet/{walletId}/address/{addressOrId}', $get->getEndpoint());
-        $this->assertSame('ADDRESS_OR_ID', $get->getPathParam());
-        $this->assertIsArray($get->getQueryParameters());
+        $this->assertSame('GET', $command->getRequestMethod());
+        $this->assertSame('{coin}/wallet/{walletId}/address/{addressOrId}', $command->getEndpoint());
+        $this->assertSame('ADDRESS_OR_ID', $command->getPathParam());
+        $this->assertIsArray($command->getQueryParameters());
     }
 
     /**
      * @covers \neto737\BitGoSDK\Resources\Wallet\Commands\Address\GetProof
      */
     public function testGetProof(): void {
-        $proof = new GetProof('ADDRESS_OR_ID');
+        $command = new GetProof('ADDRESS_OR_ID');
 
-        $this->assertSame('GET', $proof->getRequestMethod());
-        $this->assertSame('{coin}/wallet/{walletId}/address/{addressOrId}/proof', $proof->getEndpoint());
-        $this->assertSame('ADDRESS_OR_ID', $proof->getPathParam());
+        $this->assertSame('GET', $command->getRequestMethod());
+        $this->assertSame('{coin}/wallet/{walletId}/address/{addressOrId}/proof', $command->getEndpoint());
+        $this->assertSame('ADDRESS_OR_ID', $command->getPathParam());
     }
 
     /**
      * @covers \neto737\BitGoSDK\Resources\Wallet\Commands\Address\Update
      */
     public function testUpdate(): void {
-        $update = new Update('ADDRESS_OR_ID');
+        $command = new Update('ADDRESS_OR_ID');
 
-        $this->assertSame('PUT', $update->getRequestMethod());
-        $this->assertSame('{coin}/wallet/{walletId}/address/{addressOrId}', $update->getEndpoint());
-        $this->assertSame('ADDRESS_OR_ID', $update->getPathParam());
-        $this->assertIsArray($update->getQueryParameters());
-        $this->assertIsArray($update->getBodyParameters());
+        $this->assertSame('PUT', $command->getRequestMethod());
+        $this->assertSame('{coin}/wallet/{walletId}/address/{addressOrId}', $command->getEndpoint());
+        $this->assertSame('ADDRESS_OR_ID', $command->getPathParam());
+        $this->assertIsArray($command->getQueryParameters());
+        $this->assertIsArray($command->getBodyParameters());
     }
 }
