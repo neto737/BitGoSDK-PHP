@@ -7,8 +7,9 @@ use GuzzleHttp\RequestOptions;
 use GuzzleHttp\TransferStats;
 use neto737\BitGoSDK\Authentication\Authentication;
 use neto737\BitGoSDK\Authentication\Environment;
-use neto737\BitGoSDK\Resources\Wallet\Address;
 use neto737\BitGoSDK\Resources\Wallet\Commands\CommandInterface;
+use neto737\BitGoSDK\Resources\Wallet\Address;
+use neto737\BitGoSDK\Resources\Wallet\Webhook;
 
 class Client {
 
@@ -49,7 +50,8 @@ class Client {
             '{walletId}'    => $this->env->getWalletId(),
             '{coin}'        => $this->env->getCurrency(),
             '{addressId}'   => $command->getPathParam(),
-            '{addressOrId}' => $command->getPathParam()
+            '{addressOrId}' => $command->getPathParam(),
+            '{webhookId}'   => $command->getPathParam()
         ]);
     }
 
@@ -81,5 +83,9 @@ class Client {
 
     public function Address(): Address {
         return $this->loadModule(Address::class);
+    }
+
+    public function Webhook(): Webhook {
+        return $this->loadModule(Webhook::class);
     }
 }
