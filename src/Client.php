@@ -13,6 +13,8 @@ use neto737\BitGoSDK\Resources\Wallet\Webhook;
 
 class Client {
 
+    protected $version = '3.0.0';
+
     private $auth;
     private $env;
 
@@ -34,6 +36,7 @@ class Client {
         $this->httpClient = new \GuzzleHttp\Client([
             'timeout' => 10,
             'headers' => [
+                'User-Agent'    => "BitGoSDK-PHP/{$this->version}",
                 'Content-Type'  => 'application/json',
                 'Authorization' => "Bearer {$this->auth->getApiKey()}"
             ],
