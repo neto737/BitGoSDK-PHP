@@ -42,13 +42,14 @@ require 'vendor/autoload.php';
 use neto737\BitGoSDK\Authentication\Authentication;
 use neto737\BitGoSDK\Authentication\Environment;
 use neto737\BitGoSDK\Enum\Environments;
+use neto737\BitGoSDK\Enum\Currencies\Testnet;
 use neto737\BitGoSDK\Client;
 
 // Authenticate
 $auth = new Authentication('YOUR_API_KEY_HERE');
 
 // Create a new environment
-$env = new Environment(Environments::TESTNET, 'YOUR_WALLET_ID_HERE', 'tbtc');
+$env = new Environment(Environments::TESTNET, 'YOUR_WALLET_ID_HERE', Testnet::BTC);
 
 // Create a new Client instance
 $client = new Client($auth, $env);
@@ -59,6 +60,10 @@ $address = $client->Address();
 // Create a new wallet address
 var_dump($address->create());
 ```
+
+## Notes
+
+ERC20 currency list is not available in the BitGoSDK-PHP because it's too long to maintain and keep up-to-date, but it's available [here](https://api.bitgo.com/docs/#section/Ethereum-ERC20-Tokens).
 
 ## Credits
 
