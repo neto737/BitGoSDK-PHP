@@ -31,7 +31,7 @@ class clientTest extends TestCase {
 
         $this->assertSame('https://app.bitgo.com/api/v2/', $env->getEnvironment());
         $this->assertSame('59cd72485007a239fb00282ed480da1f', $env->getWalletId());
-        $this->assertSame('BTC', $env->getCurrency());
+        $this->assertSame('tbtc', $env->getCurrency());
     }
 
     /**
