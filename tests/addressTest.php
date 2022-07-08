@@ -3,7 +3,7 @@
 use neto737\BitGoSDK\Authentication\Authentication;
 use neto737\BitGoSDK\Authentication\Environment;
 use neto737\BitGoSDK\Client;
-use neto737\BitGoSDK\Enum\CurrencyCode;
+use neto737\BitGoSDK\Enum\Currencies\Testnet;
 use neto737\BitGoSDK\Enum\Environments;
 use neto737\BitGoSDK\Resources\Wallet\Address;
 use neto737\BitGoSDK\Resources\Wallet\Commands\Address\AddressesList;
@@ -19,7 +19,7 @@ class addressTest extends TestCase {
 
     public function createClient(): Client {
         $auth = new Authentication('YOUR_API_KEY');
-        $env = new Environment(Environments::TESTNET, '59cd72485007a239fb00282ed480da1f', CurrencyCode::BTC);
+        $env = new Environment(Environments::TESTNET, '59cd72485007a239fb00282ed480da1f', Testnet::BTC);
 
         return new Client($auth, $env);
     }
