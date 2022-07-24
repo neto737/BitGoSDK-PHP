@@ -55,6 +55,10 @@ $bitgo->walletId = 'YOUR_WALLET_ID_HERE';
 $createAddress = $bitgo->createWalletAddress();
 ```
 
+## BitGo Express
+
+If you are going to use BitGo Express you have to run a BitGo Express node. You can find how to run your own BitGo Express node [here](https://github.com/BitGo/BitGoJS/blob/master/modules/express/README.md).
+
 ## Attention
 
 Keep your cacert.pem always up to date. You can find updates on the site [curl.haxx.se](https://curl.haxx.se/docs/caextract.html).
