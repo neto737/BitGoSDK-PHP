@@ -12,11 +12,12 @@ use neto737\BitGoSDK\Resources\Wallet\Commands\Webhook\Block\ListWebhooks as Lis
 use neto737\BitGoSDK\Resources\Wallet\Commands\Webhook\Block\Remove as RemoveBlockWebhook;
 use neto737\BitGoSDK\Resources\Wallet\Commands\Webhook\Block\Simulate as SimulateBlockWebhook;
 
-class Webhook {
-
+class Webhook
+{
     private $client;
 
-    public function __construct(Client $client) {
+    public function __construct(Client $client)
+    {
         $this->client = $client;
     }
 
@@ -32,7 +33,8 @@ class Webhook {
      * 
      * @return array
      */
-    public function addWalletWebhhok(string $type, string $url, ?string $label = null, ?int $numConfirmations = null, ?bool $allTokens = null, ?bool $listenToFailureStates = null): array {
+    public function addWalletWebhhok(string $type, string $url, ?string $label = null, ?int $numConfirmations = null, ?bool $allTokens = null, ?bool $listenToFailureStates = null): array
+    {
         return $this->client->send(new AddWalletWebhhok($type, $url, $label, $numConfirmations, $allTokens, $listenToFailureStates));
     }
 
@@ -41,7 +43,8 @@ class Webhook {
      *
      * @return array
      */
-    public function listWalletWebhooks(): array {
+    public function listWalletWebhooks(): array
+    {
         return $this->client->send(new ListWalletWebhooks);
     }
 
@@ -54,7 +57,8 @@ class Webhook {
      * 
      * @return array
      */
-    public function removeWalletWebhook(?string $type = null, ?string $url = null, ?string $id = null): array {
+    public function removeWalletWebhook(?string $type = null, ?string $url = null, ?string $id = null): array
+    {
         return $this->client->send(new RemoveWalletWebhook($type, $url, $id));
     }
 
@@ -67,7 +71,8 @@ class Webhook {
      * 
      * @return array
      */
-    public function simulateWalletWebhook(string $webhookId, ?string $transferId = null, ?string $pendingApprovalId = null): array {
+    public function simulateWalletWebhook(string $webhookId, ?string $transferId = null, ?string $pendingApprovalId = null): array
+    {
         return $this->client->send(new SimulateWalletWebhook($webhookId, $transferId, $pendingApprovalId));
     }
 
@@ -81,7 +86,8 @@ class Webhook {
      * 
      * @return array
      */
-    public function addBlockWebhhok(string $type, string $url, ?string $label = null, ?int $numConfirmations = null): array {
+    public function addBlockWebhhok(string $type, string $url, ?string $label = null, ?int $numConfirmations = null): array
+    {
         return $this->client->send(new AddBlockWebhhok($type, $url, $label, $numConfirmations));
     }
 
@@ -90,7 +96,8 @@ class Webhook {
      *
      * @return array
      */
-    public function listBlockWebhooks(): array {
+    public function listBlockWebhooks(): array
+    {
         return $this->client->send(new ListBlockWebhooks);
     }
 
@@ -103,7 +110,8 @@ class Webhook {
      * 
      * @return array
      */
-    public function removeBlockWebhook(string $type, string $url, ?string $id = null): array {
+    public function removeBlockWebhook(string $type, string $url, ?string $id = null): array
+    {
         return $this->client->send(new RemoveBlockWebhook($type, $url, $id));
     }
 
@@ -115,7 +123,8 @@ class Webhook {
      * 
      * @return array
      */
-    public function simulateBlockWebhook(string $webhookId, ?string $blockId = null): array {
+    public function simulateBlockWebhook(string $webhookId, ?string $blockId = null): array
+    {
         return $this->client->send(new SimulateBlockWebhook($webhookId, $blockId));
     }
 }

@@ -15,16 +15,18 @@ use neto737\BitGoSDK\Resources\Wallet\Commands\Address\GetProof;
 use neto737\BitGoSDK\Resources\Wallet\Commands\Address\Update;
 use PHPUnit\Framework\TestCase;
 
-class addressTest extends TestCase {
-
-    public function createClient(): Client {
+class addressTest extends TestCase
+{
+    public function createClient(): Client
+    {
         $auth = new Authentication('YOUR_API_KEY');
         $env = new Environment(Environments::TESTNET, '59cd72485007a239fb00282ed480da1f', Testnet::BTC);
 
         return new Client($auth, $env);
     }
 
-    public function createAddress(): Address {
+    public function createAddress(): Address
+    {
         $client = $this->createClient();
         return $client->Address();
     }
@@ -32,7 +34,8 @@ class addressTest extends TestCase {
     /**
      * @covers \neto737\BitGoSDK\Resources\Wallet\Commands\Command
      */
-    public function testCommand(): void {
+    public function testCommand(): void
+    {
         $command = $this->getMockForAbstractClass('\neto737\BitGoSDK\Resources\Wallet\Commands\Command');
 
         $this->assertSame('', $command->getPathParam());
@@ -46,7 +49,8 @@ class addressTest extends TestCase {
      * @covers \neto737\BitGoSDK\Client
      * @covers \neto737\BitGoSDK\Resources\Wallet\Address
      */
-    public function testAddress(): void {
+    public function testAddress(): void
+    {
         $client = $this->createClient();
 
         $this->assertSame(Address::class, get_class($client->Address()));
@@ -55,7 +59,8 @@ class addressTest extends TestCase {
     /**
      * @covers \neto737\BitGoSDK\Resources\Wallet\Commands\Address\AddressesList
      */
-    public function testAddressList(): void {
+    public function testAddressList(): void
+    {
         $command = new AddressesList;
 
         $this->assertSame('GET', $command->getRequestMethod());
@@ -66,7 +71,8 @@ class addressTest extends TestCase {
     /**
      * @covers \neto737\BitGoSDK\Resources\Wallet\Commands\Address\Create
      */
-    public function testCreate(): void {
+    public function testCreate(): void
+    {
         $command = new Create;
 
         $this->assertSame('POST', $command->getRequestMethod());
@@ -77,7 +83,8 @@ class addressTest extends TestCase {
     /**
      * @covers \neto737\BitGoSDK\Resources\Wallet\Commands\Address\Deploy
      */
-    public function testDeploy(): void {
+    public function testDeploy(): void
+    {
         $command = new Deploy('ADDRESS_ID');
 
         $this->assertSame('POST', $command->getRequestMethod());
@@ -89,7 +96,8 @@ class addressTest extends TestCase {
     /**
      * @covers \neto737\BitGoSDK\Resources\Wallet\Commands\Address\ForwardTokens
      */
-    public function testForwardTokens(): void {
+    public function testForwardTokens(): void
+    {
         $command = new ForwardTokens('ADDRESS_ID', 'Token', false, 0, []);
 
         $this->assertSame('POST', $command->getRequestMethod());
@@ -101,7 +109,8 @@ class addressTest extends TestCase {
     /**
      * @covers \neto737\BitGoSDK\Resources\Wallet\Commands\Address\Get
      */
-    public function testGet(): void {
+    public function testGet(): void
+    {
         $command = new Get('ADDRESS_OR_ID');
 
         $this->assertSame('GET', $command->getRequestMethod());
@@ -113,7 +122,8 @@ class addressTest extends TestCase {
     /**
      * @covers \neto737\BitGoSDK\Resources\Wallet\Commands\Address\GetProof
      */
-    public function testGetProof(): void {
+    public function testGetProof(): void
+    {
         $command = new GetProof('ADDRESS_OR_ID');
 
         $this->assertSame('GET', $command->getRequestMethod());
@@ -124,7 +134,8 @@ class addressTest extends TestCase {
     /**
      * @covers \neto737\BitGoSDK\Resources\Wallet\Commands\Address\Update
      */
-    public function testUpdate(): void {
+    public function testUpdate(): void
+    {
         $command = new Update('ADDRESS_OR_ID');
 
         $this->assertSame('PUT', $command->getRequestMethod());

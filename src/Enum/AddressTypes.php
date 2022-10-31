@@ -2,8 +2,8 @@
 
 namespace neto737\BitGoSDK\Enum;
 
-abstract class AddressTypes {
-
+abstract class AddressTypes
+{
     // Legacy address format
     const P2SH_DEPOSIT          = 0;
     const P2SH_CHANGE           = 1;

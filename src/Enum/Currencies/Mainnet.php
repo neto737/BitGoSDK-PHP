@@ -2,8 +2,8 @@
 
 namespace neto737\BitGoSDK\Enum\Currencies;
 
-abstract class Mainnet {
-
+abstract class Mainnet
+{
     const ALGO  = 'algo';
     const AVAX  = 'avax';
     const BTC   = 'btc';

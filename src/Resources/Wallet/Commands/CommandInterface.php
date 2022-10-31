@@ -4,8 +4,8 @@ namespace neto737\BitGoSDK\Resources\Wallet\Commands;
 
 use Psr\Http\Message\ResponseInterface;
 
-interface CommandInterface {
-
+interface CommandInterface
+{
     public function getRequestMethod(): string;
 
     public function getEndpoint(): string;

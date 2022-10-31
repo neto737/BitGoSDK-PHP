@@ -4,8 +4,8 @@ namespace neto737\BitGoSDK\Resources\Wallet\Commands\Address;
 
 use neto737\BitGoSDK\Resources\Wallet\Commands\Command;
 
-class Create extends Command {
-
+class Create extends Command
+{
     private $chain;
     private $label;
     private $lowPriority;
@@ -14,7 +14,8 @@ class Create extends Command {
     private $onToken;
     private $format;
 
-    public function __construct(?int $chain = null, ?string $label = null, ?bool $lowPriority = null, int $gasPrice = null, ?int $forwarderVersion = null, ?string $onToken = null, ?string $format = null) {
+    public function __construct(?int $chain = null, ?string $label = null, ?bool $lowPriority = null, int $gasPrice = null, ?int $forwarderVersion = null, ?string $onToken = null, ?string $format = null)
+    {
         $this->chain            = $chain;
         $this->label            = $label;
         $this->lowPriority      = $lowPriority;
@@ -24,15 +25,18 @@ class Create extends Command {
         $this->format           = $format;
     }
 
-    public function getRequestMethod(): string {
+    public function getRequestMethod(): string
+    {
         return 'POST';
     }
 
-    public function getEndpoint(): string {
+    public function getEndpoint(): string
+    {
         return '{coin}/wallet/{walletId}/address';
     }
 
-    public function getBodyParameters(): array {
+    public function getBodyParameters(): array
+    {
         return [
             'chain'             => $this->chain,
             'label'             => $this->label,

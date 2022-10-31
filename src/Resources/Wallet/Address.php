@@ -12,11 +12,12 @@ use neto737\BitGoSDK\Resources\Wallet\Commands\Address\Get;
 use neto737\BitGoSDK\Resources\Wallet\Commands\Address\GetProof;
 use neto737\BitGoSDK\Resources\Wallet\Commands\Address\Update;
 
-class Address {
-
+class Address
+{
     private $client;
 
-    public function __construct(Client $client) {
+    public function __construct(Client $client)
+    {
         $this->client = $client;
     }
 
@@ -36,7 +37,8 @@ class Address {
      * 
      * @return array
      */
-    public function list(?string $labelContains = null, ?int $limit = null, ?bool $mine = null, ?string $prevId = null, ?int $sort = null, ?int $chains = null, ?bool $includeBalances = null, ?bool $includeTotalAddressCount = null, ?string $returnBalancesForToken = null, ?bool $pendingDeployment = null): array {
+    public function list(?string $labelContains = null, ?int $limit = null, ?bool $mine = null, ?string $prevId = null, ?int $sort = null, ?int $chains = null, ?bool $includeBalances = null, ?bool $includeTotalAddressCount = null, ?string $returnBalancesForToken = null, ?bool $pendingDeployment = null): array
+    {
         return $this->client->send(new AddressesList($labelContains, $limit, $mine, $prevId, $sort, $chains, $includeBalances, $includeTotalAddressCount, $returnBalancesForToken, $pendingDeployment));
     }
 
@@ -53,7 +55,8 @@ class Address {
      * 
      * @return array
      */
-    public function create(?int $chain = AddressTypes::P2TR_DEPOSIT, ?string $label = null, ?bool $lowPriority = false, int $gasPrice = null, ?int $forwarderVersion = null, ?string $onToken = null, ?string $format = null): array {
+    public function create(?int $chain = AddressTypes::P2TR_DEPOSIT, ?string $label = null, ?bool $lowPriority = false, int $gasPrice = null, ?int $forwarderVersion = null, ?string $onToken = null, ?string $format = null): array
+    {
         return $this->client->send(new Create($chain, $label, $lowPriority, $gasPrice, $forwarderVersion, $onToken, $format));
     }
 
@@ -67,7 +70,8 @@ class Address {
      * 
      * @return array
      */
-    public function deploy(string $addressId, ?bool $forceDeploy = null, ?int $gasPrice = null, ?array $eip1559 = null): array {
+    public function deploy(string $addressId, ?bool $forceDeploy = null, ?int $gasPrice = null, ?array $eip1559 = null): array
+    {
         return $this->client->send(new Deploy($addressId, $forceDeploy, $gasPrice, $eip1559));
     }
 
@@ -82,7 +86,8 @@ class Address {
      * 
      * @return array
      */
-    public function forwardTokens(string $addressId, ?string $tokenName = null, ?bool $forceFlush = null, ?int $gasPrice = null, ?array $eip1559): array {
+    public function forwardTokens(string $addressId, ?string $tokenName = null, ?bool $forceFlush = null, ?int $gasPrice = null, ?array $eip1559): array
+    {
         return $this->client->send(new ForwardTokens($addressId, $tokenName, $forceFlush, $gasPrice, $eip1559));
     }
 
@@ -95,7 +100,8 @@ class Address {
      * 
      * @return array
      */
-    public function get(string $addressOrId, ?string $dt = null, ?string $memoId = null): array {
+    public function get(string $addressOrId, ?string $dt = null, ?string $memoId = null): array
+    {
         return $this->client->send(new Get($addressOrId, $dt, $memoId));
     }
 
@@ -109,7 +115,8 @@ class Address {
      * 
      * @return array
      */
-    public function update(string $addressOrId, ?string $label = null, ?string $dt = null, ?string $memoId = null): array {
+    public function update(string $addressOrId, ?string $label = null, ?string $dt = null, ?string $memoId = null): array
+    {
         return $this->client->send(new Update($addressOrId, $label, $dt, $memoId));
     }
 
@@ -120,7 +127,8 @@ class Address {
      * 
      * @return array
      */
-    public function getOwnershipProof(string $addressOrId): array {
+    public function getOwnershipProof(string $addressOrId): array
+    {
         return $this->client->send(new GetProof($addressOrId));
     }
 }

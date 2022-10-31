@@ -16,9 +16,10 @@ use neto737\BitGoSDK\Resources\Wallet\Commands\Webhook\Block\Remove as RemoveBlo
 use neto737\BitGoSDK\Resources\Wallet\Commands\Webhook\Block\Simulate as SimulateBlockWebhook;
 use PHPUnit\Framework\TestCase;
 
-class webhookTest extends TestCase {
-
-    public function createClient(): Client {
+class webhookTest extends TestCase
+{
+    public function createClient(): Client
+    {
         $auth = new Authentication('YOUR_API_KEY');
         $env = new Environment(Environments::TESTNET, '59cd72485007a239fb00282ed480da1f', Testnet::BTC);
 
@@ -31,7 +32,8 @@ class webhookTest extends TestCase {
      * @covers \neto737\BitGoSDK\Client
      * @covers \neto737\BitGoSDK\Resources\Wallet\Webhook
      */
-    public function testWebhook(): void {
+    public function testWebhook(): void
+    {
         $client = $this->createClient();
 
         $this->assertSame(Webhook::class, get_class($client->Webhook()));
@@ -40,7 +42,8 @@ class webhookTest extends TestCase {
     /**
      * @covers \neto737\BitGoSDK\Resources\Wallet\Commands\Webhook\Wallet\Add
      */
-    public function testAddWalletWebhook(): void {
+    public function testAddWalletWebhook(): void
+    {
         $command = new AddWalletWebhhok('transfer', 'https://example.com/webhook');
 
         $this->assertSame('POST', $command->getRequestMethod());
@@ -51,7 +54,8 @@ class webhookTest extends TestCase {
     /**
      * @covers \neto737\BitGoSDK\Resources\Wallet\Commands\Webhook\Wallet\ListWebhooks
      */
-    public function testListWalletWebhooks(): void {
+    public function testListWalletWebhooks(): void
+    {
         $command = new ListWalletWebhooks;
 
         $this->assertSame('GET', $command->getRequestMethod());
@@ -61,7 +65,8 @@ class webhookTest extends TestCase {
     /**
      * @covers \neto737\BitGoSDK\Resources\Wallet\Commands\Webhook\Wallet\Remove
      */
-    public function testRemoveWalletWebhook(): void {
+    public function testRemoveWalletWebhook(): void
+    {
         $command = new RemoveWalletWebhook;
 
         $this->assertSame('DELETE', $command->getRequestMethod());
@@ -72,7 +77,8 @@ class webhookTest extends TestCase {
     /**
      * @covers \neto737\BitGoSDK\Resources\Wallet\Commands\Webhook\Wallet\Simulate
      */
-    public function testSimulateWalletWebhook(): void {
+    public function testSimulateWalletWebhook(): void
+    {
         $command = new SimulateWalletWebhook('59cd72485007a239fb00282ed480da1f');
 
         $this->assertSame('POST', $command->getRequestMethod());
@@ -84,7 +90,8 @@ class webhookTest extends TestCase {
     /**
      * @covers \neto737\BitGoSDK\Resources\Wallet\Commands\Webhook\Block\Add
      */
-    public function testAddBlockWebhook(): void {
+    public function testAddBlockWebhook(): void
+    {
         $command = new AddBlockWebhhok('block', 'https://example.com/webhook');
 
         $this->assertSame('POST', $command->getRequestMethod());
@@ -95,7 +102,8 @@ class webhookTest extends TestCase {
     /**
      * @covers \neto737\BitGoSDK\Resources\Wallet\Commands\Webhook\Block\ListWebhooks
      */
-    public function testListBlockWebhooks(): void {
+    public function testListBlockWebhooks(): void
+    {
         $command = new ListBlockWebhooks;
 
         $this->assertSame('GET', $command->getRequestMethod());
@@ -105,7 +113,8 @@ class webhookTest extends TestCase {
     /**
      * @covers \neto737\BitGoSDK\Resources\Wallet\Commands\Webhook\Block\Remove
      */
-    public function testRemoveBlockWebhook(): void {
+    public function testRemoveBlockWebhook(): void
+    {
         $command = new RemoveBlockWebhook('block', 'https://example.com/webhook');
 
         $this->assertSame('DELETE', $command->getRequestMethod());
@@ -116,7 +125,8 @@ class webhookTest extends TestCase {
     /**
      * @covers \neto737\BitGoSDK\Resources\Wallet\Commands\Webhook\Block\Simulate
      */
-    public function testSimulateBlockWebhook(): void {
+    public function testSimulateBlockWebhook(): void
+    {
         $command = new SimulateBlockWebhook('59cd72485007a239fb00282ed480da1f');
 
         $this->assertSame('POST', $command->getRequestMethod());

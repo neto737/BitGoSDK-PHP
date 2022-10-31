@@ -11,8 +11,8 @@ use neto737\BitGoSDK\Resources\Wallet\Commands\CommandInterface;
 use neto737\BitGoSDK\Resources\Wallet\Address;
 use neto737\BitGoSDK\Resources\Wallet\Webhook;
 
-class Client {
-
+class Client
+{
     protected $version = '3.0.0';
 
     private $auth;
@@ -24,7 +24,8 @@ class Client {
 
     private $httpClient;
 
-    public function __construct(Authentication $auth, Environment $env) {
+    public function __construct(Authentication $auth, Environment $env)
+    {
         $this->auth = $auth;
 
         $this->env = $env;
@@ -32,7 +33,8 @@ class Client {
         $this->prepareClient();
     }
 
-    private function prepareClient(): Client {
+    private function prepareClient(): Client
+    {
         $this->httpClient = new \GuzzleHttp\Client([
             'timeout' => 10,
             'headers' => [
@@ -46,7 +48,8 @@ class Client {
         return $this;
     }
 
-    private function buildUri(CommandInterface $command): string {
+    private function buildUri(CommandInterface $command): string
+    {
         $this->queryParams = '?' . http_build_query($command->getQueryParameters());
 
         return strtr($this->env->getEnvironment() . $command->getEndpoint() . $this->queryParams, [
@@ -58,7 +61,8 @@ class Client {
         ]);
     }
 
-    public function send(CommandInterface $command) {
+    public function send(CommandInterface $command)
+    {
         try {
             $response = $this->httpClient->request($command->getRequestMethod(), $this->buildUri($command), [
                 RequestOptions::JSON => array_filter($command->getBodyParameters()) ?: null,
@@ -76,7 +80,8 @@ class Client {
         }
     }
 
-    private function loadModule($name) {
+    private function loadModule($name)
+    {
         if (!isset($this->modules[$name])) {
             $this->modules[$name] = new $name($this);
         }
@@ -84,11 +89,13 @@ class Client {
         return $this->modules[$name];
     }
 
-    public function Address(): Address {
+    public function Address(): Address
+    {
         return $this->loadModule(Address::class);
     }
 
-    public function Webhook(): Webhook {
+    public function Webhook(): Webhook
+    {
         return $this->loadModule(Webhook::class);
     }
 }

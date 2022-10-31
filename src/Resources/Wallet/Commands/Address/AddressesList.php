@@ -4,8 +4,8 @@ namespace neto737\BitGoSDK\Resources\Wallet\Commands\Address;
 
 use neto737\BitGoSDK\Resources\Wallet\Commands\Command;
 
-class AddressesList extends Command {
-
+class AddressesList extends Command
+{
     private $labelContains;
     private $limit;
     private $mine;
@@ -41,15 +41,18 @@ class AddressesList extends Command {
         $this->pendingDeployment        = $pendingDeployment;
     }
 
-    public function getRequestMethod(): string {
+    public function getRequestMethod(): string
+    {
         return 'GET';
     }
 
-    public function getEndpoint(): string {
+    public function getEndpoint(): string
+    {
         return '{coin}/wallet/{walletId}/addresses';
     }
 
-    public function getQueryParameters(): array {
+    public function getQueryParameters(): array
+    {
         return [
             'labelContains'             => $this->labelContains,
             'limit'                     => $this->limit,
