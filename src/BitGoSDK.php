@@ -17,6 +17,8 @@ namespace neto737\BitGoSDK;
 use Composer\CaBundle\CaBundle;
 use neto737\BitGoSDK\Enum\CurrencyCode;
 use neto737\BitGoSDK\Enum\AddressType;
+use neto737\BitGoSDK\Internal\CurlTransport;
+use neto737\BitGoSDK\Internal\Transport;
 
 class BitGoSDK
 {
@@ -45,6 +47,7 @@ class BitGoSDK
     private int $connectTimeout = self::DEFAULT_CONNECT_TIMEOUT;
     private ?string $caFile = null;
     private bool $forceIPv4 = false;
+    private ?Transport $transport = null;
 
     /**
      * BitGoSDK Initialization
@@ -1021,19 +1024,14 @@ class BitGoSDK
         $params = self::withoutNulls($this->params);
         $this->params = [];
 
-        $ch = curl_init();
-        curl_setopt_array($ch, $this->curlOptions($requestType, $params));
+        $this->transport = $this->transport ?? new CurlTransport();
+        $response = $this->transport->send($this->curlOptions($requestType, $params));
 
-        $response = curl_exec($ch);
-        $errno = curl_errno($ch);
-        $error = curl_error($ch);
-        $status = (int) curl_getinfo($ch, CURLINFO_RESPONSE_CODE);
-
-        if ($errno !== 0) {
-            return ['error' => $error !== '' ? $error : 'cURL error ' . $errno, 'status' => 0];
+        if ($response['errno'] !== 0) {
+            return ['error' => $response['error'] !== '' ? $response['error'] : 'cURL error ' . $response['errno'], 'status' => 0];
         }
 
-        return self::decodeResponse((string) $response, $status);
+        return self::decodeResponse($response['body'], $response['status']);
     }
 
     /**
@@ -1045,18 +1043,21 @@ class BitGoSDK
     private function curlOptions(string $requestType, array $params): array
     {
         $options = [CURLOPT_URL => $this->url];
+        // Cast to an object so that no params are sent as {} rather than [].
+        $body = json_encode((object) $params);
         if ($requestType === 'GET') {
-            $options[CURLOPT_URL] = $this->url . '?' . self::buildQuery($params);
+            $query = self::buildQuery($params);
+            $options[CURLOPT_URL] = $query === '' ? $this->url : $this->url . '?' . $query;
             $options[CURLOPT_CUSTOMREQUEST] = 'GET';
         } elseif ($requestType === 'PUT') {
             $options[CURLOPT_CUSTOMREQUEST] = 'PUT';
-            $options[CURLOPT_POSTFIELDS] = json_encode($params);
+            $options[CURLOPT_POSTFIELDS] = $body;
         } elseif ($requestType === 'DELETE') {
             $options[CURLOPT_CUSTOMREQUEST] = 'DELETE';
-            $options[CURLOPT_POSTFIELDS] = json_encode($params);
+            $options[CURLOPT_POSTFIELDS] = $body;
         } elseif ($requestType === 'POST') {
             $options[CURLOPT_POST] = true;
-            $options[CURLOPT_POSTFIELDS] = json_encode($params);
+            $options[CURLOPT_POSTFIELDS] = $body;
         }
         $options[CURLOPT_SSL_VERIFYPEER] = true;
         $options[CURLOPT_RETURNTRANSFER] = true;

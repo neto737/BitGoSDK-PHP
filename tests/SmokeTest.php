@@ -9,7 +9,7 @@ use neto737\BitGoSDK\Enum\CurrencyCode;
 use PHPUnit\Framework\TestCase;
 
 /**
- * Placeholder suite so CI has something to run until the request-shape tests land.
+ * The classes autoload and the public constants keep their values.
  */
 final class SmokeTest extends TestCase
 {

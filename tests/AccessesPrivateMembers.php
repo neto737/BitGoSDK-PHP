@@ -6,7 +6,7 @@ use ReflectionMethod;
 use ReflectionProperty;
 
 /**
- * Reflection helpers for reaching client internals until requests go through a capturable transport.
+ * Reflection helpers for reaching client internals. To check what a request sends, prefer Fixtures\RecordingTransport.
  */
 trait AccessesPrivateMembers
 {

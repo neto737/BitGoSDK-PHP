@@ -4,78 +4,81 @@ namespace neto737\BitGoSDK\Tests;
 
 use neto737\BitGoSDK\BitGoExpress;
 use neto737\BitGoSDK\BitGoSDK;
+use neto737\BitGoSDK\Tests\Fixtures\RecordingTransport;
 use PHPUnit\Framework\TestCase;
 
 /**
  * B1: request params must not leak from one call into the next.
  * B2: only null params are dropped, so 0, false and '' are still sent.
- *
- * Until requests go through a capturable transport, these tests point the client
- * at a closed local port and inspect the internal params state after the call.
  */
 final class RequestParamsTest extends TestCase
 {
-    use AccessesPrivateMembers;
-
-    private const UNREACHABLE_URL = 'http://127.0.0.1:1/';
-
-    public function testSdkClearsParamsAfterEachCall(): void
+    public function testSdkParamsDoNotLeakIntoTheNextCall(): void
     {
         $sdk = new BitGoSDK('token', 'tbtc', true);
-        $this->setPrivate($sdk, 'params', ['otp' => '000000', 'duration' => 600]);
-        $this->setPrivate($sdk, 'url', self::UNREACHABLE_URL);
+        $transport = RecordingTransport::on($sdk);
 
-        $this->execute($sdk, 'POST');
+        $sdk->unlockSession('000000', 600);
+        $sdk->lockSession();
+        $sdk->getTotalBalances();
 
-        self::assertSame([], $this->getPrivate($sdk, 'params'));
+        self::assertSame('{}', $transport->requests[1]->body);
+        self::assertSame('https://app.bitgo-test.com/api/v2/tbtc/wallet/balances', $transport->requests[2]->url);
     }
 
-    public function testExpressClearsParamsAfterEachCall(): void
-    {
-        $express = new BitGoExpress('127.0.0.1', 1, 'tbtc');
-        $this->setPrivate($express, 'params', ['walletPassphrase' => 'secret']);
-        $this->setPrivate($express, 'url', self::UNREACHABLE_URL);
-
-        $this->execute($express, 'POST');
-
-        self::assertSame([], $this->getPrivate($express, 'params'));
-    }
-
-    public function testSdkDropsOnlyNullParams(): void
+    public function testSdkParamsDoNotLeakAfterAFailedCall(): void
     {
         $sdk = new BitGoSDK('token', 'tbtc', true);
+        $transport = RecordingTransport::on($sdk)->fail(CURLE_COULDNT_CONNECT, 'Connection refused');
 
-        self::assertSame(
-            ['limit' => 0, 'mine' => false, 'label' => ''],
-            $this->invoke($sdk, 'withoutNulls', ['limit' => 0, 'prevId' => null, 'mine' => false, 'label' => ''])
-        );
+        $sdk->unlockSession('000000', 600);
+        $sdk->lockSession();
+
+        self::assertSame('{}', $transport->last()->body);
     }
 
-    public function testExpressDropsOnlyNullParams(): void
+    public function testExpressParamsDoNotLeakIntoTheNextCall(): void
     {
-        $express = new BitGoExpress('127.0.0.1', 1, 'tbtc');
+        $express = new BitGoExpress('localhost', 3080, 'tbtc');
+        $transport = RecordingTransport::on($express);
 
-        self::assertSame(
-            ['amount' => 0, 'noSplitChange' => false],
-            $this->invoke($express, 'withoutNulls', ['amount' => 0, 'comment' => null, 'noSplitChange' => false])
-        );
+        $express->sendTransaction('address', 1000, 'secret');
+        $express->createKeychain();
+
+        self::assertSame('{}', $transport->last()->body);
     }
 
-    public function testSdkQuerySendsBooleansAsWords(): void
+    public function testSdkSendsFalsyBodyParams(): void
     {
         $sdk = new BitGoSDK('token', 'tbtc', true);
+        $transport = RecordingTransport::on($sdk);
 
-        self::assertSame(
-            'limit=0&mine=false&allTokens=true',
-            $this->invoke($sdk, 'buildQuery', ['limit' => 0, 'mine' => false, 'allTokens' => true])
-        );
+        $sdk->createWalletAddress(0, '');
+
+        self::assertSame(['chain' => 0, 'label' => ''], $transport->last()->json());
     }
 
-    /**
-     * @param object $client
-     */
-    private function execute($client, string $requestType): void
+    public function testSdkSendsFalsyQueryParams(): void
     {
-        $this->invoke($client, '__execute', $requestType);
+        $sdk = new BitGoSDK('token', 'tbtc', true);
+        $sdk->walletId = 'w1';
+        $transport = RecordingTransport::on($sdk);
+
+        $sdk->getWalletAddresses('', 0, false);
+
+        self::assertSame('https://app.bitgo-test.com/api/v2/tbtc/wallet/w1/addresses?labelContains=&limit=0&mine=false', $transport->last()->url);
+    }
+
+    public function testExpressSendsFalsyParams(): void
+    {
+        $express = new BitGoExpress('localhost', 3080, 'tbtc');
+        $transport = RecordingTransport::on($express);
+
+        $express->sendTransaction('address', 0, '', null, null, null, '', null, 0, false);
+
+        self::assertSame(
+            ['address' => 'address', 'amount' => '0', 'walletPassphrase' => '', 'comment' => '', 'minConfirms' => 0, 'enforceMinConfirmsForChange' => false],
+            $transport->last()->json()
+        );
     }
 }
