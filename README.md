@@ -56,6 +56,29 @@ More examples are in [`examples/`](examples/).
 
 BitGo signs transactions on the client, so sending coins, creating wallets and other calls that use your keys go through `BitGoExpress`, which talks to your own BitGo Express instance. See [Install BitGo Express](https://developers.bitgo.com/docs/get-started-express-install) to run one, and the [Express API reference](https://developers.bitgo.com/reference/express-overview) for its endpoints.
 
+### Use TLS unless Express is on the same host
+
+Requests to Express carry wallet passphrases and private keys. Over plain `http://` that is only safe when Express listens on `localhost`. Otherwise, run Express with a TLS certificate and prefix the hostname with `https://`:
+
+```php
+use neto737\BitGoSDK\BitGoExpress;
+use neto737\BitGoSDK\Enum\CurrencyCode;
+
+$express = new BitGoExpress('https://express.internal', 3080, CurrencyCode::BITCOIN);
+
+// For a self-signed or private-CA certificate, trust that certificate or CA file.
+$express->setCaFile('/path/to/express.crt');
+```
+
+Certificates are verified by default. `setVerifyTls(false)` turns verification off, so use it only for local testing.
+
+### Minimum Express version
+
+Use BitGo Express **14.1.3 or newer**. Older versions fail on two changes BitGo made on its side:
+
+- **UTXO withdrawals from cold wallets** must use PSBT in production. BitGo needs Express 14.1.3 or newer for this ([changelog](https://developers.bitgo.com/changelog/20251007)).
+- **Send-to-many on EVM assets** (`sendTransactionToMany()` on ETH and other EVM coins) uses a new batcher contract since May 22, 2025, so Express releases from before that date can't send it ([changelog](https://developers.bitgo.com/changelog/20250522)).
+
 ## Documentation
 
 - [BitGo developer portal](https://developers.bitgo.com/)

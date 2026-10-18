@@ -38,7 +38,7 @@ Entries for 2.2.3 and earlier were reconstructed from the git history in October
 - `ext-bcmath` is no longer required.
 - **The minimum PHP version is now 7.4** (was 7.0).
 - The project is now licensed under MIT. 2.2.3 and earlier were released under GPL-3.0. The file headers say so too.
-- The README lists the current requirements and links to the docs on developers.bitgo.com.
+- The README lists the current requirements, links to the docs on developers.bitgo.com, explains how to reach Express over TLS and names the minimum Express version (14.1.3).
 - `src/` and `examples/` were reformatted to PSR-12. This is whitespace and brace placement only, with no behaviour change.
 - Composer dist archives no longer include `tests/`, `examples/`, `docs/` or dotfiles. The examples are still available in the repository.
 
