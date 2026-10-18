@@ -25,6 +25,11 @@ class BitGoSDK
     const DEFAULT_TIMEOUT = 60;
     const DEFAULT_CONNECT_TIMEOUT = 10;
 
+    // Coin families for coin-specific params. Each lists mainnet and testnet codes, so testnet wallets get the same params.
+    private const ETH_COINS = ['eth', 'teth', 'gteth', 'hteth'];
+    private const XRP_COINS = ['xrp', 'txrp'];
+    private const XLM_COINS = ['xlm', 'txlm'];
+
     private $APIEndpoint = null;
     private $AuthAPIEndpoint = null;
     private $url = null;
@@ -253,7 +258,7 @@ class BitGoSDK
         $this->params = [
             'limit' => $limit,
             'prevId' => $prevId,
-            'allTokens' => $this->coin === CurrencyCode::ETHEREUM || $this->coin === CurrencyCode::ETHEREUM_TESTNET ? $allTokens : null,
+            'allTokens' => $this->coinIn(self::ETH_COINS) ? $allTokens : null,
         ];
         return $this->__execute('GET');
     }
@@ -268,7 +273,7 @@ class BitGoSDK
     {
         $this->url = $this->APIEndpoint . '/wallet/' . $this->walletId;
         $this->params = [
-            'allTokens' => $this->coin === CurrencyCode::ETHEREUM || $this->coin === CurrencyCode::ETHEREUM_TESTNET ? $allTokens : null,
+            'allTokens' => $this->coinIn(self::ETH_COINS) ? $allTokens : null,
         ];
         return $this->__execute('GET');
     }
@@ -297,7 +302,7 @@ class BitGoSDK
         $this->url = $this->APIEndpoint . '/wallet/' . $this->walletId . '/transfer';
         $this->params = [
             'prevId' => $prevId,
-            'allTokens' => $this->coin === CurrencyCode::ETHEREUM || $this->coin === CurrencyCode::ETHEREUM_TESTNET ? $allTokens : null,
+            'allTokens' => $this->coinIn(self::ETH_COINS) ? $allTokens : null,
         ];
         return $this->__execute('GET');
     }
@@ -342,8 +347,8 @@ class BitGoSDK
         $this->params = [
             'chain' => $chain,
             'label' => $label,
-            'lowPriority' => $this->coin === CurrencyCode::ETHEREUM ? $lowPriority : null,
-            'gasPrice' => $this->coin === CurrencyCode::ETHEREUM ? $gasPrice : null,
+            'lowPriority' => $this->coinIn(self::ETH_COINS) ? $lowPriority : null,
+            'gasPrice' => $this->coinIn(self::ETH_COINS) ? $gasPrice : null,
         ];
         return $this->__execute();
     }
@@ -358,8 +363,8 @@ class BitGoSDK
     {
         $this->url = $this->APIEndpoint . '/wallet/' . $this->walletId . '/address/' . $addressOrId;
         $this->params = [
-            'dt' => $this->coin === CurrencyCode::RIPPLE ? $dt : null,
-            'memoId' => $this->coin === CurrencyCode::STELLAR ? $memoId : null
+            'dt' => $this->coinIn(self::XRP_COINS) ? $dt : null,
+            'memoId' => $this->coinIn(self::XLM_COINS) ? $memoId : null
         ];
         return $this->__execute('GET');
     }
@@ -375,8 +380,8 @@ class BitGoSDK
     {
         $this->url = $this->APIEndpoint . '/wallet/' . $this->walletId . '/address/' . $addressOrId;
         $this->params = [
-            'dt' => $this->coin === CurrencyCode::RIPPLE ? $dt : null,
-            'memoId' => $this->coin === CurrencyCode::STELLAR ? $memoId : null,
+            'dt' => $this->coinIn(self::XRP_COINS) ? $dt : null,
+            'memoId' => $this->coinIn(self::XLM_COINS) ? $memoId : null,
             'label' => $label
         ];
         return $this->__execute('PUT');
@@ -416,7 +421,7 @@ class BitGoSDK
         $this->url = $this->APIEndpoint . '/wallet/' . $this->walletId . '/tx';
         $this->params = [
             'prevId' => $prevId,
-            'allTokens' => $this->coin === CurrencyCode::ETHEREUM || $this->coin === CurrencyCode::ETHEREUM_TESTNET ? $allTokens : null,
+            'allTokens' => $this->coinIn(self::ETH_COINS) ? $allTokens : null,
         ];
         return $this->__execute('GET');
     }
@@ -553,8 +558,8 @@ class BitGoSDK
         $this->url = $this->APIEndpoint . '/key';
         $this->params = [
             'source' => $source,
-            'enterprise' => $this->coin === CurrencyCode::ETHEREUM ? $enterprise : null,
-            'newFeeAddress' => $this->coin === CurrencyCode::ETHEREUM ? $newFeeAddress : null
+            'enterprise' => $this->coinIn(self::ETH_COINS) ? $enterprise : null,
+            'newFeeAddress' => $this->coinIn(self::ETH_COINS) ? $newFeeAddress : null
         ];
         return $this->__execute();
     }
@@ -752,8 +757,8 @@ class BitGoSDK
         $this->url = $this->APIEndpoint . '/pendingapprovals';
         $this->params = [
             'walletID' => $walletID,
-            'enterprise' => $this->coin === CurrencyCode::ETHEREUM ? $enterprise : null,
-            'allTokens' => $this->coin === CurrencyCode::ETHEREUM || $this->coin === CurrencyCode::ETHEREUM_TESTNET ? $allTokens : null
+            'enterprise' => $this->coinIn(self::ETH_COINS) ? $enterprise : null,
+            'allTokens' => $this->coinIn(self::ETH_COINS) ? $allTokens : null
         ];
         return $this->__execute('GET');
     }
@@ -784,7 +789,7 @@ class BitGoSDK
     {
         $this->url = $this->APIEndpoint . '/wallet/' . $this->walletId . '/webhooks';
         $this->params = [
-            'allTokens' => $this->coin === CurrencyCode::ETHEREUM || $this->coin === CurrencyCode::ETHEREUM_TESTNET ? $allTokens : null
+            'allTokens' => $this->coinIn(self::ETH_COINS) ? $allTokens : null
         ];
         return $this->__execute('GET');
     }
@@ -1043,6 +1048,16 @@ class BitGoSDK
         $options[CURLOPT_TIMEOUT] = $this->timeout;
         $options[CURLOPT_CONNECTTIMEOUT] = $this->connectTimeout;
         return $options;
+    }
+
+    /**
+     * Whether this client's coin is one of $coins.
+     *
+     * @param list<string> $coins
+     */
+    private function coinIn(array $coins): bool
+    {
+        return in_array($this->coin, $coins, true);
     }
 
     /**

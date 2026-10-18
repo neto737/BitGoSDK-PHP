@@ -145,12 +145,6 @@ parameters:
 			path: src/BitGoExpress.php
 
 		-
-			message: '#^Property neto737\\BitGoSDK\\BitGoExpress\:\:\$UTXObased has no type specified\.$#'
-			identifier: missingType.property
-			count: 1
-			path: src/BitGoExpress.php
-
-		-
 			message: '#^Property neto737\\BitGoSDK\\BitGoExpress\:\:\$accessToken has no type specified\.$#'
 			identifier: missingType.property
 			count: 1
