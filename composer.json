@@ -1,8 +1,8 @@
 {
     "name": "neto737/bitgosdk-php",
-    "description": "A BitGo SDK written in PHP",
+    "description": "PHP client for the BitGo API and BitGo Express: wallets, addresses, transfers, webhooks and sending coins.",
     "type": "library",
-    "keywords": ["bitgo", "sdk", "bitcoin"],
+    "keywords": ["bitgo", "bitgo-express", "sdk", "api-client", "bitcoin", "ethereum", "cryptocurrency", "wallet", "blockchain", "payments"],
     "homepage": "https://github.com/neto737/BitGoSDK-PHP",
     "license": "MIT",
 
