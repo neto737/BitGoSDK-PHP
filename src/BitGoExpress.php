@@ -555,13 +555,16 @@ class BitGoExpress
 
     private function __execute(string $requestType = 'POST', bool $array = true)
     {
+        $params = array_filter($this->params);
+        $this->params = [];
+
         $ch = curl_init($this->url);
         if ($requestType === 'POST') {
             curl_setopt($ch, CURLOPT_POST, true);
-            curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode(array_filter($this->params)));
+            curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode($params));
         } elseif ($requestType === 'PUT') {
             curl_setopt($ch, CURLOPT_CUSTOMREQUEST, 'PUT');
-            curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode(array_filter($this->params)));
+            curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode($params));
         }
         curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, true);
         curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
