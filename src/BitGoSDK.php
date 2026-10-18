@@ -346,13 +346,14 @@ class BitGoSDK
     /**
      * This API call is used to create a new receive address for your wallet, which enhances your privacy.
      *
-     * @param int $chain            Specifies the address format, defaults to 0, use 10 for SegWit (only on BTC and BTG)
+     * @param int $chain            The address chain, see AddressType. Defaults to 10 (AddressType::P2SH_P2WSH_DEPOSIT, SegWit wrapped in P2SH).
+     *                              Pass AddressType::LEGACY_DEPOSIT (0) for coins without SegWit support, such as BCH.
      * @param string $label         Human-readable name for the address
-     * @param int $gasPrice         Custom gas price to be used for deployment of receive addresses (only for Ethereum)
      * @param bool $lowPriority     Whether the deployment of the address forwarder contract should use a low priority fee key (ETH only)
+     * @param int $gasPrice         Custom gas price to be used for deployment of receive addresses (ETH only)
      * @return array
      */
-    public function createWalletAddress(int $chain = AddressType::P2SH_DEPOSIT, ?string $label = null, bool $lowPriority = false, ?int $gasPrice = null)
+    public function createWalletAddress(int $chain = AddressType::P2SH_P2WSH_DEPOSIT, ?string $label = null, bool $lowPriority = false, ?int $gasPrice = null)
     {
         $this->url = $this->APIEndpoint . '/wallet/' . $this->walletId . '/address';
         $this->params = [
