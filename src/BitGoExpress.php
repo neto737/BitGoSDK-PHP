@@ -19,6 +19,10 @@ use neto737\BitGoSDK\Enum\CurrencyCode;
 
 class BitGoExpress
 {
+    // A little over BitGo Express's own 305 second request timeout, so Express reports its timeout first.
+    const DEFAULT_TIMEOUT = 310;
+    const DEFAULT_CONNECT_TIMEOUT = 10;
+
     private $APIEndpoint = null;
     private $AuthAPIEndpoint = null;
     private $url = null;
@@ -27,6 +31,8 @@ class BitGoExpress
     private $login = false;
     public $accessToken = null;
     public $walletId = null;
+    private int $timeout = self::DEFAULT_TIMEOUT;
+    private int $connectTimeout = self::DEFAULT_CONNECT_TIMEOUT;
 
     /**
      * BitGoExpress Initialization
@@ -43,6 +49,34 @@ class BitGoExpress
         $this->coin = $coin;
         $this->AuthAPIEndpoint = 'http://' . $this->hostname . ':' . $this->port . '/api/v2';
         $this->APIEndpoint = 'http://' . $this->hostname . ':' . $this->port . '/api/v2/' . $this->coin;
+    }
+
+    /**
+     * Set the maximum time a request may take, connection included
+     *
+     * @param int $seconds  0 waits forever
+     * @throws \InvalidArgumentException
+     */
+    public function setTimeout(int $seconds): void
+    {
+        if ($seconds < 0) {
+            throw new \InvalidArgumentException('Timeout must not be negative.');
+        }
+        $this->timeout = $seconds;
+    }
+
+    /**
+     * Set the maximum time to wait for a connection to BitGo Express
+     *
+     * @param int $seconds  0 uses cURL's built-in default of 300 seconds
+     * @throws \InvalidArgumentException
+     */
+    public function setConnectTimeout(int $seconds): void
+    {
+        if ($seconds < 0) {
+            throw new \InvalidArgumentException('Connect timeout must not be negative.');
+        }
+        $this->connectTimeout = $seconds;
     }
 
     /**
@@ -578,11 +612,45 @@ class BitGoExpress
         if (defined('CURLOPT_IPRESOLVE') && defined('CURL_IPRESOLVE_V4')) {
             curl_setopt($ch, CURLOPT_IPRESOLVE, CURL_IPRESOLVE_V4);
         }
+        curl_setopt($ch, CURLOPT_TIMEOUT, $this->timeout);
+        curl_setopt($ch, CURLOPT_CONNECTTIMEOUT, $this->connectTimeout);
 
         $response = curl_exec($ch);
+        $errno = curl_errno($ch);
+        $error = curl_error($ch);
+        $status = (int) curl_getinfo($ch, CURLINFO_RESPONSE_CODE);
         curl_close($ch);
 
-        return json_decode($response, $array);
+        if ($errno !== 0) {
+            $result = ['error' => $error !== '' ? $error : 'cURL error ' . $errno, 'status' => 0];
+            return $array ? $result : (object) $result;
+        }
+
+        return self::decodeResponse((string) $response, $status, $array);
+    }
+
+    /**
+     * Decode a response body. A non-2xx status or an invalid JSON body becomes ['error' => …, 'status' => …],
+     * keeping any other fields Express sent. With $array false, the error comes back as an object.
+     *
+     * @return mixed
+     */
+    private static function decodeResponse(string $body, int $status, bool $array)
+    {
+        $decoded = json_decode($body, $array);
+        $jsonError = trim($body) === '' ? null : (json_last_error() === JSON_ERROR_NONE ? null : json_last_error_msg());
+        $ok = $status >= 200 && $status < 300;
+
+        if ($ok && $jsonError === null) {
+            return $decoded;
+        }
+
+        $result = is_array($decoded) ? $decoded : (is_object($decoded) ? get_object_vars($decoded) : []);
+        if (!isset($result['error'])) {
+            $result['error'] = $ok ? 'Invalid JSON response: ' . $jsonError : 'HTTP ' . $status;
+        }
+        $result['status'] = $status;
+        return $array ? $result : (object) $result;
     }
 
     /**

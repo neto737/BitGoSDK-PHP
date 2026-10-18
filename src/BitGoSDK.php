@@ -22,6 +22,8 @@ class BitGoSDK
 {
     const BITGO_PRODUCTION_API_ENDPOINT = 'https://app.bitgo.com/api/v2/';
     const BITGO_TESTNET_API_ENDPOINT = 'https://app.bitgo-test.com/api/v2/';
+    const DEFAULT_TIMEOUT = 60;
+    const DEFAULT_CONNECT_TIMEOUT = 10;
 
     private $APIEndpoint = null;
     private $AuthAPIEndpoint = null;
@@ -29,6 +31,8 @@ class BitGoSDK
     private $params = [];
     public $walletId = null;
     private $requestIP = null;
+    private int $timeout = self::DEFAULT_TIMEOUT;
+    private int $connectTimeout = self::DEFAULT_CONNECT_TIMEOUT;
 
     /**
      * BitGoSDK Initialization
@@ -57,6 +61,34 @@ class BitGoSDK
         if (!$this->testNet && filter_var($ipAddress, FILTER_VALIDATE_IP)) {
             $this->requestIP = $ipAddress;
         }
+    }
+
+    /**
+     * Set the maximum time a request may take, connection included
+     *
+     * @param int $seconds  0 waits forever
+     * @throws \InvalidArgumentException
+     */
+    public function setTimeout(int $seconds): void
+    {
+        if ($seconds < 0) {
+            throw new \InvalidArgumentException('Timeout must not be negative.');
+        }
+        $this->timeout = $seconds;
+    }
+
+    /**
+     * Set the maximum time to wait for a connection to BitGo
+     *
+     * @param int $seconds  0 uses cURL's built-in default of 300 seconds
+     * @throws \InvalidArgumentException
+     */
+    public function setConnectTimeout(int $seconds): void
+    {
+        if ($seconds < 0) {
+            throw new \InvalidArgumentException('Connect timeout must not be negative.');
+        }
+        $this->connectTimeout = $seconds;
     }
 
     /**
@@ -982,11 +1014,44 @@ class BitGoSDK
         if (defined('CURLOPT_IPRESOLVE') && defined('CURL_IPRESOLVE_V4')) {
             curl_setopt($ch, CURLOPT_IPRESOLVE, CURL_IPRESOLVE_V4);
         }
+        curl_setopt($ch, CURLOPT_TIMEOUT, $this->timeout);
+        curl_setopt($ch, CURLOPT_CONNECTTIMEOUT, $this->connectTimeout);
 
         $response = curl_exec($ch);
+        $errno = curl_errno($ch);
+        $error = curl_error($ch);
+        $status = (int) curl_getinfo($ch, CURLINFO_RESPONSE_CODE);
         curl_close($ch);
 
-        return json_decode($response, true);
+        if ($errno !== 0) {
+            return ['error' => $error !== '' ? $error : 'cURL error ' . $errno, 'status' => 0];
+        }
+
+        return self::decodeResponse((string) $response, $status);
+    }
+
+    /**
+     * Decode a response body. A non-2xx status or an invalid JSON body becomes ['error' => …, 'status' => …],
+     * keeping any other fields BitGo sent.
+     *
+     * @return mixed
+     */
+    private static function decodeResponse(string $body, int $status)
+    {
+        $decoded = json_decode($body, true);
+        $jsonError = trim($body) === '' ? null : (json_last_error() === JSON_ERROR_NONE ? null : json_last_error_msg());
+        $ok = $status >= 200 && $status < 300;
+
+        if ($ok && $jsonError === null) {
+            return $decoded;
+        }
+
+        $result = is_array($decoded) ? $decoded : [];
+        if (!isset($result['error'])) {
+            $result['error'] = $ok ? 'Invalid JSON response: ' . $jsonError : 'HTTP ' . $status;
+        }
+        $result['status'] = $status;
+        return $result;
     }
 
     /**
