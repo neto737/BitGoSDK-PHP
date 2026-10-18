@@ -49,7 +49,6 @@ final class ExpressTlsTest extends TestCase
 
         self::assertTrue($options[CURLOPT_SSL_VERIFYPEER]);
         self::assertSame(2, $options[CURLOPT_SSL_VERIFYHOST]);
-        self::assertStringEndsWith('cacert.pem', $options[CURLOPT_CAINFO]);
     }
 
     public function testCustomCaFileIsUsed(): void

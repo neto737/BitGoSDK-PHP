@@ -14,6 +14,7 @@
 
 namespace neto737\BitGoSDK;
 
+use Composer\CaBundle\CaBundle;
 use neto737\BitGoSDK\Enum\CurrencyCode;
 
 class BitGoExpress
@@ -711,8 +712,11 @@ class BitGoExpress
         if ($authenticate && isset($this->accessToken)) {
             $headers[] = 'Authorization: Bearer ' . $this->accessToken;
         }
+        $headers[] = 'User-Agent: BitGoSDK-PHP/' . BitGoSDK::VERSION;
         $options[CURLOPT_HTTPHEADER] = $headers;
-        $options[CURLOPT_CAINFO] = $this->caFile ?? dirname(__FILE__) . '/cacert.pem';
+        // Without a custom CA file, use the system CA store, or composer/ca-bundle's Mozilla bundle if there is none.
+        $caPath = $this->caFile ?? CaBundle::getSystemCaRootBundlePath();
+        $options[is_dir($caPath) ? CURLOPT_CAPATH : CURLOPT_CAINFO] = $caPath;
         if ($this->forceIPv4) {
             $options[CURLOPT_IPRESOLVE] = CURL_IPRESOLVE_V4;
         }
