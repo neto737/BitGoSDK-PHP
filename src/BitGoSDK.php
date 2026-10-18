@@ -25,14 +25,23 @@ class BitGoSDK
     const DEFAULT_TIMEOUT = 60;
     const DEFAULT_CONNECT_TIMEOUT = 10;
 
+    // Coin families for coin-specific params. Each lists mainnet and testnet codes, so testnet wallets get the same params.
+    private const ETH_COINS = ['eth', 'teth', 'gteth', 'hteth'];
+    private const XRP_COINS = ['xrp', 'txrp'];
+    private const XLM_COINS = ['xlm', 'txlm'];
+
     private $APIEndpoint = null;
     private $AuthAPIEndpoint = null;
     private $url = null;
     private $params = [];
     public $walletId = null;
     private $requestIP = null;
+    public string $accessToken;
+    public string $coin;
+    public bool $testNet;
     private int $timeout = self::DEFAULT_TIMEOUT;
     private int $connectTimeout = self::DEFAULT_CONNECT_TIMEOUT;
+    private bool $forceIPv4 = false;
 
     /**
      * BitGoSDK Initialization
@@ -89,6 +98,16 @@ class BitGoSDK
             throw new \InvalidArgumentException('Connect timeout must not be negative.');
         }
         $this->connectTimeout = $seconds;
+    }
+
+    /**
+     * Resolve hostnames to IPv4 addresses only. Off by default, so cURL uses IPv4 or IPv6 as the system allows.
+     *
+     * @param bool $force
+     */
+    public function setForceIPv4(bool $force): void
+    {
+        $this->forceIPv4 = $force;
     }
 
     /**
@@ -250,7 +269,7 @@ class BitGoSDK
         $this->params = [
             'limit' => $limit,
             'prevId' => $prevId,
-            'allTokens' => $this->coin === CurrencyCode::ETHEREUM || $this->coin === CurrencyCode::ETHEREUM_TESTNET ? $allTokens : null,
+            'allTokens' => $this->coinIn(self::ETH_COINS) ? $allTokens : null,
         ];
         return $this->__execute('GET');
     }
@@ -265,7 +284,7 @@ class BitGoSDK
     {
         $this->url = $this->APIEndpoint . '/wallet/' . $this->walletId;
         $this->params = [
-            'allTokens' => $this->coin === CurrencyCode::ETHEREUM || $this->coin === CurrencyCode::ETHEREUM_TESTNET ? $allTokens : null,
+            'allTokens' => $this->coinIn(self::ETH_COINS) ? $allTokens : null,
         ];
         return $this->__execute('GET');
     }
@@ -294,7 +313,7 @@ class BitGoSDK
         $this->url = $this->APIEndpoint . '/wallet/' . $this->walletId . '/transfer';
         $this->params = [
             'prevId' => $prevId,
-            'allTokens' => $this->coin === CurrencyCode::ETHEREUM || $this->coin === CurrencyCode::ETHEREUM_TESTNET ? $allTokens : null,
+            'allTokens' => $this->coinIn(self::ETH_COINS) ? $allTokens : null,
         ];
         return $this->__execute('GET');
     }
@@ -339,8 +358,8 @@ class BitGoSDK
         $this->params = [
             'chain' => $chain,
             'label' => $label,
-            'lowPriority' => $this->coin === CurrencyCode::ETHEREUM ? $lowPriority : null,
-            'gasPrice' => $this->coin === CurrencyCode::ETHEREUM ? $gasPrice : null,
+            'lowPriority' => $this->coinIn(self::ETH_COINS) ? $lowPriority : null,
+            'gasPrice' => $this->coinIn(self::ETH_COINS) ? $gasPrice : null,
         ];
         return $this->__execute();
     }
@@ -355,8 +374,8 @@ class BitGoSDK
     {
         $this->url = $this->APIEndpoint . '/wallet/' . $this->walletId . '/address/' . $addressOrId;
         $this->params = [
-            'dt' => $this->coin === CurrencyCode::RIPPLE ? $dt : null,
-            'memoId' => $this->coin === CurrencyCode::STELLAR ? $memoId : null
+            'dt' => $this->coinIn(self::XRP_COINS) ? $dt : null,
+            'memoId' => $this->coinIn(self::XLM_COINS) ? $memoId : null
         ];
         return $this->__execute('GET');
     }
@@ -372,8 +391,8 @@ class BitGoSDK
     {
         $this->url = $this->APIEndpoint . '/wallet/' . $this->walletId . '/address/' . $addressOrId;
         $this->params = [
-            'dt' => $this->coin === CurrencyCode::RIPPLE ? $dt : null,
-            'memoId' => $this->coin === CurrencyCode::STELLAR ? $memoId : null,
+            'dt' => $this->coinIn(self::XRP_COINS) ? $dt : null,
+            'memoId' => $this->coinIn(self::XLM_COINS) ? $memoId : null,
             'label' => $label
         ];
         return $this->__execute('PUT');
@@ -413,7 +432,7 @@ class BitGoSDK
         $this->url = $this->APIEndpoint . '/wallet/' . $this->walletId . '/tx';
         $this->params = [
             'prevId' => $prevId,
-            'allTokens' => $this->coin === CurrencyCode::ETHEREUM || $this->coin === CurrencyCode::ETHEREUM_TESTNET ? $allTokens : null,
+            'allTokens' => $this->coinIn(self::ETH_COINS) ? $allTokens : null,
         ];
         return $this->__execute('GET');
     }
@@ -550,8 +569,8 @@ class BitGoSDK
         $this->url = $this->APIEndpoint . '/key';
         $this->params = [
             'source' => $source,
-            'enterprise' => $this->coin === CurrencyCode::ETHEREUM ? $enterprise : null,
-            'newFeeAddress' => $this->coin === CurrencyCode::ETHEREUM ? $newFeeAddress : null
+            'enterprise' => $this->coinIn(self::ETH_COINS) ? $enterprise : null,
+            'newFeeAddress' => $this->coinIn(self::ETH_COINS) ? $newFeeAddress : null
         ];
         return $this->__execute();
     }
@@ -749,8 +768,8 @@ class BitGoSDK
         $this->url = $this->APIEndpoint . '/pendingapprovals';
         $this->params = [
             'walletID' => $walletID,
-            'enterprise' => $this->coin === CurrencyCode::ETHEREUM ? $enterprise : null,
-            'allTokens' => $this->coin === CurrencyCode::ETHEREUM || $this->coin === CurrencyCode::ETHEREUM_TESTNET ? $allTokens : null
+            'enterprise' => $this->coinIn(self::ETH_COINS) ? $enterprise : null,
+            'allTokens' => $this->coinIn(self::ETH_COINS) ? $allTokens : null
         ];
         return $this->__execute('GET');
     }
@@ -781,7 +800,7 @@ class BitGoSDK
     {
         $this->url = $this->APIEndpoint . '/wallet/' . $this->walletId . '/webhooks';
         $this->params = [
-            'allTokens' => $this->coin === CurrencyCode::ETHEREUM || $this->coin === CurrencyCode::ETHEREUM_TESTNET ? $allTokens : null
+            'allTokens' => $this->coinIn(self::ETH_COINS) ? $allTokens : null
         ];
         return $this->__execute('GET');
     }
@@ -987,35 +1006,8 @@ class BitGoSDK
         $params = self::withoutNulls($this->params);
         $this->params = [];
 
-        $ch = curl_init($this->url);
-        if ($requestType === 'GET') {
-            curl_setopt($ch, CURLOPT_URL, $this->url . '?' . self::buildQuery($params));
-            curl_setopt($ch, CURLOPT_CUSTOMREQUEST, 'GET');
-        } elseif ($requestType === 'PUT') {
-            curl_setopt($ch, CURLOPT_CUSTOMREQUEST, 'PUT');
-            curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode($params));
-        } elseif ($requestType === 'DELETE') {
-            curl_setopt($ch, CURLOPT_CUSTOMREQUEST, 'DELETE');
-            curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode($params));
-        } elseif ($requestType === 'POST') {
-            curl_setopt($ch, CURLOPT_POST, true);
-            curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode($params));
-        }
-        curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, true);
-        curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-        curl_setopt($ch, CURLOPT_HTTPHEADER, [
-            'Content-Type: application/json',
-            'Authorization: Bearer ' . $this->accessToken
-        ]);
-        curl_setopt($ch, CURLOPT_CAINFO, dirname(__FILE__) . '/cacert.pem');
-        if (isset($this->requestIP)) {
-            curl_setopt($ch, CURLOPT_INTERFACE, $this->requestIP);
-        }
-        if (defined('CURLOPT_IPRESOLVE') && defined('CURL_IPRESOLVE_V4')) {
-            curl_setopt($ch, CURLOPT_IPRESOLVE, CURL_IPRESOLVE_V4);
-        }
-        curl_setopt($ch, CURLOPT_TIMEOUT, $this->timeout);
-        curl_setopt($ch, CURLOPT_CONNECTTIMEOUT, $this->connectTimeout);
+        $ch = curl_init();
+        curl_setopt_array($ch, $this->curlOptions($requestType, $params));
 
         $response = curl_exec($ch);
         $errno = curl_errno($ch);
@@ -1027,6 +1019,58 @@ class BitGoSDK
         }
 
         return self::decodeResponse((string) $response, $status);
+    }
+
+    /**
+     * The cURL options for a request to $this->url.
+     *
+     * @param array<string, mixed> $params
+     * @return array<int, mixed>
+     */
+    private function curlOptions(string $requestType, array $params): array
+    {
+        $options = [CURLOPT_URL => $this->url];
+        if ($requestType === 'GET') {
+            $options[CURLOPT_URL] = $this->url . '?' . self::buildQuery($params);
+            $options[CURLOPT_CUSTOMREQUEST] = 'GET';
+        } elseif ($requestType === 'PUT') {
+            $options[CURLOPT_CUSTOMREQUEST] = 'PUT';
+            $options[CURLOPT_POSTFIELDS] = json_encode($params);
+        } elseif ($requestType === 'DELETE') {
+            $options[CURLOPT_CUSTOMREQUEST] = 'DELETE';
+            $options[CURLOPT_POSTFIELDS] = json_encode($params);
+        } elseif ($requestType === 'POST') {
+            $options[CURLOPT_POST] = true;
+            $options[CURLOPT_POSTFIELDS] = json_encode($params);
+        }
+        $options[CURLOPT_SSL_VERIFYPEER] = true;
+        $options[CURLOPT_RETURNTRANSFER] = true;
+        $options[CURLOPT_HTTPHEADER] = [
+            'Content-Type: application/json',
+            'Authorization: Bearer ' . $this->accessToken
+        ];
+        $options[CURLOPT_CAINFO] = dirname(__FILE__) . '/cacert.pem';
+        if (isset($this->requestIP)) {
+            $options[CURLOPT_INTERFACE] = $this->requestIP;
+            // A bound local address can only reach hosts of the same IP version.
+            $options[CURLOPT_IPRESOLVE] = filter_var($this->requestIP, FILTER_VALIDATE_IP, FILTER_FLAG_IPV4) !== false ? CURL_IPRESOLVE_V4 : CURL_IPRESOLVE_V6;
+        }
+        if ($this->forceIPv4) {
+            $options[CURLOPT_IPRESOLVE] = CURL_IPRESOLVE_V4;
+        }
+        $options[CURLOPT_TIMEOUT] = $this->timeout;
+        $options[CURLOPT_CONNECTTIMEOUT] = $this->connectTimeout;
+        return $options;
+    }
+
+    /**
+     * Whether this client's coin is one of $coins.
+     *
+     * @param list<string> $coins
+     */
+    private function coinIn(array $coins): bool
+    {
+        return in_array($this->coin, $coins, true);
     }
 
     /**

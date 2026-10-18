@@ -23,32 +23,79 @@ class BitGoExpress
     const DEFAULT_TIMEOUT = 310;
     const DEFAULT_CONNECT_TIMEOUT = 10;
 
+    // Coin families for coin-specific params. Each lists mainnet and testnet codes, so testnet wallets get the same params.
+    private const UTXO_COINS = ['btc', 'tbtc', 'bch', 'tbch', 'btg', 'tbtg', 'dash', 'tdash', 'doge', 'tdoge', 'ltc', 'tltc', 'zec', 'tzec'];
+    private const BTC_COINS = ['btc', 'tbtc'];
+    private const SEGWIT_COINS = ['btc', 'tbtc', 'btg', 'tbtg', 'ltc', 'tltc'];
+    private const ETH_COINS = ['eth', 'teth', 'gteth', 'hteth'];
+    private const XRP_COINS = ['xrp', 'txrp'];
+
     private $APIEndpoint = null;
     private $AuthAPIEndpoint = null;
     private $url = null;
     private $params = [];
-    private $UTXObased = ['btc', 'bch', 'btg', 'dash', 'ltc', 'stx', 'zec', 'tbtc', 'tbch', 'tdash', 'tltc', 'tstx', 'tzec'];
-    private $login = false;
     public $accessToken = null;
     public $walletId = null;
+    public string $hostname;
+    public int $port;
+    public string $coin;
     private int $timeout = self::DEFAULT_TIMEOUT;
     private int $connectTimeout = self::DEFAULT_CONNECT_TIMEOUT;
+    private ?string $caFile = null;
+    private bool $verifyTls = true;
+    private bool $forceIPv4 = false;
 
     /**
      * BitGoExpress Initialization
      *
-     * @param string $hostname  Set the hostname of your BitGo Express instance
+     * @param string $hostname  Set the hostname of your BitGo Express instance. Prefix it with https:// if Express serves TLS.
      * @param int $port         Set the port of your BitGo Express instance
      * @param string $coin      Select the coin what you want to use with the BitGOSDK (use CurrencyCode class to select)
-     * @throws \Exception
+     * @throws \InvalidArgumentException if the hostname has a scheme other than http:// or https://
      */
     public function __construct(string $hostname, int $port, string $coin = CurrencyCode::BITCOIN)
     {
+        $scheme = 'http';
+        if (preg_match('#^([a-z][a-z0-9+.-]*)://(.*)$#i', $hostname, $matches) === 1) {
+            $scheme = strtolower($matches[1]);
+            if ($scheme !== 'http' && $scheme !== 'https') {
+                throw new \InvalidArgumentException('BitGo Express must be reached over http:// or https://.');
+            }
+            $hostname = rtrim($matches[2], '/');
+        }
+
         $this->hostname = $hostname;
         $this->port = $port;
         $this->coin = $coin;
-        $this->AuthAPIEndpoint = 'http://' . $this->hostname . ':' . $this->port . '/api/v2';
-        $this->APIEndpoint = 'http://' . $this->hostname . ':' . $this->port . '/api/v2/' . $this->coin;
+        $this->AuthAPIEndpoint = $scheme . '://' . $this->hostname . ':' . $this->port . '/api/v2';
+        $this->APIEndpoint = $scheme . '://' . $this->hostname . ':' . $this->port . '/api/v2/' . $this->coin;
+    }
+
+    /**
+     * Trust the CA certificates in a PEM file when connecting to an https:// Express.
+     * For a self-signed Express certificate, pass the certificate file itself.
+     *
+     * @param string $path  Path to a PEM file
+     * @throws \InvalidArgumentException if the file cannot be read
+     */
+    public function setCaFile(string $path): void
+    {
+        if (!is_file($path) || !is_readable($path)) {
+            throw new \InvalidArgumentException('CA file not found or not readable: ' . $path);
+        }
+        $this->caFile = $path;
+    }
+
+    /**
+     * Turn TLS certificate and hostname verification on or off for an https:// Express. It is on by default.
+     * With it off, anyone who can intercept the connection can read passphrases and keys. Prefer setCaFile(),
+     * and only turn verification off for local testing.
+     *
+     * @param bool $verify
+     */
+    public function setVerifyTls(bool $verify): void
+    {
+        $this->verifyTls = $verify;
     }
 
     /**
@@ -80,13 +127,23 @@ class BitGoExpress
     }
 
     /**
+     * Resolve hostnames to IPv4 addresses only. Off by default, so cURL uses IPv4 or IPv6 as the system allows.
+     *
+     * @param bool $force
+     */
+    public function setForceIPv4(bool $force): void
+    {
+        $this->forceIPv4 = $force;
+    }
+
+    /**
      * Get a token for first-party access to the BitGo API. First-party access is only intended for users accessing their own BitGo accounts.
      *
      * @param string $email     The user’s email address
      * @param string $password  The user’s password
      * @param string $otp       The 2nd-factor-authentication token
      * @param bool $extensible  True if the session is supposed to be extensible beyond a one-hour duration.
-     * @return array
+     * @return array            On success, the returned access_token is also stored in $accessToken for later calls.
      */
     public function login(string $email, string $password, string $otp, ?bool $extensible = null)
     {
@@ -97,8 +154,9 @@ class BitGoExpress
             'otp' => $otp,
             'extensible' => $extensible
         ];
-        $this->login = true;
-        return $this->__execute();
+        $result = $this->__execute('POST', true, false);
+        $this->rememberAccessToken($result);
+        return $result;
     }
 
     /**
@@ -137,7 +195,7 @@ class BitGoExpress
             'backupXpubProvider' => $backupXpubProvider,
             'enterprise' => $enterprise,
             'disableTransactionNotifications' => $disableTransactionNotifications,
-            'gasPrice' => $this->coin === CurrencyCode::ETHEREUM ? $gasPrice : 0,
+            'gasPrice' => $this->coinIn(self::ETH_COINS) ? $gasPrice : null,
             'passcodeEncryptionCode' => $passcodeEncryptionCode
         ];
         return $this->__execute();
@@ -204,22 +262,22 @@ class BitGoExpress
             'amount' => self::amountToString($amount),
             'walletPassphrase' => $walletPassphrase,
             'prv' => $prv,
-            'numBlocks' => in_array($this->coin, $this->UTXObased) ? $numBlocks : null,
-            'feeRate' => in_array($this->coin, $this->UTXObased) ? $feeRate : null,
+            'numBlocks' => $this->coinIn(self::UTXO_COINS) ? $numBlocks : null,
+            'feeRate' => $this->coinIn(self::UTXO_COINS) ? $feeRate : null,
             'comment' => $comment,
-            'unspents' => in_array($this->coin, $this->UTXObased) ? $unspents : null,
-            'minConfirms' => in_array($this->coin, $this->UTXObased) ? $minConfirms : null,
-            'enforceMinConfirmsForChange' => in_array($this->coin, $this->UTXObased) ? $enforceMinConfirmsForChange : null,
-            'targetWalletUnspents' => in_array($this->coin, $this->UTXObased) ? $targetWalletUnspents : null,
-            'noSplitChange' => in_array($this->coin, $this->UTXObased) ? $noSplitChange : null,
-            'minValue' => in_array($this->coin, $this->UTXObased) ? $minValue : null,
-            'maxValue' => in_array($this->coin, $this->UTXObased) ? $maxValue : null,
-            'gasPrice' => $this->coin === CurrencyCode::ETHEREUM ? $gasPrice : null,
-            'gasLimit' => $this->coin === CurrencyCode::ETHEREUM ? $gasLimit : null,
-            'sequenceId' => $this->coin === CurrencyCode::ETHEREUM ? $sequenceId : null,
-            'segwit' => in_array($this->coin, [CurrencyCode::BITCOIN, CurrencyCode::LITECOIN, CurrencyCode::BITCOIN_GOLD]) ? $segwit : null,
-            'lastLedgerSequence' => $this->coin === CurrencyCode::RIPPLE ? $lastLedgerSequence : null,
-            'ledgerSequenceDelta' => $this->coin === CurrencyCode::RIPPLE ? $ledgerSequenceDelta : null
+            'unspents' => $this->coinIn(self::UTXO_COINS) ? $unspents : null,
+            'minConfirms' => $this->coinIn(self::UTXO_COINS) ? $minConfirms : null,
+            'enforceMinConfirmsForChange' => $this->coinIn(self::UTXO_COINS) ? $enforceMinConfirmsForChange : null,
+            'targetWalletUnspents' => $this->coinIn(self::UTXO_COINS) ? $targetWalletUnspents : null,
+            'noSplitChange' => $this->coinIn(self::UTXO_COINS) ? $noSplitChange : null,
+            'minValue' => $this->coinIn(self::UTXO_COINS) ? $minValue : null,
+            'maxValue' => $this->coinIn(self::UTXO_COINS) ? $maxValue : null,
+            'gasPrice' => $this->coinIn(self::ETH_COINS) ? $gasPrice : null,
+            'gasLimit' => $this->coinIn(self::ETH_COINS) ? $gasLimit : null,
+            'sequenceId' => $this->coinIn(self::ETH_COINS) ? $sequenceId : null,
+            'segwit' => $this->coinIn(self::SEGWIT_COINS) ? $segwit : null,
+            'lastLedgerSequence' => $this->coinIn(self::XRP_COINS) ? $lastLedgerSequence : null,
+            'ledgerSequenceDelta' => $this->coinIn(self::XRP_COINS) ? $ledgerSequenceDelta : null
         ];
         return $this->__execute();
     }
@@ -256,22 +314,22 @@ class BitGoExpress
             'recipients' => self::recipientAmountsToStrings($recipients),
             'walletPassphrase' => $walletPassphrase,
             'prv' => $prv,
-            'numBlocks' => in_array($this->coin, $this->UTXObased) ? $numBlocks : null,
-            'feeRate' => in_array($this->coin, $this->UTXObased) ? $feeRate : null,
+            'numBlocks' => $this->coinIn(self::UTXO_COINS) ? $numBlocks : null,
+            'feeRate' => $this->coinIn(self::UTXO_COINS) ? $feeRate : null,
             'comment' => $comment,
-            'unspents' => in_array($this->coin, $this->UTXObased) ? $unspents : null,
-            'minConfirms' => in_array($this->coin, $this->UTXObased) ? $minConfirms : null,
-            'enforceMinConfirmsForChange' => in_array($this->coin, $this->UTXObased) ? $enforceMinConfirmsForChange : null,
-            'targetWalletUnspents' => in_array($this->coin, $this->UTXObased) ? $targetWalletUnspents : null,
-            'noSplitChange' => in_array($this->coin, $this->UTXObased) ? $noSplitChange : null,
-            'minValue' => in_array($this->coin, $this->UTXObased) ? $minValue : null,
-            'maxValue' => in_array($this->coin, $this->UTXObased) ? $maxValue : null,
-            'gasPrice' => $this->coin === CurrencyCode::ETHEREUM ? $gasPrice : null,
-            'gasLimit' => $this->coin === CurrencyCode::ETHEREUM ? $gasLimit : null,
-            'sequenceId' => $this->coin === CurrencyCode::ETHEREUM ? $sequenceId : null,
-            'segwit' => in_array($this->coin, [CurrencyCode::BITCOIN, CurrencyCode::LITECOIN, CurrencyCode::BITCOIN_GOLD]) ? $segwit : null,
-            'lastLedgerSequence' => $this->coin === CurrencyCode::RIPPLE ? $lastLedgerSequence : null,
-            'ledgerSequenceDelta' => $this->coin === CurrencyCode::RIPPLE ? $ledgerSequenceDelta : null
+            'unspents' => $this->coinIn(self::UTXO_COINS) ? $unspents : null,
+            'minConfirms' => $this->coinIn(self::UTXO_COINS) ? $minConfirms : null,
+            'enforceMinConfirmsForChange' => $this->coinIn(self::UTXO_COINS) ? $enforceMinConfirmsForChange : null,
+            'targetWalletUnspents' => $this->coinIn(self::UTXO_COINS) ? $targetWalletUnspents : null,
+            'noSplitChange' => $this->coinIn(self::UTXO_COINS) ? $noSplitChange : null,
+            'minValue' => $this->coinIn(self::UTXO_COINS) ? $minValue : null,
+            'maxValue' => $this->coinIn(self::UTXO_COINS) ? $maxValue : null,
+            'gasPrice' => $this->coinIn(self::ETH_COINS) ? $gasPrice : null,
+            'gasLimit' => $this->coinIn(self::ETH_COINS) ? $gasLimit : null,
+            'sequenceId' => $this->coinIn(self::ETH_COINS) ? $sequenceId : null,
+            'segwit' => $this->coinIn(self::SEGWIT_COINS) ? $segwit : null,
+            'lastLedgerSequence' => $this->coinIn(self::XRP_COINS) ? $lastLedgerSequence : null,
+            'ledgerSequenceDelta' => $this->coinIn(self::XRP_COINS) ? $ledgerSequenceDelta : null
         ];
         return $this->__execute();
     }
@@ -303,7 +361,7 @@ class BitGoExpress
             'maxValue' => $maxValue,
             'minHeight' => $minHeight,
             'feeRate' => $feeRate,
-            'feeTxConfirmTarget' => $this->coin === CurrencyCode::BITCOIN ? $feeTxConfirmTarget : null,
+            'feeTxConfirmTarget' => $this->coinIn(self::BTC_COINS) ? $feeTxConfirmTarget : null,
             'maxFeePercentage' => !isset($minValue) ? $maxFeePercentage : null,
             'minConfirms' => $minConfirms,
             'enforceMinConfirmsForChange' => $enforceMinConfirmsForChange
@@ -343,7 +401,7 @@ class BitGoExpress
             'minConfirms' => $minConfirms,
             'enforceMinConfirmsForChange' => $enforceMinConfirmsForChange,
             'feeRate' => $feeRate,
-            'feeTxConfirmTarget' => $this->coin === CurrencyCode::BITCOIN ? $feeTxConfirmTarget : null
+            'feeTxConfirmTarget' => $this->coinIn(self::BTC_COINS) ? $feeTxConfirmTarget : null
         ];
         return $this->__execute();
     }
@@ -371,12 +429,12 @@ class BitGoExpress
             'walletPassphrase' => $walletPassphrase,
             'xprv' => $xprv,
             'otp' => $otp,
-            'feeRate' => in_array($this->coin, $this->UTXObased) ? $feeRate : null,
-            'feeTxConfirmTarget' => in_array($this->coin, $this->UTXObased) ? $feeTxConfirmTarget : null,
-            'gasPrice' => $this->coin === CurrencyCode::ETHEREUM ? $gasPrice : null,
+            'feeRate' => $this->coinIn(self::UTXO_COINS) ? $feeRate : null,
+            'feeTxConfirmTarget' => $this->coinIn(self::UTXO_COINS) ? $feeTxConfirmTarget : null,
+            'gasPrice' => $this->coinIn(self::ETH_COINS) ? $gasPrice : null,
             'sequenceId' => $sequenceId,
-            'lastLedgerSequence' => $this->coin === CurrencyCode::RIPPLE ? $lastLedgerSequence : null,
-            'ledgerSequenceDelta' => $this->coin === CurrencyCode::RIPPLE ? $ledgerSequenceDelta : null
+            'lastLedgerSequence' => $this->coinIn(self::XRP_COINS) ? $lastLedgerSequence : null,
+            'ledgerSequenceDelta' => $this->coinIn(self::XRP_COINS) ? $ledgerSequenceDelta : null
         ];
         return $this->__execute();
     }
@@ -404,18 +462,18 @@ class BitGoExpress
         $this->url = $this->APIEndpoint . '/wallet/' . $this->walletId . '/tx/build';
         $this->params = [
             'recipients' => self::recipientAmountsToStrings($recipients),
-            'numBlocks' => in_array($this->coin, $this->UTXObased) ? $numBlocks : null,
-            'feeRate' => in_array($this->coin, $this->UTXObased) ? $feeRate : null,
-            'minConfirms' => in_array($this->coin, $this->UTXObased) ? $minConfirms : null,
-            'enforceMinConfirmsForChange' => in_array($this->coin, $this->UTXObased) ? $enforceMinConfirmsForChange : null,
-            'unspents' => in_array($this->coin, $this->UTXObased) ? $unspents : null,
-            'targetWalletUnspents' => in_array($this->coin, $this->UTXObased) ? $targetWalletUnspents : null,
-            'noSplitChange' => in_array($this->coin, $this->UTXObased) ? $noSplitChange : null,
-            'minValue' => in_array($this->coin, $this->UTXObased) ? $minValue : null,
-            'maxValue' => in_array($this->coin, $this->UTXObased) ? $maxValue : null,
-            'gasPrice' => $this->coin === CurrencyCode::ETHEREUM ? $gasPrice : null,
-            'lastLedgerSequence' => $this->coin === CurrencyCode::RIPPLE ? $lastLedgerSequence : null,
-            'ledgerSequenceDelta' => $this->coin === CurrencyCode::RIPPLE ? $ledgerSequenceDelta : null
+            'numBlocks' => $this->coinIn(self::UTXO_COINS) ? $numBlocks : null,
+            'feeRate' => $this->coinIn(self::UTXO_COINS) ? $feeRate : null,
+            'minConfirms' => $this->coinIn(self::UTXO_COINS) ? $minConfirms : null,
+            'enforceMinConfirmsForChange' => $this->coinIn(self::UTXO_COINS) ? $enforceMinConfirmsForChange : null,
+            'unspents' => $this->coinIn(self::UTXO_COINS) ? $unspents : null,
+            'targetWalletUnspents' => $this->coinIn(self::UTXO_COINS) ? $targetWalletUnspents : null,
+            'noSplitChange' => $this->coinIn(self::UTXO_COINS) ? $noSplitChange : null,
+            'minValue' => $this->coinIn(self::UTXO_COINS) ? $minValue : null,
+            'maxValue' => $this->coinIn(self::UTXO_COINS) ? $maxValue : null,
+            'gasPrice' => $this->coinIn(self::ETH_COINS) ? $gasPrice : null,
+            'lastLedgerSequence' => $this->coinIn(self::XRP_COINS) ? $lastLedgerSequence : null,
+            'ledgerSequenceDelta' => $this->coinIn(self::XRP_COINS) ? $ledgerSequenceDelta : null
         ];
         return $this->__execute('POST', false);
     }
@@ -587,33 +645,13 @@ class BitGoExpress
         return $this->__execute();
     }
 
-    private function __execute(string $requestType = 'POST', bool $array = true)
+    private function __execute(string $requestType = 'POST', bool $array = true, bool $authenticate = true)
     {
         $params = self::withoutNulls($this->params);
         $this->params = [];
 
-        $ch = curl_init($this->url);
-        if ($requestType === 'POST') {
-            curl_setopt($ch, CURLOPT_POST, true);
-            curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode($params));
-        } elseif ($requestType === 'PUT') {
-            curl_setopt($ch, CURLOPT_CUSTOMREQUEST, 'PUT');
-            curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode($params));
-        }
-        curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, true);
-        curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-        if (isset($this->accessToken) && !$this->login) {
-            curl_setopt($ch, CURLOPT_HTTPHEADER, [
-                'Content-Type: application/json',
-                'Authorization: Bearer ' . $this->accessToken
-            ]);
-        }
-        curl_setopt($ch, CURLOPT_CAINFO, dirname(__FILE__) . '/cacert.pem');
-        if (defined('CURLOPT_IPRESOLVE') && defined('CURL_IPRESOLVE_V4')) {
-            curl_setopt($ch, CURLOPT_IPRESOLVE, CURL_IPRESOLVE_V4);
-        }
-        curl_setopt($ch, CURLOPT_TIMEOUT, $this->timeout);
-        curl_setopt($ch, CURLOPT_CONNECTTIMEOUT, $this->connectTimeout);
+        $ch = curl_init();
+        curl_setopt_array($ch, $this->curlOptions($requestType, $params, $authenticate));
 
         $response = curl_exec($ch);
         $errno = curl_errno($ch);
@@ -626,6 +664,62 @@ class BitGoExpress
         }
 
         return self::decodeResponse((string) $response, $status, $array);
+    }
+
+    /**
+     * The cURL options for a request to $this->url.
+     *
+     * @param array<string, mixed> $params
+     * @param bool $authenticate    False to leave out the Authorization header, as login() does
+     * @return array<int, mixed>
+     */
+    private function curlOptions(string $requestType, array $params, bool $authenticate = true): array
+    {
+        $options = [CURLOPT_URL => $this->url];
+        if ($requestType === 'POST') {
+            $options[CURLOPT_POST] = true;
+            $options[CURLOPT_POSTFIELDS] = json_encode($params);
+        } elseif ($requestType === 'PUT') {
+            $options[CURLOPT_CUSTOMREQUEST] = 'PUT';
+            $options[CURLOPT_POSTFIELDS] = json_encode($params);
+        }
+        $options[CURLOPT_SSL_VERIFYPEER] = $this->verifyTls;
+        $options[CURLOPT_SSL_VERIFYHOST] = $this->verifyTls ? 2 : 0;
+        $options[CURLOPT_RETURNTRANSFER] = true;
+        $headers = ['Content-Type: application/json'];
+        if ($authenticate && isset($this->accessToken)) {
+            $headers[] = 'Authorization: Bearer ' . $this->accessToken;
+        }
+        $options[CURLOPT_HTTPHEADER] = $headers;
+        $options[CURLOPT_CAINFO] = $this->caFile ?? dirname(__FILE__) . '/cacert.pem';
+        if ($this->forceIPv4) {
+            $options[CURLOPT_IPRESOLVE] = CURL_IPRESOLVE_V4;
+        }
+        $options[CURLOPT_TIMEOUT] = $this->timeout;
+        $options[CURLOPT_CONNECTTIMEOUT] = $this->connectTimeout;
+        return $options;
+    }
+
+    /**
+     * Keep the token from a successful login, so later calls are authenticated with it.
+     *
+     * @param mixed $result
+     */
+    private function rememberAccessToken($result): void
+    {
+        if (is_array($result) && !isset($result['error']) && isset($result['access_token']) && is_string($result['access_token'])) {
+            $this->accessToken = $result['access_token'];
+        }
+    }
+
+    /**
+     * Whether this client's coin is one of $coins.
+     *
+     * @param list<string> $coins
+     */
+    private function coinIn(array $coins): bool
+    {
+        return in_array($this->coin, $coins, true);
     }
 
     /**
