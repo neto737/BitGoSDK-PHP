@@ -169,12 +169,6 @@ parameters:
 			path: src/BitGoSDK.php
 
 		-
-			message: '#^Method neto737\\BitGoSDK\\BitGoSDK\:\:addBlockWebhook\(\) return type has no value type specified in iterable type array\.$#'
-			identifier: missingType.iterableValue
-			count: 1
-			path: src/BitGoSDK.php
-
-		-
 			message: '#^Method neto737\\BitGoSDK\\BitGoSDK\:\:addKeychain\(\) return type has no value type specified in iterable type array\.$#'
 			identifier: missingType.iterableValue
 			count: 1
@@ -325,12 +319,6 @@ parameters:
 			path: src/BitGoSDK.php
 
 		-
-			message: '#^Method neto737\\BitGoSDK\\BitGoSDK\:\:listBlockWebhooks\(\) return type has no value type specified in iterable type array\.$#'
-			identifier: missingType.iterableValue
-			count: 1
-			path: src/BitGoSDK.php
-
-		-
 			message: '#^Method neto737\\BitGoSDK\\BitGoSDK\:\:listKeychains\(\) return type has no value type specified in iterable type array\.$#'
 			identifier: missingType.iterableValue
 			count: 1
@@ -380,12 +368,6 @@ parameters:
 
 		-
 			message: '#^Method neto737\\BitGoSDK\\BitGoSDK\:\:logout\(\) return type has no value type specified in iterable type array\.$#'
-			identifier: missingType.iterableValue
-			count: 1
-			path: src/BitGoSDK.php
-
-		-
-			message: '#^Method neto737\\BitGoSDK\\BitGoSDK\:\:removeBlockWebhook\(\) return type has no value type specified in iterable type array\.$#'
 			identifier: missingType.iterableValue
 			count: 1
 			path: src/BitGoSDK.php

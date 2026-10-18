@@ -3,6 +3,8 @@
 namespace neto737\BitGoSDK\Tests;
 
 use neto737\BitGoSDK\BitGoExpress;
+use neto737\BitGoSDK\BitGoSDK;
+use neto737\BitGoSDK\Tests\Fixtures\RecordingWebhookSdk;
 use PHPUnit\Framework\TestCase;
 use ReflectionMethod;
 
@@ -41,6 +43,42 @@ final class DeprecatedAliasTest extends TestCase
         self::assertSame($args, $express->forwarded);
     }
 
+    public function testAddBlockWebhookForwardsToAddUserWebhook(): void
+    {
+        $sdk = new RecordingWebhookSdk();
+
+        self::assertSame(['forwarded' => true], $sdk->addBlockWebhook('https://example.com/hook', 'wallet_confirmation', 'label', 0));
+        self::assertSame(['addUserWebhook', ['https://example.com/hook', 'wallet_confirmation', 'label', 0]], $sdk->forwarded);
+    }
+
+    public function testAddBlockWebhookStillSendsUnknownTypesAsBlock(): void
+    {
+        $sdk = new RecordingWebhookSdk();
+
+        $sdk->addBlockWebhook('https://example.com/hook', 'transfer');
+
+        self::assertSame(['addUserWebhook', ['https://example.com/hook', 'block', null, null]], $sdk->forwarded);
+    }
+
+    public function testListBlockWebhooksForwardsToListUserWebhooks(): void
+    {
+        $sdk = new RecordingWebhookSdk();
+
+        self::assertSame(['forwarded' => true], $sdk->listBlockWebhooks());
+        self::assertSame(['listUserWebhooks', []], $sdk->forwarded);
+    }
+
+    public function testRemoveBlockWebhookForwardsToRemoveUserWebhook(): void
+    {
+        $sdk = new RecordingWebhookSdk();
+
+        self::assertSame(['forwarded' => true], $sdk->removeBlockWebhook('https://example.com/hook'));
+        self::assertSame(['removeUserWebhook', ['https://example.com/hook', 'block']], $sdk->forwarded);
+
+        $sdk->removeBlockWebhook('https://example.com/hook', 'wallet_confirmation');
+        self::assertSame(['removeUserWebhook', ['https://example.com/hook', 'wallet_confirmation']], $sdk->forwarded);
+    }
+
     /**
      * @return array<string, array{class-string, string, string}>
      */
@@ -48,6 +86,9 @@ final class DeprecatedAliasTest extends TestCase
     {
         return [
             'funoutWalletUnspents' => [BitGoExpress::class, 'funoutWalletUnspents', 'fanoutWalletUnspents'],
+            'addBlockWebhook' => [BitGoSDK::class, 'addBlockWebhook', 'addUserWebhook'],
+            'listBlockWebhooks' => [BitGoSDK::class, 'listBlockWebhooks', 'listUserWebhooks'],
+            'removeBlockWebhook' => [BitGoSDK::class, 'removeBlockWebhook', 'removeUserWebhook'],
         ];
     }
 

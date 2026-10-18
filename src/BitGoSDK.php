@@ -861,7 +861,7 @@ class BitGoSDK
     }
 
     /**
-     * List all webhooks set up on the user.
+     * List the user's webhooks for this coin, such as block and wallet_confirmation webhooks.
      *
      * @return array
      */
@@ -875,7 +875,7 @@ class BitGoSDK
      * Add a webhook that will result in an HTTP callback at the specified URL from BitGo when events are triggered.
      *
      * @param string $url           URL to fire the webhook to.
-     * @param string $type          Type of event to listen to (can be of type 'block').
+     * @param string $type          Type of event to listen to, e.g. 'block' or 'wallet_confirmation'.
      * @param string $label         Label of the new webhook.
      * @param int $numConfirmations Number of confirmations before triggering the webhook.
      * @return array
@@ -896,7 +896,7 @@ class BitGoSDK
      * Removing a webhook will cause new events of the specified type to no longer trigger HTTP callbacks to your URLs.
      *
      * @param string $url   URL for callback requests to be made at.
-     * @param string $type  Type of event to listen to (can be of type 'block').
+     * @param string $type  Type of event to listen to, e.g. 'block' or 'wallet_confirmation'.
      * @return array
      */
     public function removeUserWebhook(string $url, string $type)
@@ -926,53 +926,39 @@ class BitGoSDK
     }
 
     /**
-     * Adds a webhook that will result in an HTTP callback at the specified URL from BitGo when events are triggered.
+     * @deprecated 2.3.0 Same endpoint as addUserWebhook(). Use addUserWebhook(), which sends $type unchanged.
      *
      * @param string $url           URL to fire the webhook to.
-     * @param string $type          Type of event to listen to (can be 'block' or 'wallet_confirmation').
+     * @param string $type          'block' or 'wallet_confirmation'. Any other value is sent as 'block'.
      * @param string $label         Label of the new webhook.
-     * @param int $numConfirmations Number of confirmations before triggering the webhook. If 0 or unspecified, requests will be sent to the callback endpoint when the transfer is first seen and when it is confirmed.
-
-     * @return array
+     * @param int $numConfirmations Number of confirmations before triggering the webhook.
+     * @return array<string, mixed>
      */
     public function addBlockWebhook(string $url, string $type = 'block', ?string $label = null, ?int $numConfirmations = null)
     {
-        $this->url = $this->APIEndpoint . '/webhooks';
-        $this->params = [
-            'url' => $url,
-            'type' => (in_array($type, ['block', 'wallet_confirmation'])) ? $type : 'block',
-            'label' => $label,
-            'numConfirmations' => $numConfirmations
-        ];
-        return $this->__execute();
+        return $this->addUserWebhook($url, self::blockWebhookType($type), $label, $numConfirmations);
     }
 
     /**
-     * Returns block webhooks. The types of webhooks are block and wallet_confirmation notifications.
+     * @deprecated 2.3.0 Same endpoint as listUserWebhooks(). Use listUserWebhooks().
      *
-     * @return array
+     * @return array<string, mixed>
      */
     public function listBlockWebhooks()
     {
-        $this->url = $this->APIEndpoint . '/webhooks';
-        return $this->__execute('GET');
+        return $this->listUserWebhooks();
     }
 
     /**
-     * Removing a webhook will cause new events of the specified type to no longer trigger HTTP callbacks to your URLs.
+     * @deprecated 2.3.0 Same endpoint as removeUserWebhook(). Use removeUserWebhook(), which sends $type unchanged.
      *
-     * @param string $url
-     * @param string $type
-     * @return array
+     * @param string $url   URL for callback requests to be made at.
+     * @param string $type  'block' or 'wallet_confirmation'. Any other value is sent as 'block'.
+     * @return array<string, mixed>
      */
     public function removeBlockWebhook(string $url, string $type = 'block')
     {
-        $this->url = $this->APIEndpoint . '/webhooks';
-        $this->params = [
-            'url' => $url,
-            'type' => (in_array($type, ['block', 'wallet_confirmation'])) ? $type : 'block'
-        ];
-        return $this->__execute('DELETE');
+        return $this->removeUserWebhook($url, self::blockWebhookType($type));
     }
 
     /**
@@ -1061,6 +1047,14 @@ class BitGoSDK
         $options[CURLOPT_TIMEOUT] = $this->timeout;
         $options[CURLOPT_CONNECTTIMEOUT] = $this->connectTimeout;
         return $options;
+    }
+
+    /**
+     * The type the deprecated *BlockWebhook() methods send: 'block' unless 'wallet_confirmation' was asked for.
+     */
+    private static function blockWebhookType(string $type): string
+    {
+        return in_array($type, ['block', 'wallet_confirmation'], true) ? $type : 'block';
     }
 
     /**
