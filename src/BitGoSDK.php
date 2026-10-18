@@ -60,15 +60,19 @@ class BitGoSDK
     }
 
     /**
-     * Set the IP that will make requests on BitGo servers (useful feature to people who uses shared hosting)
+     * Set the local IP that requests to BitGo are sent from (useful on hosts with several IPs, such as shared hosting)
      *
-     * @param string $ipAddress
+     * @param string $ipAddress An IPv4 or IPv6 address of this host
+     * @return bool             Whether the IP was applied. It is not applied on testnet, or if $ipAddress is not a valid IP,
+     *                          and any IP set earlier is kept.
      */
     public function setRequestIP(string $ipAddress)
     {
-        if (!$this->testNet && filter_var($ipAddress, FILTER_VALIDATE_IP)) {
-            $this->requestIP = $ipAddress;
+        if ($this->testNet || filter_var($ipAddress, FILTER_VALIDATE_IP) === false) {
+            return false;
         }
+        $this->requestIP = $ipAddress;
+        return true;
     }
 
     /**
