@@ -10,7 +10,8 @@
   <a href="https://packagist.org/packages/neto737/bitgosdk-php"><img src="https://img.shields.io/packagist/dt/neto737/bitgosdk-php" alt="Total Downloads"></a>
   <img src="https://img.shields.io/badge/php-%E2%89%A5%207.4-777BB4?logo=php&logoColor=white" alt="PHP 7.4 or later">
   <a href="https://github.com/neto737/BitGoSDK-PHP/actions/workflows/ci.yml"><img src="https://github.com/neto737/BitGoSDK-PHP/actions/workflows/ci.yml/badge.svg?branch=main" alt="CI"></a>
-  <a href="LICENSE"><img src="https://img.shields.io/packagist/l/neto737/bitgosdk-php" alt="License"></a>
+  <a href="https://codecov.io/gh/neto737/BitGoSDK-PHP"><img src="https://codecov.io/gh/neto737/BitGoSDK-PHP/branch/main/graph/badge.svg" alt="Coverage"></a>
+  <a href="LICENSE"><img src="https://img.shields.io/github/license/neto737/BitGoSDK-PHP" alt="License"></a>
 </p>
 
 ---
