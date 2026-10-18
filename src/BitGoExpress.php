@@ -35,22 +35,60 @@ class BitGoExpress
     public string $coin;
     private int $timeout = self::DEFAULT_TIMEOUT;
     private int $connectTimeout = self::DEFAULT_CONNECT_TIMEOUT;
+    private ?string $caFile = null;
+    private bool $verifyTls = true;
 
     /**
      * BitGoExpress Initialization
      *
-     * @param string $hostname  Set the hostname of your BitGo Express instance
+     * @param string $hostname  Set the hostname of your BitGo Express instance. Prefix it with https:// if Express serves TLS.
      * @param int $port         Set the port of your BitGo Express instance
      * @param string $coin      Select the coin what you want to use with the BitGOSDK (use CurrencyCode class to select)
-     * @throws \Exception
+     * @throws \InvalidArgumentException if the hostname has a scheme other than http:// or https://
      */
     public function __construct(string $hostname, int $port, string $coin = CurrencyCode::BITCOIN)
     {
+        $scheme = 'http';
+        if (preg_match('#^([a-z][a-z0-9+.-]*)://(.*)$#i', $hostname, $matches) === 1) {
+            $scheme = strtolower($matches[1]);
+            if ($scheme !== 'http' && $scheme !== 'https') {
+                throw new \InvalidArgumentException('BitGo Express must be reached over http:// or https://.');
+            }
+            $hostname = rtrim($matches[2], '/');
+        }
+
         $this->hostname = $hostname;
         $this->port = $port;
         $this->coin = $coin;
-        $this->AuthAPIEndpoint = 'http://' . $this->hostname . ':' . $this->port . '/api/v2';
-        $this->APIEndpoint = 'http://' . $this->hostname . ':' . $this->port . '/api/v2/' . $this->coin;
+        $this->AuthAPIEndpoint = $scheme . '://' . $this->hostname . ':' . $this->port . '/api/v2';
+        $this->APIEndpoint = $scheme . '://' . $this->hostname . ':' . $this->port . '/api/v2/' . $this->coin;
+    }
+
+    /**
+     * Trust the CA certificates in a PEM file when connecting to an https:// Express.
+     * For a self-signed Express certificate, pass the certificate file itself.
+     *
+     * @param string $path  Path to a PEM file
+     * @throws \InvalidArgumentException if the file cannot be read
+     */
+    public function setCaFile(string $path): void
+    {
+        if (!is_file($path) || !is_readable($path)) {
+            throw new \InvalidArgumentException('CA file not found or not readable: ' . $path);
+        }
+        $this->caFile = $path;
+    }
+
+    /**
+     * Turn TLS certificate and hostname verification on or off for an https:// Express. It is on by default.
+     * With it off, anyone who can intercept the connection can read passphrases and keys. Prefer setCaFile(),
+     * and only turn verification off for local testing.
+     *
+     * @param bool $verify
+     */
+    public function setVerifyTls(bool $verify): void
+    {
+        $this->verifyTls = $verify;
     }
 
     /**
@@ -628,14 +666,15 @@ class BitGoExpress
             $options[CURLOPT_CUSTOMREQUEST] = 'PUT';
             $options[CURLOPT_POSTFIELDS] = json_encode($params);
         }
-        $options[CURLOPT_SSL_VERIFYPEER] = true;
+        $options[CURLOPT_SSL_VERIFYPEER] = $this->verifyTls;
+        $options[CURLOPT_SSL_VERIFYHOST] = $this->verifyTls ? 2 : 0;
         $options[CURLOPT_RETURNTRANSFER] = true;
         $headers = ['Content-Type: application/json'];
         if ($authenticate && isset($this->accessToken)) {
             $headers[] = 'Authorization: Bearer ' . $this->accessToken;
         }
         $options[CURLOPT_HTTPHEADER] = $headers;
-        $options[CURLOPT_CAINFO] = dirname(__FILE__) . '/cacert.pem';
+        $options[CURLOPT_CAINFO] = $this->caFile ?? dirname(__FILE__) . '/cacert.pem';
         if (defined('CURLOPT_IPRESOLVE') && defined('CURL_IPRESOLVE_V4')) {
             $options[CURLOPT_IPRESOLVE] = CURL_IPRESOLVE_V4;
         }
