@@ -49,12 +49,6 @@ parameters:
 			path: src/BitGoExpress.php
 
 		-
-			message: '#^Method neto737\\BitGoSDK\\BitGoExpress\:\:funoutWalletUnspents\(\) return type has no value type specified in iterable type array\.$#'
-			identifier: missingType.iterableValue
-			count: 1
-			path: src/BitGoExpress.php
-
-		-
 			message: '#^Method neto737\\BitGoSDK\\BitGoExpress\:\:generateWallet\(\) return type has no value type specified in iterable type array\.$#'
 			identifier: missingType.iterableValue
 			count: 1
@@ -253,12 +247,6 @@ parameters:
 			path: src/BitGoSDK.php
 
 		-
-			message: '#^Method neto737\\BitGoSDK\\BitGoSDK\:\:getMaximumSpendable\(\) has invalid return type neto737\\BitGoSDK\\type\.$#'
-			identifier: class.notFound
-			count: 1
-			path: src/BitGoSDK.php
-
-		-
 			message: '#^Method neto737\\BitGoSDK\\BitGoSDK\:\:getPendingApproval\(\) return type has no value type specified in iterable type array\.$#'
 			identifier: missingType.iterableValue
 			count: 1
@@ -337,18 +325,6 @@ parameters:
 			path: src/BitGoSDK.php
 
 		-
-			message: '#^Method neto737\\BitGoSDK\\BitGoSDK\:\:getWebhookPayload\(\) has invalid return type neto737\\BitGoSDK\\type\.$#'
-			identifier: class.notFound
-			count: 1
-			path: src/BitGoSDK.php
-
-		-
-			message: '#^Method neto737\\BitGoSDK\\BitGoSDK\:\:getWebhookPayload\(\) should return neto737\\BitGoSDK\\type but returns string\|false\.$#'
-			identifier: return.type
-			count: 1
-			path: src/BitGoSDK.php
-
-		-
 			message: '#^Method neto737\\BitGoSDK\\BitGoSDK\:\:listBlockWebhooks\(\) return type has no value type specified in iterable type array\.$#'
 			identifier: missingType.iterableValue
 			count: 1
@@ -357,12 +333,6 @@ parameters:
 		-
 			message: '#^Method neto737\\BitGoSDK\\BitGoSDK\:\:listKeychains\(\) return type has no value type specified in iterable type array\.$#'
 			identifier: missingType.iterableValue
-			count: 1
-			path: src/BitGoSDK.php
-
-		-
-			message: '#^Method neto737\\BitGoSDK\\BitGoSDK\:\:listPendingApprovals\(\) has invalid return type neto737\\BitGoSDK\\type\.$#'
-			identifier: class.notFound
 			count: 1
 			path: src/BitGoSDK.php
 

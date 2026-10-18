@@ -47,7 +47,7 @@ class BitGoSDK
      * BitGoSDK Initialization
      *
      * @param string $accessToken   Set your Access Token (API Key)
-     * @param string $coin          Select the coin what you want to use with the BitGOSDK (use CurrencyCode class to select)
+     * @param string $coin          Select the coin you want to use with the BitGoSDK (use CurrencyCode class to select)
      * @param bool $testNet         Start instance as testnet (true or false), default is false
      * @throws \Exception
      */
@@ -493,7 +493,7 @@ class BitGoSDK
      * @param int $feeRate                      The desired fee rate for the transaction in satoshis/kB
      * @param int $minConfirms                  The required number of confirmations for each non-change unspent
      * @param bool $enforceMinConfirmsForChange Apply the required confirmations set in minConfirms for change outputs
-     * @return type
+     * @return array<string, mixed>
      */
     public function getMaximumSpendable(?int $limit = null, ?int $minValue = null, ?int $maxValue = null, ?int $minHeight = null, ?int $feeRate = null, ?int $minConfirms = null, ?bool $enforceMinConfirmsForChange = null)
     {
@@ -528,7 +528,7 @@ class BitGoSDK
     }
 
     /**
-     * Retrieve a keychain based on its key id.
+     * List the current user's keychains for this coin.
      *
      * @param int $limit        Max number of results in a single call. Defaults to 25.
      * @param string $prevId    Continue iterating (provided by nextBatchPrevId in the previous list)
@@ -578,7 +578,7 @@ class BitGoSDK
     /**
      * Creates a new backup keychain on a third party specializing in key recovery services.
      *
-     * @param string $provider  	The backup provider for the keychain, e. g. 'cme'
+     * @param string $provider  The backup provider for the keychain, e. g. 'cme'
      * @param string $source    The origin of the keychain. Must be 'backup' for a backup key.
      * @return array
      */
@@ -761,7 +761,7 @@ class BitGoSDK
      * @param string $walletID      Base address of the wallet
      * @param string $enterprise    The public ID of the enterprise
      * @param bool $allTokens       Gets details of all token pending approvals. Only valid for ETH/TETH
-     * @return type
+     * @return array<string, mixed>
      */
     public function listPendingApprovals(?string $walletID = null, ?string $enterprise = null, bool $allTokens = false)
     {
@@ -779,7 +779,7 @@ class BitGoSDK
      *
      * @param bool $decodeJson      Set true to decode the JSON
      * @param bool $decodeAsArray   Set true to decode the JSON as array
-     * @return type
+     * @return mixed                The decoded payload, or the raw body if $decodeJson is false
      */
     public static function getWebhookPayload(bool $decodeJson = true, bool $decodeAsArray = true)
     {
@@ -793,7 +793,7 @@ class BitGoSDK
     /**
      * List all webhooks set up on the wallet.
      *
-     * @param bool $allTokens   Gets details of all token pending approvals. Only valid for ETH/TETH
+     * @param bool $allTokens   Gets details of all token webhooks. Only valid for ETH/TETH
      * @return array
      */
     public function listWalletWebhooks(bool $allTokens = false)
@@ -809,7 +809,7 @@ class BitGoSDK
      * Add a webhook that will result in an HTTP callback at the specified URL from BitGo when events are triggered.
      *
      * @param string $url           URL to fire the webhook to.
-     * @param string $type          Type of event to listen to (can be 'transfer' or 'pendingaapproval').
+     * @param string $type          Type of event to listen to (can be 'transfer' or 'pendingapproval').
      * @param int $numConfirmations Number of confirmations before triggering the webhook. If 0 or unspecified, requests will be sent to the callback endpoint when the transfer is first seen and when it is confirmed.
      * @return array
      */
@@ -828,7 +828,7 @@ class BitGoSDK
      * Removing a webhook will cause new events of the specified type to no longer trigger HTTP callbacks to your URLs.
      *
      * @param string $url   URL for callback requests to be made at.
-     * @param string $type  Type of event to listen to (can be 'transfer' or 'pendingaapproval').
+     * @param string $type  Type of event to listen to (can be 'transfer' or 'pendingapproval').
      * @return array
      */
     public function removeWalletWebhook(string $url, string $type)

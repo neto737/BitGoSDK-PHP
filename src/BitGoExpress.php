@@ -50,7 +50,7 @@ class BitGoExpress
      *
      * @param string $hostname  Set the hostname of your BitGo Express instance. Prefix it with https:// if Express serves TLS.
      * @param int $port         Set the port of your BitGo Express instance
-     * @param string $coin      Select the coin what you want to use with the BitGOSDK (use CurrencyCode class to select)
+     * @param string $coin      Select the coin you want to use with the BitGoSDK (use CurrencyCode class to select)
      * @throws \InvalidArgumentException if the hostname has a scheme other than http:// or https://
      */
     public function __construct(string $hostname, int $port, string $coin = CurrencyCode::BITCOIN)
@@ -396,9 +396,9 @@ class BitGoExpress
      * @param bool $enforceMinConfirmsForChange Apply the required confirmations set in minConfirms for change outputs
      * @param int $feeRate                      The desired fee rate for the transaction in satoshis/kB
      * @param int $feeTxConfirmTarget           Fee rate is automatically chosen by targeting a transaction confirmation in this number of blocks (Only available on BTC, feeRate takes precedence if also set)
-     * @return array
+     * @return array<string, mixed>
      */
-    public function funoutWalletUnspents(string $walletPassphrase, ?string $xprv = null, ?int $maxNumInputsToUse = null, ?int $numUnspentsToMake = null, ?int $minValue = null, ?int $maxValue = null, ?int $minHeight = null, ?int $maxFeePercentage = null, ?int $minConfirms = null, ?bool $enforceMinConfirmsForChange = null, ?int $feeRate = null, ?int $feeTxConfirmTarget = null)
+    public function fanoutWalletUnspents(string $walletPassphrase, ?string $xprv = null, ?int $maxNumInputsToUse = null, ?int $numUnspentsToMake = null, ?int $minValue = null, ?int $maxValue = null, ?int $minHeight = null, ?int $maxFeePercentage = null, ?int $minConfirms = null, ?bool $enforceMinConfirmsForChange = null, ?int $feeRate = null, ?int $feeTxConfirmTarget = null)
     {
         $this->url = $this->APIEndpoint . '/wallet/' . $this->walletId . '/fanoutunspents';
         $this->params = [
@@ -419,7 +419,17 @@ class BitGoExpress
     }
 
     /**
-     * his SDK call attempts to move all of the funds of the wallet into the address provided.
+     * @deprecated 2.3.0 Misspelled. Use fanoutWalletUnspents(), which takes the same arguments.
+     *
+     * @return array<string, mixed>
+     */
+    public function funoutWalletUnspents(string $walletPassphrase, ?string $xprv = null, ?int $maxNumInputsToUse = null, ?int $numUnspentsToMake = null, ?int $minValue = null, ?int $maxValue = null, ?int $minHeight = null, ?int $maxFeePercentage = null, ?int $minConfirms = null, ?bool $enforceMinConfirmsForChange = null, ?int $feeRate = null, ?int $feeTxConfirmTarget = null)
+    {
+        return $this->fanoutWalletUnspents($walletPassphrase, $xprv, $maxNumInputsToUse, $numUnspentsToMake, $minValue, $maxValue, $minHeight, $maxFeePercentage, $minConfirms, $enforceMinConfirmsForChange, $feeRate, $feeTxConfirmTarget);
+    }
+
+    /**
+     * This SDK call attempts to move all of the funds of the wallet into the address provided.
      *
      * @param string $address               The address to send all the funds in the wallet to.
      * @param string $walletPassphrase      Passphrase to decrypt the wallet’s private key.
@@ -520,7 +530,7 @@ class BitGoExpress
      * @param object $halfSigned    The half-signed info returned from 'Sign Transaction’
      * @param string $otp           The current 2FA code
      * @param string $txHex         The half-signed, serialized transaction hex (alternative to halfSigned)
-     * @param string $comment       Any additional comment to attach to the transaaction
+     * @param string $comment       Any additional comment to attach to the transaction
      * @return array
      */
     public function sendBuildTransaction($halfSigned, string $otp, ?string $txHex = null, ?string $comment = null)
