@@ -9,6 +9,7 @@ use ReflectionProperty;
 
 /**
  * B1: request params must not leak from one call into the next.
+ * B2: only null params are dropped, so 0, false and '' are still sent.
  *
  * Until requests go through a capturable transport, these tests point the client
  * at a closed local port and inspect the internal params state after the call.
@@ -42,6 +43,36 @@ final class RequestParamsTest extends TestCase
         self::assertSame([], $this->getPrivate($express, 'params'));
     }
 
+    public function testSdkDropsOnlyNullParams(): void
+    {
+        $sdk = @new BitGoSDK('token', 'tbtc', true);
+
+        self::assertSame(
+            ['limit' => 0, 'mine' => false, 'label' => ''],
+            $this->invoke($sdk, 'withoutNulls', ['limit' => 0, 'prevId' => null, 'mine' => false, 'label' => ''])
+        );
+    }
+
+    public function testExpressDropsOnlyNullParams(): void
+    {
+        $express = @new BitGoExpress('127.0.0.1', 1, 'tbtc');
+
+        self::assertSame(
+            ['amount' => 0, 'noSplitChange' => false],
+            $this->invoke($express, 'withoutNulls', ['amount' => 0, 'comment' => null, 'noSplitChange' => false])
+        );
+    }
+
+    public function testSdkQuerySendsBooleansAsWords(): void
+    {
+        $sdk = @new BitGoSDK('token', 'tbtc', true);
+
+        self::assertSame(
+            'limit=0&mine=false&allTokens=true',
+            $this->invoke($sdk, 'buildQuery', ['limit' => 0, 'mine' => false, 'allTokens' => true])
+        );
+    }
+
     /**
      * @param object $client
      */
@@ -52,6 +83,20 @@ final class RequestParamsTest extends TestCase
             $method->setAccessible(true);
         }
         $method->invoke($client, $requestType);
+    }
+
+    /**
+     * @param object $client
+     * @param mixed ...$args
+     * @return mixed
+     */
+    private function invoke($client, string $name, ...$args)
+    {
+        $method = new \ReflectionMethod($client, $name);
+        if (PHP_VERSION_ID < 80100) {
+            $method->setAccessible(true);
+        }
+        return $method->invoke($client, ...$args);
     }
 
     /**

@@ -555,7 +555,7 @@ class BitGoExpress
 
     private function __execute(string $requestType = 'POST', bool $array = true)
     {
-        $params = array_filter($this->params);
+        $params = self::withoutNulls($this->params);
         $this->params = [];
 
         $ch = curl_init($this->url);
@@ -585,4 +585,16 @@ class BitGoExpress
         return json_decode($response, $array);
     }
 
+    /**
+     * Drop only unset (null) params, so 0, false and '' are still sent.
+     *
+     * @param array<string, mixed> $params
+     * @return array<string, mixed>
+     */
+    private static function withoutNulls(array $params): array
+    {
+        return array_filter($params, static function ($value): bool {
+            return $value !== null;
+        });
+    }
 }

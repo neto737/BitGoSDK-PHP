@@ -890,12 +890,12 @@ class BitGoSDK
 
     private function __execute(string $requestType = 'POST')
     {
-        $params = array_filter($this->params);
+        $params = self::withoutNulls($this->params);
         $this->params = [];
 
         $ch = curl_init($this->url);
         if ($requestType === 'GET') {
-            curl_setopt($ch, CURLOPT_URL, $this->url . '?' . http_build_query($params));
+            curl_setopt($ch, CURLOPT_URL, $this->url . '?' . self::buildQuery($params));
             curl_setopt($ch, CURLOPT_CUSTOMREQUEST, 'GET');
         } elseif ($requestType === 'PUT') {
             curl_setopt($ch, CURLOPT_CUSTOMREQUEST, 'PUT');
@@ -927,4 +927,28 @@ class BitGoSDK
         return json_decode($response, true);
     }
 
+    /**
+     * Drop only unset (null) params, so 0, false and '' are still sent.
+     *
+     * @param array<string, mixed> $params
+     * @return array<string, mixed>
+     */
+    private static function withoutNulls(array $params): array
+    {
+        return array_filter($params, static function ($value): bool {
+            return $value !== null;
+        });
+    }
+
+    /**
+     * Build a query string that sends booleans as "true"/"false" instead of http_build_query's 1/0.
+     *
+     * @param array<string, mixed> $params
+     */
+    private static function buildQuery(array $params): string
+    {
+        return http_build_query(array_map(static function ($value) {
+            return is_bool($value) ? ($value ? 'true' : 'false') : $value;
+        }, $params));
+    }
 }
