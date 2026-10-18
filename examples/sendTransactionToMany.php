@@ -26,7 +26,7 @@ $bitgoExpress->walletId = 'YOUR_WALLET_ID_HERE';
 /**
  * $sendTo array needs to be a multidimensional array
  * All amounts in this array needs to be integer (int) values
- * If you need convert bitcoin value into satoshi value just use toSatoshi function 
+ * If you need convert bitcoin value into satoshi value just use toSatoshi function
  */
 $sendTo = [
     [

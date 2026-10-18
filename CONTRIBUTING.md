@@ -50,25 +50,29 @@ cd BitGoSDK-PHP
 composer install
 ```
 
-`composer install` only generates the autoloader for now, because there are no dev dependencies yet.
+`composer install` also installs the dev tools: PHPUnit, PHPStan and PHP-CS-Fixer.
 
 ## Coding style
 
 - Follow the style of the surrounding code: 4-space indentation, LF line endings, UTF-8 and a final newline. [.editorconfig](.editorconfig) sets these up for most editors.
-- New code should follow [PSR-12](https://www.php-fig.org/psr/psr-12/). 2.3.0 adds PHP-CS-Fixer to enforce it. Until then, don't reformat code you aren't otherwise changing, so diffs stay reviewable.
+- Code must follow [PSR-12](https://www.php-fig.org/psr/psr-12/). CI enforces it with PHP-CS-Fixer. Run `vendor/bin/php-cs-fixer fix` before you push.
 - 2.x changes must not break the public API. Don't rename or remove public methods or reorder their parameters. Widening a type (for example `int` to `int|string`) is fine. Breaking changes go to 3.x.
 - Code must still run on the minimum PHP version in `composer.json`. Don't use syntax or functions newer than that.
 - Give every public method a docblock with a short description, `@param` lines and `@return`, like the existing methods.
 
 ## Running tests
 
-There's no automated test suite yet. 2.3.0 adds PHPUnit, PHPStan and CI, and this section will be updated with the `composer test` workflow. Until then:
+CI runs these checks on every pull request. PHPUnit and `php -l` run on PHP 7.4 to 8.5, and PHPUnit runs with both the lowest and the highest allowed dependencies.
 
-1. Check every PHP file for syntax errors:
+1. Run the same checks locally:
 
    ```sh
-   find src examples -name '*.php' -exec php -l {} \;
+   vendor/bin/phpunit
+   vendor/bin/phpstan analyse
+   vendor/bin/php-cs-fixer fix --dry-run --diff
    ```
+
+   PHPStan runs at level 6 against a baseline (`phpstan-baseline.neon`) of the errors in the existing code. Don't add new entries to it. When a fix removes an error, regenerate the baseline with `vendor/bin/phpstan analyse --generate-baseline phpstan-baseline.neon`.
 
 2. Exercise your change against BitGo **testnet**. Copy the relevant script from `examples/` into `local_tests/` (which is gitignored), fill in your testnet token and wallet ID there, and run it from the repository root:
 
