@@ -16,8 +16,20 @@
     "support": {
         "issues": "https://github.com/neto737/BitGoSDK-PHP/issues",
         "source": "https://github.com/neto737/BitGoSDK-PHP",
-        "security": "https://github.com/neto737/BitGoSDK-PHP/security/policy"
+        "security": "https://github.com/neto737/BitGoSDK-PHP/security/policy",
+        "docs": "https://developers.bitgo.com/"
     },
+
+    "funding": [
+        {
+            "type": "liberapay",
+            "url": "https://liberapay.com/neto737"
+        },
+        {
+            "type": "custom",
+            "url": "https://www.paypal.com/donate/?business=T7RVRCXLZXB58&no_recurring=0&currency_code=USD"
+        }
+    ],
 
     "autoload": {
         "psr-4": {
@@ -32,8 +44,9 @@
     },
 
     "require": {
-        "php": ">=7.4",
+        "php": "^7.4 || ^8.0",
         "ext-curl": "*",
+        "ext-json": "*",
         "composer/ca-bundle": "^1.5"
     },
 
@@ -47,14 +60,20 @@
         "test": "phpunit",
         "analyse": "phpstan analyse",
         "cs": "php-cs-fixer fix --dry-run --diff",
-        "cs:fix": "php-cs-fixer fix"
+        "cs:fix": "php-cs-fixer fix",
+        "check": [
+            "@cs",
+            "@analyse",
+            "@test"
+        ]
     },
 
     "scripts-descriptions": {
         "test": "Run the PHPUnit test suite.",
         "analyse": "Run PHPStan static analysis.",
         "cs": "Check the coding standard without changing files.",
-        "cs:fix": "Fix coding standard violations."
+        "cs:fix": "Fix coding standard violations.",
+        "check": "Run the coding standard check, static analysis and tests."
     },
 
     "config": {

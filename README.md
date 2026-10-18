@@ -180,12 +180,10 @@ Bug reports and pull requests are welcome. See [CONTRIBUTING.md](CONTRIBUTING.md
 
 ```sh
 composer install
-composer test       # PHPUnit
-composer analyse    # PHPStan
-composer cs         # PHP-CS-Fixer, without changing files
+composer check    # coding standard, static analysis and tests
 ```
 
-`composer cs:fix` fixes the coding style. The code follows PSR-12, with 4-space indentation and LF line endings.
+Each check can also run on its own: `composer test` (PHPUnit), `composer analyse` (PHPStan) and `composer cs` (PHP-CS-Fixer). `composer cs:fix` fixes the coding style. The code follows PSR-12, with 4-space indentation and LF line endings.
 
 The tests replace the HTTP transport with a recorder, so they don't need a BitGo account or network access.
 

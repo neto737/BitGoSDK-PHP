@@ -27,7 +27,7 @@ Entries for 2.2.3 and earlier were reconstructed from the git history in October
 - Dev tooling: PHPUnit 9.6, PHPStan (level 6, with a baseline for the existing code) and PHP-CS-Fixer (PSR-12).
 - A GitHub Actions CI workflow: `php -l` and PHPUnit on PHP 7.4 to 8.5 with lowest and highest dependencies, plus PHPStan and a coding-standard check.
 - Request-shape tests for every public request method, checking the HTTP method, URL, headers and body. Requests go through an internal transport that tests replace with a recorder, so the test suite no longer touches the network.
-- Composer scripts: `composer test`, `composer analyse`, `composer cs` and `composer cs:fix`.
+- Composer scripts: `composer check` (all checks), `composer test`, `composer analyse`, `composer cs` and `composer cs:fix`.
 - `homepage` and `support` (issues, source, security policy) in `composer.json`.
 
 ### Changed
@@ -39,13 +39,13 @@ Entries for 2.2.3 and earlier were reconstructed from the git history in October
 - Requests no longer force IPv4. cURL uses IPv4 or IPv6 as the system allows. A local address bound with `setRequestIP()` decides the IP version.
 - `BitGoSDK::setRequestIP()` returns `true` if the IP was applied, and `false` on testnet or for an invalid IP.
 - **TLS certificates are checked against the system CA store.** The bundled 2022 `cacert.pem` is gone. If PHP finds no system CA store, the Mozilla bundle from the new `composer/ca-bundle` dependency is used.
-- `ext-bcmath` is no longer required.
-- **The minimum PHP version is now 7.4** (was 7.0).
+- `ext-bcmath` is no longer required. `ext-json` is now declared, since the SDK always needed it.
+- **The minimum PHP version is now 7.4** (was 7.0). PHP 7.4 and 8.x are supported.
 - The project is now licensed under MIT. 2.2.3 and earlier were released under GPL-3.0. The file headers say so too.
 - The README lists the current requirements, links to the docs on developers.bitgo.com, explains how to reach Express over TLS and names the minimum Express version (14.1.3).
 - `src/` and `examples/` were reformatted to PSR-12. This is whitespace and brace placement only, with no behaviour change.
 - The examples run without notices on PHP 8.4, from any directory. They pass BTC amounts to `toSatoshi()` as strings and check for errors after `unlockSession()`.
-- Composer dist archives no longer include `tests/`, `examples/`, `docs/` or dotfiles. The examples are still available in the repository.
+- Composer dist archives no longer include `tests/`, `examples/`, `docs/`, `CONTRIBUTING.md`, `ROADMAP.md` or dotfiles. The examples are still available in the repository.
 
 ### Deprecated
 
