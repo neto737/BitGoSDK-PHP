@@ -157,12 +157,6 @@ parameters:
 			path: src/BitGoExpress.php
 
 		-
-			message: '#^Property neto737\\BitGoSDK\\BitGoExpress\:\:\$login has no type specified\.$#'
-			identifier: missingType.property
-			count: 1
-			path: src/BitGoExpress.php
-
-		-
 			message: '#^Property neto737\\BitGoSDK\\BitGoExpress\:\:\$params has no type specified\.$#'
 			identifier: missingType.property
 			count: 1

@@ -28,7 +28,6 @@ class BitGoExpress
     private $url = null;
     private $params = [];
     private $UTXObased = ['btc', 'bch', 'btg', 'dash', 'ltc', 'stx', 'zec', 'tbtc', 'tbch', 'tdash', 'tltc', 'tstx', 'tzec'];
-    private $login = false;
     public $accessToken = null;
     public $walletId = null;
     public string $hostname;
@@ -89,7 +88,7 @@ class BitGoExpress
      * @param string $password  The user’s password
      * @param string $otp       The 2nd-factor-authentication token
      * @param bool $extensible  True if the session is supposed to be extensible beyond a one-hour duration.
-     * @return array
+     * @return array            On success, the returned access_token is also stored in $accessToken for later calls.
      */
     public function login(string $email, string $password, string $otp, ?bool $extensible = null)
     {
@@ -100,8 +99,9 @@ class BitGoExpress
             'otp' => $otp,
             'extensible' => $extensible
         ];
-        $this->login = true;
-        return $this->__execute();
+        $result = $this->__execute('POST', true, false);
+        $this->rememberAccessToken($result);
+        return $result;
     }
 
     /**
@@ -590,13 +590,13 @@ class BitGoExpress
         return $this->__execute();
     }
 
-    private function __execute(string $requestType = 'POST', bool $array = true)
+    private function __execute(string $requestType = 'POST', bool $array = true, bool $authenticate = true)
     {
         $params = self::withoutNulls($this->params);
         $this->params = [];
 
         $ch = curl_init();
-        curl_setopt_array($ch, $this->curlOptions($requestType, $params));
+        curl_setopt_array($ch, $this->curlOptions($requestType, $params, $authenticate));
 
         $response = curl_exec($ch);
         $errno = curl_errno($ch);
@@ -615,9 +615,10 @@ class BitGoExpress
      * The cURL options for a request to $this->url.
      *
      * @param array<string, mixed> $params
+     * @param bool $authenticate    False to leave out the Authorization header, as login() does
      * @return array<int, mixed>
      */
-    private function curlOptions(string $requestType, array $params): array
+    private function curlOptions(string $requestType, array $params, bool $authenticate = true): array
     {
         $options = [CURLOPT_URL => $this->url];
         if ($requestType === 'POST') {
@@ -629,12 +630,11 @@ class BitGoExpress
         }
         $options[CURLOPT_SSL_VERIFYPEER] = true;
         $options[CURLOPT_RETURNTRANSFER] = true;
-        if (isset($this->accessToken) && !$this->login) {
-            $options[CURLOPT_HTTPHEADER] = [
-                'Content-Type: application/json',
-                'Authorization: Bearer ' . $this->accessToken
-            ];
+        $headers = ['Content-Type: application/json'];
+        if ($authenticate && isset($this->accessToken)) {
+            $headers[] = 'Authorization: Bearer ' . $this->accessToken;
         }
+        $options[CURLOPT_HTTPHEADER] = $headers;
         $options[CURLOPT_CAINFO] = dirname(__FILE__) . '/cacert.pem';
         if (defined('CURLOPT_IPRESOLVE') && defined('CURL_IPRESOLVE_V4')) {
             $options[CURLOPT_IPRESOLVE] = CURL_IPRESOLVE_V4;
@@ -642,6 +642,18 @@ class BitGoExpress
         $options[CURLOPT_TIMEOUT] = $this->timeout;
         $options[CURLOPT_CONNECTTIMEOUT] = $this->connectTimeout;
         return $options;
+    }
+
+    /**
+     * Keep the token from a successful login, so later calls are authenticated with it.
+     *
+     * @param mixed $result
+     */
+    private function rememberAccessToken($result): void
+    {
+        if (is_array($result) && !isset($result['error']) && isset($result['access_token']) && is_string($result['access_token'])) {
+            $this->accessToken = $result['access_token'];
+        }
     }
 
     /**
