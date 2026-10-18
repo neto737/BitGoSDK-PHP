@@ -41,6 +41,7 @@ class BitGoSDK
     public bool $testNet;
     private int $timeout = self::DEFAULT_TIMEOUT;
     private int $connectTimeout = self::DEFAULT_CONNECT_TIMEOUT;
+    private bool $forceIPv4 = false;
 
     /**
      * BitGoSDK Initialization
@@ -97,6 +98,16 @@ class BitGoSDK
             throw new \InvalidArgumentException('Connect timeout must not be negative.');
         }
         $this->connectTimeout = $seconds;
+    }
+
+    /**
+     * Resolve hostnames to IPv4 addresses only. Off by default, so cURL uses IPv4 or IPv6 as the system allows.
+     *
+     * @param bool $force
+     */
+    public function setForceIPv4(bool $force): void
+    {
+        $this->forceIPv4 = $force;
     }
 
     /**
@@ -1041,8 +1052,10 @@ class BitGoSDK
         $options[CURLOPT_CAINFO] = dirname(__FILE__) . '/cacert.pem';
         if (isset($this->requestIP)) {
             $options[CURLOPT_INTERFACE] = $this->requestIP;
+            // A bound local address can only reach hosts of the same IP version.
+            $options[CURLOPT_IPRESOLVE] = filter_var($this->requestIP, FILTER_VALIDATE_IP, FILTER_FLAG_IPV4) !== false ? CURL_IPRESOLVE_V4 : CURL_IPRESOLVE_V6;
         }
-        if (defined('CURLOPT_IPRESOLVE') && defined('CURL_IPRESOLVE_V4')) {
+        if ($this->forceIPv4) {
             $options[CURLOPT_IPRESOLVE] = CURL_IPRESOLVE_V4;
         }
         $options[CURLOPT_TIMEOUT] = $this->timeout;

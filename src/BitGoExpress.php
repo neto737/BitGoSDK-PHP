@@ -43,6 +43,7 @@ class BitGoExpress
     private int $connectTimeout = self::DEFAULT_CONNECT_TIMEOUT;
     private ?string $caFile = null;
     private bool $verifyTls = true;
+    private bool $forceIPv4 = false;
 
     /**
      * BitGoExpress Initialization
@@ -123,6 +124,16 @@ class BitGoExpress
             throw new \InvalidArgumentException('Connect timeout must not be negative.');
         }
         $this->connectTimeout = $seconds;
+    }
+
+    /**
+     * Resolve hostnames to IPv4 addresses only. Off by default, so cURL uses IPv4 or IPv6 as the system allows.
+     *
+     * @param bool $force
+     */
+    public function setForceIPv4(bool $force): void
+    {
+        $this->forceIPv4 = $force;
     }
 
     /**
@@ -681,7 +692,7 @@ class BitGoExpress
         }
         $options[CURLOPT_HTTPHEADER] = $headers;
         $options[CURLOPT_CAINFO] = $this->caFile ?? dirname(__FILE__) . '/cacert.pem';
-        if (defined('CURLOPT_IPRESOLVE') && defined('CURL_IPRESOLVE_V4')) {
+        if ($this->forceIPv4) {
             $options[CURLOPT_IPRESOLVE] = CURL_IPRESOLVE_V4;
         }
         $options[CURLOPT_TIMEOUT] = $this->timeout;
