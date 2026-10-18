@@ -74,6 +74,8 @@ CI runs these checks on every pull request. PHPUnit and `php -l` run on PHP 7.4 
 
    PHPStan runs at level 6 against a baseline (`phpstan-baseline.neon`) of the errors in the existing code. Don't add new entries to it. When a fix removes an error, regenerate the baseline with `vendor/bin/phpstan analyse --generate-baseline phpstan-baseline.neon`.
 
+   Tests never touch the network. To check what a method sends, install `Tests\Fixtures\RecordingTransport` on the client with `RecordingTransport::on($client)`, then read the captured method, URL, headers and body. You can queue responses or cURL failures on it too. When you add a public method, add a case for it to `SdkRequestShapeTest` or `ExpressRequestShapeTest`. A guard test fails until you do.
+
 2. Exercise your change against BitGo **testnet**. Copy the relevant script from `examples/` into `local_tests/` (which is gitignored), fill in your testnet token and wallet ID there, and run it from the repository root:
 
    ```sh

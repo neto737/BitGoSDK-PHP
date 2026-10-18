@@ -4,6 +4,7 @@ namespace neto737\BitGoSDK\Tests;
 
 use neto737\BitGoSDK\BitGoExpress;
 use neto737\BitGoSDK\BitGoSDK;
+use neto737\BitGoSDK\Tests\Fixtures\RecordingTransport;
 use neto737\BitGoSDK\Tests\Fixtures\RecordingWebhookSdk;
 use PHPUnit\Framework\TestCase;
 use ReflectionMethod;
@@ -13,16 +14,15 @@ use ReflectionMethod;
  */
 final class DeprecatedAliasTest extends TestCase
 {
-    use AccessesPrivateMembers;
-
     public function testFanoutBuildsTheFanoutUrl(): void
     {
-        $express = new BitGoExpress('127.0.0.1', 1, 'tbtc');
+        $express = new BitGoExpress('localhost', 3080, 'tbtc');
         $express->walletId = 'wallet-id';
+        $transport = RecordingTransport::on($express);
 
         $express->fanoutWalletUnspents('passphrase');
 
-        self::assertSame('http://127.0.0.1:1/api/v2/tbtc/wallet/wallet-id/fanoutunspents', $this->getPrivate($express, 'url'));
+        self::assertSame('http://localhost:3080/api/v2/tbtc/wallet/wallet-id/fanoutunspents', $transport->last()->url);
     }
 
     public function testFunoutForwardsEveryArgumentToFanout(): void

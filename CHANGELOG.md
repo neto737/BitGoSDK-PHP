@@ -24,6 +24,7 @@ Entries for 2.2.3 and earlier were reconstructed from the git history in October
 - `.editorconfig` and `.gitattributes`.
 - Dev tooling: PHPUnit 9.6, PHPStan (level 6, with a baseline for the existing code) and PHP-CS-Fixer (PSR-12).
 - A GitHub Actions CI workflow: `php -l` and PHPUnit on PHP 7.4 to 8.5 with lowest and highest dependencies, plus PHPStan and a coding-standard check.
+- Request-shape tests for every public request method, checking the HTTP method, URL, headers and body. Requests go through an internal transport that tests replace with a recorder, so the test suite no longer touches the network.
 - Composer scripts: `composer test`, `composer analyse`, `composer cs` and `composer cs:fix`.
 - `homepage` and `support` (issues, source, security policy) in `composer.json`.
 
@@ -32,6 +33,7 @@ Entries for 2.2.3 and earlier were reconstructed from the git history in October
 - **`0`, `false` and `''` params are now sent.** Only `null` params are dropped. Before, `chain => 0`, `minConfirms => 0`, `numConfirmations => 0` and every `false` flag were silently left out. If you passed `0` or `false` to mean "leave it unset", pass `null` instead. GET query strings now send booleans as `true`/`false` instead of `1`/`0`.
 - **Errors now come back as `['error' => …, 'status' => …]`.** A cURL failure, a non-2xx status or an invalid JSON body used to return `null` or BitGo's raw error body. Any other fields BitGo sent are kept, so `isset($r['error'])` checks keep working. `status` is the HTTP status, or `0` if no response arrived. `buildTransaction()` and `signBuildTransaction()` return the same fields as an object.
 - Amounts in `sendTransaction()`, `sendTransactionToMany()` and `buildTransaction()` accept an `int` or a string of digits, and are always sent as strings, so 18-decimal amounts no longer overflow `PHP_INT_MAX`. `toSatoshi()` accepts strings and no longer breaks under locales that use a decimal comma. `toBTC()` no longer converts through a float.
+- Requests without params send `{}` as the JSON body instead of `[]`, and GET requests without params no longer end the URL with `?`.
 - Requests no longer force IPv4. cURL uses IPv4 or IPv6 as the system allows. A local address bound with `setRequestIP()` decides the IP version.
 - `BitGoSDK::setRequestIP()` returns `true` if the IP was applied, and `false` on testnet or for an invalid IP.
 - **TLS certificates are checked against the system CA store.** The bundled 2022 `cacert.pem` is gone. If PHP finds no system CA store, the Mozilla bundle from the new `composer/ca-bundle` dependency is used.

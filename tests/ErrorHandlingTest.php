@@ -4,6 +4,7 @@ namespace neto737\BitGoSDK\Tests;
 
 use neto737\BitGoSDK\BitGoExpress;
 use neto737\BitGoSDK\BitGoSDK;
+use neto737\BitGoSDK\Tests\Fixtures\RecordingTransport;
 use PHPUnit\Framework\TestCase;
 
 /**
@@ -11,87 +12,136 @@ use PHPUnit\Framework\TestCase;
  */
 final class ErrorHandlingTest extends TestCase
 {
-    use AccessesPrivateMembers;
-
     public function testSdkReturnsErrorWhenRequestFails(): void
     {
         $sdk = new BitGoSDK('token', 'tbtc', true);
-        $this->setPrivate($sdk, 'APIEndpoint', 'http://127.0.0.1:1/api/v2/tbtc');
+        RecordingTransport::on($sdk)->fail(CURLE_COULDNT_CONNECT, 'Failed to connect to app.bitgo-test.com');
 
-        $result = $sdk->getWallet();
+        self::assertSame(['error' => 'Failed to connect to app.bitgo-test.com', 'status' => 0], $sdk->getWallet());
+    }
 
-        self::assertIsString($result['error']);
-        self::assertNotSame('', $result['error']);
-        self::assertSame(0, $result['status']);
+    public function testErrorWithoutMessageNamesTheCurlErrno(): void
+    {
+        $sdk = new BitGoSDK('token', 'tbtc', true);
+        RecordingTransport::on($sdk)->fail(CURLE_OPERATION_TIMEDOUT);
+
+        self::assertSame(['error' => 'cURL error ' . CURLE_OPERATION_TIMEDOUT, 'status' => 0], $sdk->getWallet());
+    }
+
+    public function testExpressReturnsErrorArrayWhenRequestFails(): void
+    {
+        $express = new BitGoExpress('localhost', 3080, 'tbtc');
+        RecordingTransport::on($express)->fail(CURLE_COULDNT_CONNECT, 'Connection refused');
+
+        self::assertSame(['error' => 'Connection refused', 'status' => 0], $express->pingExpress());
     }
 
     public function testExpressReturnsErrorObjectWhenObjectRequestFails(): void
     {
-        $express = new BitGoExpress('127.0.0.1', 1, 'tbtc');
+        $express = new BitGoExpress('localhost', 3080, 'tbtc');
+        RecordingTransport::on($express)->fail(CURLE_COULDNT_CONNECT, 'Connection refused');
 
-        $result = $express->buildTransaction([['address' => 'a', 'amount' => 1]]);
-
-        self::assertInstanceOf(\stdClass::class, $result);
-        self::assertIsString($result->error);
-        self::assertSame(0, $result->status);
+        self::assertEquals((object) ['error' => 'Connection refused', 'status' => 0], $express->buildTransaction([['address' => 'a', 'amount' => 1]]));
     }
 
     public function testSuccessfulResponseIsReturnedUnchanged(): void
     {
-        self::assertSame(['id' => 'w1'], $this->invoke(BitGoSDK::class, 'decodeResponse', '{"id":"w1"}', 200));
-        self::assertNull($this->invoke(BitGoSDK::class, 'decodeResponse', '', 204));
+        $sdk = new BitGoSDK('token', 'tbtc', true);
+        RecordingTransport::on($sdk)->respond('{"id":"w1"}')->respond('', 204);
+
+        self::assertSame(['id' => 'w1'], $sdk->getWallet());
+        self::assertNull($sdk->getWallet());
     }
 
     public function testBitGoErrorKeepsItsFieldsAndGainsStatus(): void
     {
-        self::assertSame(
-            ['error' => 'wallet not found', 'name' => 'WalletNotFound', 'status' => 404],
-            $this->invoke(BitGoSDK::class, 'decodeResponse', '{"error":"wallet not found","name":"WalletNotFound"}', 404)
-        );
+        $sdk = new BitGoSDK('token', 'tbtc', true);
+        RecordingTransport::on($sdk)->respond('{"error":"wallet not found","name":"WalletNotFound"}', 404);
+
+        self::assertSame(['error' => 'wallet not found', 'name' => 'WalletNotFound', 'status' => 404], $sdk->getWallet());
     }
 
     public function testNonJsonErrorReportsStatus(): void
     {
-        self::assertSame(
-            ['error' => 'HTTP 502', 'status' => 502],
-            $this->invoke(BitGoSDK::class, 'decodeResponse', '<html>Bad Gateway</html>', 502)
-        );
+        $sdk = new BitGoSDK('token', 'tbtc', true);
+        RecordingTransport::on($sdk)->respond('<html>Bad Gateway</html>', 502);
+
+        self::assertSame(['error' => 'HTTP 502', 'status' => 502], $sdk->getWallet());
     }
 
     public function testInvalidJsonOnSuccessIsAnError(): void
     {
-        $result = $this->invoke(BitGoSDK::class, 'decodeResponse', '{"id":', 200);
+        $sdk = new BitGoSDK('token', 'tbtc', true);
+        RecordingTransport::on($sdk)->respond('{"id":', 200);
 
-        self::assertIsArray($result);
+        $result = $sdk->getWallet();
+
         self::assertStringStartsWith('Invalid JSON response: ', $result['error']);
         self::assertSame(200, $result['status']);
     }
 
     public function testExpressObjectErrorKeepsItsFields(): void
     {
-        $result = $this->invoke(BitGoExpress::class, 'decodeResponse', '{"error":"insufficient funds","name":"Error"}', 400, false);
+        $express = new BitGoExpress('localhost', 3080, 'tbtc');
+        RecordingTransport::on($express)->respond('{"error":"insufficient funds","name":"Error"}', 400);
 
-        self::assertEquals((object) ['error' => 'insufficient funds', 'name' => 'Error', 'status' => 400], $result);
+        self::assertEquals((object) ['error' => 'insufficient funds', 'name' => 'Error', 'status' => 400], $express->buildTransaction([]));
     }
 
-    public function testTimeoutsDefaultAndCanBeChanged(): void
+    /**
+     * @return array<string, array{BitGoSDK|BitGoExpress, callable(mixed): mixed, int, int}>
+     */
+    public static function clients(): array
     {
-        $sdk = new BitGoSDK('token', 'tbtc', true);
-        self::assertSame(BitGoSDK::DEFAULT_TIMEOUT, $this->getPrivate($sdk, 'timeout'));
-        self::assertSame(BitGoSDK::DEFAULT_CONNECT_TIMEOUT, $this->getPrivate($sdk, 'connectTimeout'));
+        return [
+            'BitGoSDK' => [
+                new BitGoSDK('token', 'tbtc', true),
+                static fn (BitGoSDK $c) => $c->getTotalBalances(),
+                BitGoSDK::DEFAULT_TIMEOUT,
+                BitGoSDK::DEFAULT_CONNECT_TIMEOUT,
+            ],
+            'BitGoExpress' => [
+                new BitGoExpress('localhost', 3080, 'tbtc'),
+                static fn (BitGoExpress $c) => $c->pingExpress(),
+                BitGoExpress::DEFAULT_TIMEOUT,
+                BitGoExpress::DEFAULT_CONNECT_TIMEOUT,
+            ],
+        ];
+    }
 
-        $sdk->setTimeout(5);
-        $sdk->setConnectTimeout(2);
+    /**
+     * @dataProvider clients
+     * @param BitGoSDK|BitGoExpress $client
+     * @param callable(mixed): mixed $request
+     */
+    public function testTimeoutsDefaultAndCanBeChanged($client, callable $request, int $timeout, int $connectTimeout): void
+    {
+        $transport = RecordingTransport::on($client);
 
-        self::assertSame(5, $this->getPrivate($sdk, 'timeout'));
-        self::assertSame(2, $this->getPrivate($sdk, 'connectTimeout'));
+        $request($client);
+        $client->setTimeout(5);
+        $client->setConnectTimeout(2);
+        $request($client);
+
+        self::assertSame($timeout, $transport->requests[0]->options[CURLOPT_TIMEOUT]);
+        self::assertSame($connectTimeout, $transport->requests[0]->options[CURLOPT_CONNECTTIMEOUT]);
+        self::assertSame(5, $transport->requests[1]->options[CURLOPT_TIMEOUT]);
+        self::assertSame(2, $transport->requests[1]->options[CURLOPT_CONNECTTIMEOUT]);
     }
 
     public function testNegativeTimeoutIsRejected(): void
     {
-        $express = new BitGoExpress('127.0.0.1', 1, 'tbtc');
+        $express = new BitGoExpress('localhost', 3080, 'tbtc');
 
         $this->expectException(\InvalidArgumentException::class);
         $express->setTimeout(-1);
+    }
+
+    public function testNegativeConnectTimeoutIsRejected(): void
+    {
+        $sdk = new BitGoSDK('token', 'tbtc', true);
+
+        $this->expectException(\InvalidArgumentException::class);
+        $sdk->setConnectTimeout(-1);
     }
 }
