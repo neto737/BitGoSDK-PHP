@@ -3,9 +3,9 @@
 /**
  *  ____  _ _    ____      ____  ____  _  __
  * | __ )(_) |_ / ___| ___/ ___||  _ \| |/ /
- * |  _ \| | __| |  _ / _ \___ \| | | | ' / 
- * | |_) | | |_| |_| | (_) |__) | |_| | . \ 
- * |____/|_|\__|\____|\___/____/|____/|_|\_\                                         
+ * |  _ \| | __| |  _ / _ \___ \| | | | ' /
+ * | |_) | | |_| |_| | (_) |__) | |_| | . \
+ * |____/|_|\__|\____|\___/____/|____/|_|\_\
  *
  * @package BitGoSDK PHP
  * @author  Neto Melo <neto737@live.com>
@@ -15,8 +15,8 @@
 
 namespace neto737\BitGoSDK\Enum;
 
-abstract class CurrencyCode {
-
+abstract class CurrencyCode
+{
     // Mainnet
     const ALGORAND                  = 'algo';
     const AVAX                      = 'avax';
@@ -57,7 +57,7 @@ abstract class CurrencyCode {
     const TRON_TESTNET              = 'ttrx';
     const RIPPLE_TESTNET            = 'txrp';
     const ZCASH_TESTNET             = 'tzec';
-    
+
     //ERC20 TOKENS
     const ERC = 'erc'; //BitGo’s sample ERC20 token
     const OMISE_GO = 'omg';
