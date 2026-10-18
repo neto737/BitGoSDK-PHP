@@ -9,8 +9,7 @@
  *
  * @package BitGoSDK PHP
  * @author  Neto Melo <neto737@live.com>
- * @license https://www.gnu.org/licenses/gpl-3.0.html GNU General Public License v3
- * @version 2.2
+ * @license https://opensource.org/licenses/MIT MIT License
  */
 
 namespace neto737\BitGoSDK;
@@ -26,7 +25,7 @@ class BitGoSDK
     const DEFAULT_CONNECT_TIMEOUT = 10;
 
     // Coin families for coin-specific params. Each lists mainnet and testnet codes, so testnet wallets get the same params.
-    private const ETH_COINS = ['eth', 'teth', 'gteth', 'hteth'];
+    private const ETH_COINS = ['eth', 'teth', 'gteth', 'hteth', 'sepeth'];
     private const XRP_COINS = ['xrp', 'txrp'];
     private const XLM_COINS = ['xlm', 'txlm'];
 
@@ -47,7 +46,7 @@ class BitGoSDK
      * BitGoSDK Initialization
      *
      * @param string $accessToken   Set your Access Token (API Key)
-     * @param string $coin          Select the coin what you want to use with the BitGOSDK (use CurrencyCode class to select)
+     * @param string $coin          Select the coin you want to use with the BitGoSDK (use CurrencyCode class to select)
      * @param bool $testNet         Start instance as testnet (true or false), default is false
      * @throws \Exception
      */
@@ -61,15 +60,19 @@ class BitGoSDK
     }
 
     /**
-     * Set the IP that will make requests on BitGo servers (useful feature to people who uses shared hosting)
+     * Set the local IP that requests to BitGo are sent from (useful on hosts with several IPs, such as shared hosting)
      *
-     * @param string $ipAddress
+     * @param string $ipAddress An IPv4 or IPv6 address of this host
+     * @return bool             Whether the IP was applied. It is not applied on testnet, or if $ipAddress is not a valid IP,
+     *                          and any IP set earlier is kept.
      */
     public function setRequestIP(string $ipAddress)
     {
-        if (!$this->testNet && filter_var($ipAddress, FILTER_VALIDATE_IP)) {
-            $this->requestIP = $ipAddress;
+        if ($this->testNet || filter_var($ipAddress, FILTER_VALIDATE_IP) === false) {
+            return false;
         }
+        $this->requestIP = $ipAddress;
+        return true;
     }
 
     /**
@@ -346,13 +349,14 @@ class BitGoSDK
     /**
      * This API call is used to create a new receive address for your wallet, which enhances your privacy.
      *
-     * @param int $chain            Specifies the address format, defaults to 0, use 10 for SegWit (only on BTC and BTG)
+     * @param int $chain            The address chain, see AddressType. Defaults to 10 (AddressType::P2SH_P2WSH_DEPOSIT, SegWit wrapped in P2SH).
+     *                              Pass AddressType::LEGACY_DEPOSIT (0) for coins without SegWit support, such as BCH.
      * @param string $label         Human-readable name for the address
-     * @param int $gasPrice         Custom gas price to be used for deployment of receive addresses (only for Ethereum)
      * @param bool $lowPriority     Whether the deployment of the address forwarder contract should use a low priority fee key (ETH only)
+     * @param int $gasPrice         Custom gas price to be used for deployment of receive addresses (ETH only)
      * @return array
      */
-    public function createWalletAddress(int $chain = AddressType::P2SH_DEPOSIT, ?string $label = null, bool $lowPriority = false, ?int $gasPrice = null)
+    public function createWalletAddress(int $chain = AddressType::P2SH_P2WSH_DEPOSIT, ?string $label = null, bool $lowPriority = false, ?int $gasPrice = null)
     {
         $this->url = $this->APIEndpoint . '/wallet/' . $this->walletId . '/address';
         $this->params = [
@@ -493,7 +497,7 @@ class BitGoSDK
      * @param int $feeRate                      The desired fee rate for the transaction in satoshis/kB
      * @param int $minConfirms                  The required number of confirmations for each non-change unspent
      * @param bool $enforceMinConfirmsForChange Apply the required confirmations set in minConfirms for change outputs
-     * @return type
+     * @return array<string, mixed>
      */
     public function getMaximumSpendable(?int $limit = null, ?int $minValue = null, ?int $maxValue = null, ?int $minHeight = null, ?int $feeRate = null, ?int $minConfirms = null, ?bool $enforceMinConfirmsForChange = null)
     {
@@ -528,7 +532,7 @@ class BitGoSDK
     }
 
     /**
-     * Retrieve a keychain based on its key id.
+     * List the current user's keychains for this coin.
      *
      * @param int $limit        Max number of results in a single call. Defaults to 25.
      * @param string $prevId    Continue iterating (provided by nextBatchPrevId in the previous list)
@@ -578,7 +582,7 @@ class BitGoSDK
     /**
      * Creates a new backup keychain on a third party specializing in key recovery services.
      *
-     * @param string $provider  	The backup provider for the keychain, e. g. 'cme'
+     * @param string $provider  The backup provider for the keychain, e. g. 'cme'
      * @param string $source    The origin of the keychain. Must be 'backup' for a backup key.
      * @return array
      */
@@ -616,8 +620,8 @@ class BitGoSDK
      * its single key to sign a transaction.
      *
      * @param string $id        The id of the policy rule
-     * @param string $type      The type of the policy. See Policy types (https://www.bitgo.com/api/v2/#policy-types)
-     * @param string $condition The condition that triggers the policy. See Policy types (https://www.bitgo.com/api/v2/#policy-types)
+     * @param string $type      The type of the policy. See the policy docs (https://developers.bitgo.com/docs/policies-overview)
+     * @param string $condition The condition that triggers the policy. See the policy docs (https://developers.bitgo.com/docs/policies-overview)
      * @param string $action    The action to take when the policy is triggered. Should be either 'deny' or 'getapproval'
      * @return array
      */
@@ -638,7 +642,7 @@ class BitGoSDK
      *
      * @param string $id        The id of the policy rule to be updated. (This value can’t be changed)
      * @param string $type      The type of the policy. (This value can’t be changed)
-     * @param string $condition The new condition that triggers the policy. See Policy types (https://www.bitgo.com/api/v2/#policy-types)
+     * @param string $condition The new condition that triggers the policy. See the policy docs (https://developers.bitgo.com/docs/policies-overview)
      * @param string $action    The new action to take when the policy is triggered. Should be either 'deny' or 'getapproval'
      * @return array
      */
@@ -761,7 +765,7 @@ class BitGoSDK
      * @param string $walletID      Base address of the wallet
      * @param string $enterprise    The public ID of the enterprise
      * @param bool $allTokens       Gets details of all token pending approvals. Only valid for ETH/TETH
-     * @return type
+     * @return array<string, mixed>
      */
     public function listPendingApprovals(?string $walletID = null, ?string $enterprise = null, bool $allTokens = false)
     {
@@ -779,7 +783,7 @@ class BitGoSDK
      *
      * @param bool $decodeJson      Set true to decode the JSON
      * @param bool $decodeAsArray   Set true to decode the JSON as array
-     * @return type
+     * @return mixed                The decoded payload, or the raw body if $decodeJson is false
      */
     public static function getWebhookPayload(bool $decodeJson = true, bool $decodeAsArray = true)
     {
@@ -793,7 +797,7 @@ class BitGoSDK
     /**
      * List all webhooks set up on the wallet.
      *
-     * @param bool $allTokens   Gets details of all token pending approvals. Only valid for ETH/TETH
+     * @param bool $allTokens   Gets details of all token webhooks. Only valid for ETH/TETH
      * @return array
      */
     public function listWalletWebhooks(bool $allTokens = false)
@@ -809,7 +813,7 @@ class BitGoSDK
      * Add a webhook that will result in an HTTP callback at the specified URL from BitGo when events are triggered.
      *
      * @param string $url           URL to fire the webhook to.
-     * @param string $type          Type of event to listen to (can be 'transfer' or 'pendingaapproval').
+     * @param string $type          Type of event to listen to (can be 'transfer' or 'pendingapproval').
      * @param int $numConfirmations Number of confirmations before triggering the webhook. If 0 or unspecified, requests will be sent to the callback endpoint when the transfer is first seen and when it is confirmed.
      * @return array
      */
@@ -828,7 +832,7 @@ class BitGoSDK
      * Removing a webhook will cause new events of the specified type to no longer trigger HTTP callbacks to your URLs.
      *
      * @param string $url   URL for callback requests to be made at.
-     * @param string $type  Type of event to listen to (can be 'transfer' or 'pendingaapproval').
+     * @param string $type  Type of event to listen to (can be 'transfer' or 'pendingapproval').
      * @return array
      */
     public function removeWalletWebhook(string $url, string $type)
@@ -861,7 +865,7 @@ class BitGoSDK
     }
 
     /**
-     * List all webhooks set up on the user.
+     * List the user's webhooks for this coin, such as block and wallet_confirmation webhooks.
      *
      * @return array
      */
@@ -875,7 +879,7 @@ class BitGoSDK
      * Add a webhook that will result in an HTTP callback at the specified URL from BitGo when events are triggered.
      *
      * @param string $url           URL to fire the webhook to.
-     * @param string $type          Type of event to listen to (can be of type 'block').
+     * @param string $type          Type of event to listen to, e.g. 'block' or 'wallet_confirmation'.
      * @param string $label         Label of the new webhook.
      * @param int $numConfirmations Number of confirmations before triggering the webhook.
      * @return array
@@ -896,7 +900,7 @@ class BitGoSDK
      * Removing a webhook will cause new events of the specified type to no longer trigger HTTP callbacks to your URLs.
      *
      * @param string $url   URL for callback requests to be made at.
-     * @param string $type  Type of event to listen to (can be of type 'block').
+     * @param string $type  Type of event to listen to, e.g. 'block' or 'wallet_confirmation'.
      * @return array
      */
     public function removeUserWebhook(string $url, string $type)
@@ -926,53 +930,39 @@ class BitGoSDK
     }
 
     /**
-     * Adds a webhook that will result in an HTTP callback at the specified URL from BitGo when events are triggered.
+     * @deprecated 2.3.0 Same endpoint as addUserWebhook(). Use addUserWebhook(), which sends $type unchanged.
      *
      * @param string $url           URL to fire the webhook to.
-     * @param string $type          Type of event to listen to (can be 'block' or 'wallet_confirmation').
+     * @param string $type          'block' or 'wallet_confirmation'. Any other value is sent as 'block'.
      * @param string $label         Label of the new webhook.
-     * @param int $numConfirmations Number of confirmations before triggering the webhook. If 0 or unspecified, requests will be sent to the callback endpoint when the transfer is first seen and when it is confirmed.
-
-     * @return array
+     * @param int $numConfirmations Number of confirmations before triggering the webhook.
+     * @return array<string, mixed>
      */
     public function addBlockWebhook(string $url, string $type = 'block', ?string $label = null, ?int $numConfirmations = null)
     {
-        $this->url = $this->APIEndpoint . '/webhooks';
-        $this->params = [
-            'url' => $url,
-            'type' => (in_array($type, ['block', 'wallet_confirmation'])) ? $type : 'block',
-            'label' => $label,
-            'numConfirmations' => $numConfirmations
-        ];
-        return $this->__execute();
+        return $this->addUserWebhook($url, self::blockWebhookType($type), $label, $numConfirmations);
     }
 
     /**
-     * Returns block webhooks. The types of webhooks are block and wallet_confirmation notifications.
+     * @deprecated 2.3.0 Same endpoint as listUserWebhooks(). Use listUserWebhooks().
      *
-     * @return array
+     * @return array<string, mixed>
      */
     public function listBlockWebhooks()
     {
-        $this->url = $this->APIEndpoint . '/webhooks';
-        return $this->__execute('GET');
+        return $this->listUserWebhooks();
     }
 
     /**
-     * Removing a webhook will cause new events of the specified type to no longer trigger HTTP callbacks to your URLs.
+     * @deprecated 2.3.0 Same endpoint as removeUserWebhook(). Use removeUserWebhook(), which sends $type unchanged.
      *
-     * @param string $url
-     * @param string $type
-     * @return array
+     * @param string $url   URL for callback requests to be made at.
+     * @param string $type  'block' or 'wallet_confirmation'. Any other value is sent as 'block'.
+     * @return array<string, mixed>
      */
     public function removeBlockWebhook(string $url, string $type = 'block')
     {
-        $this->url = $this->APIEndpoint . '/webhooks';
-        $this->params = [
-            'url' => $url,
-            'type' => (in_array($type, ['block', 'wallet_confirmation'])) ? $type : 'block'
-        ];
-        return $this->__execute('DELETE');
+        return $this->removeUserWebhook($url, self::blockWebhookType($type));
     }
 
     /**
@@ -1061,6 +1051,14 @@ class BitGoSDK
         $options[CURLOPT_TIMEOUT] = $this->timeout;
         $options[CURLOPT_CONNECTTIMEOUT] = $this->connectTimeout;
         return $options;
+    }
+
+    /**
+     * The type the deprecated *BlockWebhook() methods send: 'block' unless 'wallet_confirmation' was asked for.
+     */
+    private static function blockWebhookType(string $type): string
+    {
+        return in_array($type, ['block', 'wallet_confirmation'], true) ? $type : 'block';
     }
 
     /**
