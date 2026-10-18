@@ -8,6 +8,8 @@
 /docs               export-ignore
 /examples           export-ignore
 /tests              export-ignore
+/CONTRIBUTING.md    export-ignore
+/ROADMAP.md         export-ignore
 /.editorconfig      export-ignore
 /.gitattributes     export-ignore
 /.gitignore         export-ignore
