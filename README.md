@@ -1,4 +1,3 @@
-
 # BitGoSDK PHP
 
 BitGoSDK written in PHP. This SDK contains methods for easily interacting with the BitGo API.
@@ -11,21 +10,25 @@ BitGoSDK written in PHP. This SDK contains methods for easily interacting with t
 
 ## Requirements
 
-- PHP 7.4 or newer with the cURL extension
+- PHP 7.4 or newer, with the cURL extension
+- A BitGo account and an [access token](https://developers.bitgo.com/docs/get-started-access-tokens)
+- A [BitGo Express](#bitgo-express) instance, for anything that needs your keys, such as creating wallets or sending
 
 ## Installation
 
-To install the SDK, you will need to be using [Composer](http://getcomposer.org/) in your project. If you aren't using Composer yet, it's really simple! Here's how to install composer and the BitGoSDK PHP.
+Install the SDK with [Composer](https://getcomposer.org/):
 
 ```sh
-# Install Composer
-curl -sS https://getcomposer.org/installer | php
-
-# Add the BitGoSDK as a dependency
-php composer.phar require neto737/bitgosdk-php
+composer require neto737/bitgosdk-php
 ```
 
-Next, require Composer's autoloader, in your application, to automatically load the BitGoSDK in your project:
+Or add it to the `require` section of your `composer.json`:
+
+```json
+"neto737/bitgosdk-php": "^2.3"
+```
+
+Then load Composer's autoloader in your application:
 
 ```php
 require 'vendor/autoload.php';
@@ -33,12 +36,6 @@ require 'vendor/autoload.php';
 use neto737\BitGoSDK\BitGoSDK;
 ```
 
-Or if put the following in your `composer.json`:
-
-```json
-"neto737/bitgosdk-php": "*"
-```
-  
 ## Example
 
 ```php
@@ -53,13 +50,25 @@ $bitgo->walletId = 'YOUR_WALLET_ID_HERE';
 $createAddress = $bitgo->createWalletAddress();
 ```
 
+More examples are in [`examples/`](examples/).
+
 ## BitGo Express
 
-If you are going to use BitGo Express you have to run a BitGo Express node. You can find how to run your own BitGo Express node [here](https://github.com/BitGo/BitGoJS/blob/master/modules/express/README.md).
+BitGo signs transactions on the client, so sending coins, creating wallets and other calls that use your keys go through `BitGoExpress`, which talks to your own BitGo Express instance. See [Install BitGo Express](https://developers.bitgo.com/docs/get-started-express-install) to run one, and the [Express API reference](https://developers.bitgo.com/reference/express-overview) for its endpoints.
+
+## Documentation
+
+- [BitGo developer portal](https://developers.bitgo.com/)
+- [BitGo API reference](https://developers.bitgo.com/reference/overview)
+- [Webhooks](https://developers.bitgo.com/docs/webhooks-overview) and [policies](https://developers.bitgo.com/docs/policies-overview)
 
 ## Attention
 
-Keep your cacert.pem always up to date. You can find updates on the site [curl.haxx.se](https://curl.haxx.se/docs/caextract.html).
+Keep your `cacert.pem` up to date. You can download the latest one from [curl.se](https://curl.se/docs/caextract.html).
+
+## License
+
+MIT. See [LICENSE](LICENSE). Versions 2.2.3 and earlier were released under GPL-3.0.
 
 ## Credits
 

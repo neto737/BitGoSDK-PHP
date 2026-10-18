@@ -9,8 +9,7 @@
  *
  * @package BitGoSDK PHP
  * @author  Neto Melo <neto737@live.com>
- * @license https://www.gnu.org/licenses/gpl-3.0.html GNU General Public License v3
- * @version 2.2
+ * @license https://opensource.org/licenses/MIT MIT License
  */
 
 namespace neto737\BitGoSDK\Enum;

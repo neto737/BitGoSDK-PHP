@@ -9,8 +9,7 @@
  *
  * @package BitGoSDK PHP
  * @author  Neto Melo <neto737@live.com>
- * @license https://www.gnu.org/licenses/gpl-3.0.html GNU General Public License v3
- * @version 2.2
+ * @license https://opensource.org/licenses/MIT MIT License
  */
 
 namespace neto737\BitGoSDK;
@@ -617,8 +616,8 @@ class BitGoSDK
      * its single key to sign a transaction.
      *
      * @param string $id        The id of the policy rule
-     * @param string $type      The type of the policy. See Policy types (https://www.bitgo.com/api/v2/#policy-types)
-     * @param string $condition The condition that triggers the policy. See Policy types (https://www.bitgo.com/api/v2/#policy-types)
+     * @param string $type      The type of the policy. See the policy docs (https://developers.bitgo.com/docs/policies-overview)
+     * @param string $condition The condition that triggers the policy. See the policy docs (https://developers.bitgo.com/docs/policies-overview)
      * @param string $action    The action to take when the policy is triggered. Should be either 'deny' or 'getapproval'
      * @return array
      */
@@ -639,7 +638,7 @@ class BitGoSDK
      *
      * @param string $id        The id of the policy rule to be updated. (This value can’t be changed)
      * @param string $type      The type of the policy. (This value can’t be changed)
-     * @param string $condition The new condition that triggers the policy. See Policy types (https://www.bitgo.com/api/v2/#policy-types)
+     * @param string $condition The new condition that triggers the policy. See the policy docs (https://developers.bitgo.com/docs/policies-overview)
      * @param string $action    The new action to take when the policy is triggered. Should be either 'deny' or 'getapproval'
      * @return array
      */
