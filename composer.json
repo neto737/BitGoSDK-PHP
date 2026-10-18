@@ -3,6 +3,7 @@
     "description": "A BitGo SDK written in PHP",
     "type": "library",
     "keywords": ["bitgo", "sdk", "bitcoin"],
+    "homepage": "https://github.com/neto737/BitGoSDK-PHP",
     "license": "MIT",
 
     "authors": [
@@ -11,6 +12,12 @@
             "email": "neto737@live.com"
         }
     ],
+
+    "support": {
+        "issues": "https://github.com/neto737/BitGoSDK-PHP/issues",
+        "source": "https://github.com/neto737/BitGoSDK-PHP",
+        "security": "https://github.com/neto737/BitGoSDK-PHP/security/policy"
+    },
 
     "autoload": {
         "psr-4": {
@@ -25,7 +32,7 @@
     },
 
     "require": {
-        "php": ">=7.0",
+        "php": ">=7.4",
         "ext-curl": "*",
         "ext-bcmath": "*"
     },
@@ -34,6 +41,20 @@
         "friendsofphp/php-cs-fixer": "^3.95",
         "phpstan/phpstan": "^2.1",
         "phpunit/phpunit": "^9.6.33"
+    },
+
+    "scripts": {
+        "test": "phpunit",
+        "analyse": "phpstan analyse",
+        "cs": "php-cs-fixer fix --dry-run --diff",
+        "cs:fix": "php-cs-fixer fix"
+    },
+
+    "scripts-descriptions": {
+        "test": "Run the PHPUnit test suite.",
+        "analyse": "Run PHPStan static analysis.",
+        "cs": "Check the coding standard without changing files.",
+        "cs:fix": "Fix coding standard violations."
     },
 
     "config": {

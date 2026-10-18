@@ -11,7 +11,7 @@ BitGoSDK written in PHP. This SDK contains methods for easily interacting with t
 
 ## Requirements
 
-- PHP 7.0 or earlier with:
+- PHP 7.4 or newer with:
   - cURL
   - BCMath
 

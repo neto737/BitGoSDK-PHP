@@ -40,7 +40,7 @@ If a fix applies to both lines, open the pull request against `2.x`. A maintaine
 
 You need:
 
-- PHP 7.0 or newer with the `curl` and `bcmath` extensions. A current PHP 8.x is recommended so you see deprecation notices. 2.3.0 raises the minimum to 7.4.
+- PHP 7.4 or newer with the `curl` and `bcmath` extensions. A current PHP 8.x is recommended so you see deprecation notices.
 - [Composer](https://getcomposer.org/).
 - A [BitGo testnet](https://app.bitgo-test.com/) account and access token, if you want to run requests against the API. Never use production tokens or real funds while developing.
 
@@ -55,7 +55,7 @@ composer install
 ## Coding style
 
 - Follow the style of the surrounding code: 4-space indentation, LF line endings, UTF-8 and a final newline. [.editorconfig](.editorconfig) sets these up for most editors.
-- Code must follow [PSR-12](https://www.php-fig.org/psr/psr-12/). CI enforces it with PHP-CS-Fixer. Run `vendor/bin/php-cs-fixer fix` before you push.
+- Code must follow [PSR-12](https://www.php-fig.org/psr/psr-12/). CI enforces it with PHP-CS-Fixer. Run `composer cs:fix` before you push.
 - 2.x changes must not break the public API. Don't rename or remove public methods or reorder their parameters. Widening a type (for example `int` to `int|string`) is fine. Breaking changes go to 3.x.
 - Code must still run on the minimum PHP version in `composer.json`. Don't use syntax or functions newer than that.
 - Give every public method a docblock with a short description, `@param` lines and `@return`, like the existing methods.
@@ -67,9 +67,9 @@ CI runs these checks on every pull request. PHPUnit and `php -l` run on PHP 7.4 
 1. Run the same checks locally:
 
    ```sh
-   vendor/bin/phpunit
-   vendor/bin/phpstan analyse
-   vendor/bin/php-cs-fixer fix --dry-run --diff
+   composer test
+   composer analyse
+   composer cs
    ```
 
    PHPStan runs at level 6 against a baseline (`phpstan-baseline.neon`) of the errors in the existing code. Don't add new entries to it. When a fix removes an error, regenerate the baseline with `vendor/bin/phpstan analyse --generate-baseline phpstan-baseline.neon`.
