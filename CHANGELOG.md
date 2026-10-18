@@ -8,6 +8,8 @@ Entries for 2.2.3 and earlier were reconstructed from the git history in October
 
 ## [Unreleased]
 
+## [2.3.0] - 2026-10-18
+
 ### Added
 
 - `BitGoSDK::toBaseUnits()` and `fromBaseUnits()` convert between decimal amounts and base units exactly, at any number of decimals (for example 18 for ETH).
@@ -229,7 +231,8 @@ These still work and will be removed in 3.0.
 
 - First release on Packagist: a BitGo API v1 client for wallets, addresses, labels, keychains and transactions. The `1.0` tag points to the same commit.
 
-[Unreleased]: https://github.com/neto737/BitGoSDK-PHP/compare/2.2.3...HEAD
+[Unreleased]: https://github.com/neto737/BitGoSDK-PHP/compare/2.3.0...HEAD
+[2.3.0]: https://github.com/neto737/BitGoSDK-PHP/compare/2.2.3...2.3.0
 [2.2.3]: https://github.com/neto737/BitGoSDK-PHP/compare/2.2.2...2.2.3
 [2.2.2]: https://github.com/neto737/BitGoSDK-PHP/compare/2.2.1...2.2.2
 [2.2.1]: https://github.com/neto737/BitGoSDK-PHP/compare/2.2.0...2.2.1
