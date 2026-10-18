@@ -150,7 +150,7 @@ class BitGoSDK
      * @param bool $allTokens   Gets details of all tokens associated with this wallet. Only valid for ETH/TETH
      * @return array
      */
-    public function listWallets(int $limit = 25, string $prevId = null, bool $allTokens = false)
+    public function listWallets(int $limit = 25, ?string $prevId = null, bool $allTokens = false)
     {
         $this->url = $this->APIEndpoint . '/wallet';
         $this->params = [
@@ -195,7 +195,7 @@ class BitGoSDK
      * @param bool $allTokens   Gets transfers of all tokens associated with this wallet. Only valid for ETH/TETH.
      * @return array
      */
-    public function listWalletTransfers(string $prevId = null, bool $allTokens = false)
+    public function listWalletTransfers(?string $prevId = null, bool $allTokens = false)
     {
         $this->url = $this->APIEndpoint . '/wallet/' . $this->walletId . '/transfer';
         $this->params = [
@@ -239,7 +239,7 @@ class BitGoSDK
      * @param bool $lowPriority     Whether the deployment of the address forwarder contract should use a low priority fee key (ETH only)
      * @return array
      */
-    public function createWalletAddress(int $chain = AddressType::P2SH_DEPOSIT, string $label = null, bool $lowPriority = false, int $gasPrice = null)
+    public function createWalletAddress(int $chain = AddressType::P2SH_DEPOSIT, ?string $label = null, bool $lowPriority = false, ?int $gasPrice = null)
     {
         $this->url = $this->APIEndpoint . '/wallet/' . $this->walletId . '/address';
         $this->params = [
@@ -257,7 +257,7 @@ class BitGoSDK
      * @param string $addressOrId   Valid address or address id of the wallet.
      * @return array
      */
-    public function getWalletAddress(string $addressOrId, string $dt = null, string $memoId = null)
+    public function getWalletAddress(string $addressOrId, ?string $dt = null, ?string $memoId = null)
     {
         $this->url = $this->APIEndpoint . '/wallet/' . $this->walletId . '/address/' . $addressOrId;
         $this->params = [
@@ -274,7 +274,7 @@ class BitGoSDK
      * @param string $label         Human-readable name for the address
      * @return array
      */
-    public function updateWalletAddress(string $addressOrId, string $dt = null, string $memoId = null, string $label = null)
+    public function updateWalletAddress(string $addressOrId, ?string $dt = null, ?string $memoId = null, ?string $label = null)
     {
         $this->url = $this->APIEndpoint . '/wallet/' . $this->walletId . '/address/' . $addressOrId;
         $this->params = [
@@ -293,7 +293,7 @@ class BitGoSDK
      * @param int $sortOrder    Order the addresses by creation date. -1 is newest first, 1 is for oldest first.
      * @return array
      */
-    public function getWalletAddresses(string $labelContains = null, int $limit = null, bool $mine = null, string $prevId = null, array $chains = [], int $sort = null)
+    public function getWalletAddresses(?string $labelContains = null, ?int $limit = null, ?bool $mine = null, ?string $prevId = null, array $chains = [], ?int $sort = null)
     {
         $this->url = $this->APIEndpoint . '/wallet/' . $this->walletId . '/addresses';
         $this->params = [
@@ -314,7 +314,7 @@ class BitGoSDK
      * @param bool $allTokens   Gets details of all token transactions associated with this wallet. Only valid for ETH/TETH.
      * @return array
      */
-    public function getWalletTransactions(string $prevId = null, bool $allTokens = false)
+    public function getWalletTransactions(?string $prevId = null, bool $allTokens = false)
     {
         $this->url = $this->APIEndpoint . '/wallet/' . $this->walletId . '/tx';
         $this->params = [
@@ -346,7 +346,7 @@ class BitGoSDK
      * @param int $minConfirms  Ignores unspents that have fewer than the given confirmations
      * @return array
      */
-    public function listWalletUnspents(string $prevId = null, int $minValue = null, int $maxValue = null, int $minHeight = null, int $minConfirms = null)
+    public function listWalletUnspents(?string $prevId = null, ?int $minValue = null, ?int $maxValue = null, ?int $minHeight = null, ?int $minConfirms = null)
     {
         $this->url = $this->APIEndpoint . '/wallet/' . $this->walletId . '/unspents';
         $this->params = [
@@ -382,7 +382,7 @@ class BitGoSDK
      * @param bool $enforceMinConfirmsForChange Apply the required confirmations set in minConfirms for change outputs
      * @return type
      */
-    public function getMaximumSpendable(int $limit = null, int $minValue = null, int $maxValue = null, int $minHeight = null, int $feeRate = null, int $minConfirms = null, bool $enforceMinConfirmsForChange = null)
+    public function getMaximumSpendable(?int $limit = null, ?int $minValue = null, ?int $maxValue = null, ?int $minHeight = null, ?int $feeRate = null, ?int $minConfirms = null, ?bool $enforceMinConfirmsForChange = null)
     {
         $this->url = $this->APIEndpoint . '/wallet/' . $this->walletId . '/maximumSpendable';
         $this->params = [
@@ -421,7 +421,7 @@ class BitGoSDK
      * @param string $prevId    Continue iterating (provided by nextBatchPrevId in the previous list)
      * @return array
      */
-    public function listKeychains(int $limit = 25, string $prevId = null)
+    public function listKeychains(int $limit = 25, ?string $prevId = null)
     {
         $this->url = $this->APIEndpoint . '/key';
         $this->params = [
@@ -451,7 +451,7 @@ class BitGoSDK
      * @param bool $newFeeAddress   Create a new keychain instead of fetching enterprise key (only for Ethereum)
      * @return array
      */
-    public function createBitGoKeychain(string $source = 'bitgo', string $enterprise = null, bool $newFeeAddress = null)
+    public function createBitGoKeychain(string $source = 'bitgo', ?string $enterprise = null, ?bool $newFeeAddress = null)
     {
         $this->url = $this->APIEndpoint . '/key';
         $this->params = [
@@ -487,7 +487,7 @@ class BitGoSDK
      * @param string $source        The origin of the keychain, e. g. 'bitgo' or 'backup'
      * @return array
      */
-    public function addKeychain(string $pub, string $encryptedPrv = null, string $source = 'bitgo')
+    public function addKeychain(string $pub, ?string $encryptedPrv = null, string $source = 'bitgo')
     {
         $this->url = $this->APIEndpoint . '/key';
         $this->params = [
@@ -650,7 +650,7 @@ class BitGoSDK
      * @param bool $allTokens       Gets details of all token pending approvals. Only valid for ETH/TETH
      * @return type
      */
-    public function listPendingApprovals(string $walletID = null, string $enterprise = null, bool $allTokens = false)
+    public function listPendingApprovals(?string $walletID = null, ?string $enterprise = null, bool $allTokens = false)
     {
         $this->url = $this->APIEndpoint . '/pendingapprovals';
         $this->params = [
@@ -700,7 +700,7 @@ class BitGoSDK
      * @param int $numConfirmations Number of confirmations before triggering the webhook. If 0 or unspecified, requests will be sent to the callback endpoint when the transfer is first seen and when it is confirmed.
      * @return array
      */
-    public function addWalletWebhook(string $url, string $type, int $numConfirmations = null)
+    public function addWalletWebhook(string $url, string $type, ?int $numConfirmations = null)
     {
         $this->url = $this->APIEndpoint . '/wallet/' . $this->walletId . '/webhooks';
         $this->params = [
@@ -736,7 +736,7 @@ class BitGoSDK
      * @param string $pendingApprovalId ID of the pending approval to be used in the simulation.
      * @return array
      */
-    public function simulateWalletWebhook(string $webhookId, string $transferId = null, string $pendingApprovalId = null)
+    public function simulateWalletWebhook(string $webhookId, ?string $transferId = null, ?string $pendingApprovalId = null)
     {
         $this->url = $this->APIEndpoint . '/wallet/' . $this->walletId . '/webhooks/' . $webhookId . '/simulate';
         $this->params = [
@@ -767,7 +767,7 @@ class BitGoSDK
      * @param int $numConfirmations Number of confirmations before triggering the webhook.
      * @return array
      */
-    public function addUserWebhook(string $url, string $type, string $label = null, int $numConfirmations = null)
+    public function addUserWebhook(string $url, string $type, ?string $label = null, ?int $numConfirmations = null)
     {
         $this->url = $this->APIEndpoint . '/webhooks';
         $this->params = [
@@ -802,7 +802,7 @@ class BitGoSDK
      * @param string $webhookId
      * @return array
      */
-    public function simulateUserWebhook(string $webhookId, string $blockId = null)
+    public function simulateUserWebhook(string $webhookId, ?string $blockId = null)
     {
         $this->url = $this->APIEndpoint . '/webhooks/' . $webhookId . '/simulate';
         $this->params = [
@@ -822,7 +822,7 @@ class BitGoSDK
 
      * @return array
      */
-    public function addBlockWebhook(string $url, string $type = 'block', string $label = null, int $numConfirmations = null)
+    public function addBlockWebhook(string $url, string $type = 'block', ?string $label = null, ?int $numConfirmations = null)
     {
         $this->url = $this->APIEndpoint . '/webhooks';
         $this->params = [
@@ -879,7 +879,7 @@ class BitGoSDK
      * @param int $numBlocks    The target number of blocks for the transaction to be confirmed. The accepted range is 1 - 1000 and the default value is 2.
      * @return array
      */
-    public function estimateTransactionFees(int $numBlocks = null)
+    public function estimateTransactionFees(?int $numBlocks = null)
     {
         $this->url = $this->APIEndpoint . '/tx/fee';
         $this->params = [

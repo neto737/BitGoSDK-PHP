@@ -54,7 +54,7 @@ class BitGoExpress
      * @param bool $extensible  True if the session is supposed to be extensible beyond a one-hour duration.
      * @return array
      */
-    public function login(string $email, string $password, string $otp, bool $extensible = null)
+    public function login(string $email, string $password, string $otp, ?bool $extensible = null)
     {
         $this->url = $this->AuthAPIEndpoint . '/user/login';
         $this->params = [
@@ -92,7 +92,7 @@ class BitGoExpress
      * @param string $passcodeEncryptionCode        Encryption code for wallet passphrase (used for lost passphrase recovery)
      * @return array
      */
-    public function generateWallet(string $label, string $passphrase, string $userKey = null, string $backupXpub = null, string $backupXpubProvider = null, string $enterprise = null, bool $disableTransactionNotifications = null, int $gasPrice = null, string $passcodeEncryptionCode = null)
+    public function generateWallet(string $label, string $passphrase, ?string $userKey = null, ?string $backupXpub = null, ?string $backupXpubProvider = null, ?string $enterprise = null, ?bool $disableTransactionNotifications = null, ?int $gasPrice = null, ?string $passcodeEncryptionCode = null)
     {
         $this->url = $this->APIEndpoint . '/wallet/generate';
         $this->params = [
@@ -122,7 +122,7 @@ class BitGoExpress
      * @param bool $disableTransactionNotifications Will prevent wallet transaction notifications if set to true.
      * @return array
      */
-    public function addWallet(string $label, int $m, int $n, array $keys, string $enterprise = null, bool $isCold = null, bool $disableTransactionNotifications = null)
+    public function addWallet(string $label, int $m, int $n, array $keys, ?string $enterprise = null, ?bool $isCold = null, ?bool $disableTransactionNotifications = null)
     {
         $this->url = $this->APIEndpoint . '/wallet';
         $this->params = [
@@ -162,7 +162,7 @@ class BitGoExpress
      * @param string $ledgerSequenceDelta       Relative ledger height (in relation to the current ledger) that the transaction should be accepted in, whereafter it will be rejected.
      * @return array
      */
-    public function sendTransaction(string $address, int $amount, string $walletPassphrase, string $prv = null, int $numBlocks = null, int $feeRate = null, string $comment = null, array $unspents = null, int $minConfirms = null, bool $enforceMinConfirmsForChange = null, int $targetWalletUnspents = null, bool $noSplitChange = null, int $minValue = null, int $maxValue = null, int $gasPrice = null, int $gasLimit = null, int $sequenceId = null, bool $segwit = null, int $lastLedgerSequence = null, string $ledgerSequenceDelta = null)
+    public function sendTransaction(string $address, int $amount, string $walletPassphrase, ?string $prv = null, ?int $numBlocks = null, ?int $feeRate = null, ?string $comment = null, ?array $unspents = null, ?int $minConfirms = null, ?bool $enforceMinConfirmsForChange = null, ?int $targetWalletUnspents = null, ?bool $noSplitChange = null, ?int $minValue = null, ?int $maxValue = null, ?int $gasPrice = null, ?int $gasLimit = null, ?int $sequenceId = null, ?bool $segwit = null, ?int $lastLedgerSequence = null, ?string $ledgerSequenceDelta = null)
     {
         $this->url = $this->APIEndpoint . '/wallet/' . $this->walletId . '/sendcoins';
         $this->params = [
@@ -215,7 +215,7 @@ class BitGoExpress
      * @param string $ledgerSequenceDelta       Relative ledger height (in relation to the current ledger) that the transaction should be accepted in, whereafter it will be rejected.
      * @return array
      */
-    public function sendTransactionToMany(array $recipients, string $walletPassphrase, string $prv = null, int $numBlocks = null, int $feeRate = null, string $comment = null, array $unspents = null, int $minConfirms = null, bool $enforceMinConfirmsForChange = null, int $targetWalletUnspents = null, bool $noSplitChange = null, int $minValue = null, int $maxValue = null, int $gasPrice = null, int $gasLimit = null, int $sequenceId = null, bool $segwit = null, int $lastLedgerSequence = null, string $ledgerSequenceDelta = null)
+    public function sendTransactionToMany(array $recipients, string $walletPassphrase, ?string $prv = null, ?int $numBlocks = null, ?int $feeRate = null, ?string $comment = null, ?array $unspents = null, ?int $minConfirms = null, ?bool $enforceMinConfirmsForChange = null, ?int $targetWalletUnspents = null, ?bool $noSplitChange = null, ?int $minValue = null, ?int $maxValue = null, ?int $gasPrice = null, ?int $gasLimit = null, ?int $sequenceId = null, ?bool $segwit = null, ?int $lastLedgerSequence = null, ?string $ledgerSequenceDelta = null)
     {
         $this->url = $this->APIEndpoint . '/wallet/' . $this->walletId . '/sendmany';
         $this->params = [
@@ -258,7 +258,7 @@ class BitGoExpress
      * @param bool $enforceMinConfirmsForChange Apply the required confirmations set in minConfirms for change outputs
      * @return array
      */
-    public function consolidateWalletUnspents(string $walletPassphrase, int $numUnspentsToMake = null, int $limit = null, int $minValue = null, int $maxValue = null, int $minHeight = null, int $feeRate = null, int $feeTxConfirmTarget = null, int $maxFeePercentage = null, int $minConfirms = null, bool $enforceMinConfirmsForChange = null)
+    public function consolidateWalletUnspents(string $walletPassphrase, ?int $numUnspentsToMake = null, ?int $limit = null, ?int $minValue = null, ?int $maxValue = null, ?int $minHeight = null, ?int $feeRate = null, ?int $feeTxConfirmTarget = null, ?int $maxFeePercentage = null, ?int $minConfirms = null, ?bool $enforceMinConfirmsForChange = null)
     {
         $this->url = $this->APIEndpoint . '/wallet/' . $this->walletId . '/consolidateunspents';
         $this->params = [
@@ -294,7 +294,7 @@ class BitGoExpress
      * @param int $feeTxConfirmTarget           Fee rate is automatically chosen by targeting a transaction confirmation in this number of blocks (Only available on BTC, feeRate takes precedence if also set)
      * @return array
      */
-    public function funoutWalletUnspents(string $walletPassphrase, string $xprv = null, int $maxNumInputsToUse = null, int $numUnspentsToMake = null, int $minValue = null, int $maxValue = null, int $minHeight = null, int $maxFeePercentage = null, int $minConfirms = null, bool $enforceMinConfirmsForChange = null, int $feeRate = null, int $feeTxConfirmTarget = null)
+    public function funoutWalletUnspents(string $walletPassphrase, ?string $xprv = null, ?int $maxNumInputsToUse = null, ?int $numUnspentsToMake = null, ?int $minValue = null, ?int $maxValue = null, ?int $minHeight = null, ?int $maxFeePercentage = null, ?int $minConfirms = null, ?bool $enforceMinConfirmsForChange = null, ?int $feeRate = null, ?int $feeTxConfirmTarget = null)
     {
         $this->url = $this->APIEndpoint . '/wallet/' . $this->walletId . '/fanoutunspents';
         $this->params = [
@@ -329,7 +329,7 @@ class BitGoExpress
      * @param string $ledgerSequenceDelta   Relative ledger height (in relation to the current ledger) that the transaction should be accepted in, whereafter it will be rejected.
      * @return array
      */
-    public function sweep(string $address, string $walletPassphrase, string $xprv = null, string $otp = null, int $feeRate = null, int $feeTxConfirmTarget = null, int $gasPrice = null, int $sequenceId = null, int $lastLedgerSequence = null, string $ledgerSequenceDelta = null)
+    public function sweep(string $address, string $walletPassphrase, ?string $xprv = null, ?string $otp = null, ?int $feeRate = null, ?int $feeTxConfirmTarget = null, ?int $gasPrice = null, ?int $sequenceId = null, ?int $lastLedgerSequence = null, ?string $ledgerSequenceDelta = null)
     {
         $this->url = $this->APIEndpoint . '/wallet/' . $this->walletId . '/sweep';
         $this->params = [
@@ -365,7 +365,7 @@ class BitGoExpress
      * @param string $ledgerSequenceDelta       Relative ledger height (in relation to the current ledger) that the transaction should be accepted in, whereafter it will be rejected.
      * @return object                           Returns the newly created transaction description object.
      */
-    public function buildTransaction(array $recipients, int $numBlocks = null, int $feeRate = null, int $minConfirms = null, bool $enforceMinConfirmsForChange = null, array $unspents = null, int $targetWalletUnspents = null, bool $noSplitChange = null, int $minValue = null, int $maxValue = null, int $gasPrice = null, int $lastLedgerSequence = null, string $ledgerSequenceDelta = null)
+    public function buildTransaction(array $recipients, ?int $numBlocks = null, ?int $feeRate = null, ?int $minConfirms = null, ?bool $enforceMinConfirmsForChange = null, ?array $unspents = null, ?int $targetWalletUnspents = null, ?bool $noSplitChange = null, ?int $minValue = null, ?int $maxValue = null, ?int $gasPrice = null, ?int $lastLedgerSequence = null, ?string $ledgerSequenceDelta = null)
     {
         $this->url = $this->APIEndpoint . '/wallet/' . $this->walletId . '/tx/build';
         $this->params = [
@@ -397,7 +397,7 @@ class BitGoExpress
      * @param string $walletPassphrase      Passphrase to decrypt the user keychain
      * @return object                       The half-signed, serialized transaction hex
      */
-    public function signBuildTransaction($txPrebuild, string $prv = null, string $coldDerivationSeed = null, $keychain = null, string $walletPassphrase = null)
+    public function signBuildTransaction($txPrebuild, ?string $prv = null, ?string $coldDerivationSeed = null, $keychain = null, ?string $walletPassphrase = null)
     {
         $this->url = $this->APIEndpoint . '/wallet/' . $this->walletId . '/signtx';
         $this->params = [
@@ -419,7 +419,7 @@ class BitGoExpress
      * @param string $comment       Any additional comment to attach to the transaaction
      * @return array
      */
-    public function sendBuildTransaction($halfSigned, string $otp, string $txHex = null, string $comment = null)
+    public function sendBuildTransaction($halfSigned, string $otp, ?string $txHex = null, ?string $comment = null)
     {
         $this->url = $this->APIEndpoint . '/wallet/' . $this->walletId . '/tx/send';
         $this->params = [
@@ -452,7 +452,7 @@ class BitGoExpress
      * @param bool $disableEmail        Set to true to prevent a notification email sent to the user added
      * @return array
      */
-    public function shareWallet(string $email, string $permissions, string $walletPassphrase = null, bool $skipKeychain = null, bool $disableEmail = null)
+    public function shareWallet(string $email, string $permissions, ?string $walletPassphrase = null, ?bool $skipKeychain = null, ?bool $disableEmail = null)
     {
         $this->url = $this->APIEndpoint . '/wallet/' . $this->walletId . '/share';
         $this->params = [
@@ -474,7 +474,7 @@ class BitGoExpress
      * @param string $overrideEncryptedPrv  Set to an alternate encrypted prv if you wish to store an encrypted prv received out-of-band
      * @return array
      */
-    public function acceptWalletShare(string $walletShareId, string $newWalletPassphrase = null, string $userPassword = null, string $overrideEncryptedPrv = null)
+    public function acceptWalletShare(string $walletShareId, ?string $newWalletPassphrase = null, ?string $userPassword = null, ?string $overrideEncryptedPrv = null)
     {
         $this->url = $this->APIEndpoint . '/walletshare/' . $walletShareId . '/acceptshare';
         $this->params = [
