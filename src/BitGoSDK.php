@@ -510,7 +510,7 @@ class BitGoSDK
      */
     public function setVelocityPolicyRule(string $id, string $type, string $condition, string $action)
     {
-        $this->url = $this->APIEndpoint . '/wallet/' . $id . '/policy/rule';
+        $this->url = $this->APIEndpoint . '/wallet/' . $this->walletId . '/policy/rule';
         $this->params = [
             'id' => $id,
             'type' => $type,
@@ -531,7 +531,7 @@ class BitGoSDK
      */
     public function updateVelocityPolicyRule(string $id, string $type, string $condition, string $action)
     {
-        $this->url = $this->APIEndpoint . '/wallet/' . $id . '/policy/rule';
+        $this->url = $this->APIEndpoint . '/wallet/' . $this->walletId . '/policy/rule';
         $this->params = [
             'id' => $id,
             'type' => $type,
@@ -553,7 +553,7 @@ class BitGoSDK
      */
     public function removePolicyRule(string $id, string $type, string $condition, string $action)
     {
-        $this->url = $this->APIEndpoint . '/wallet/' . $id . '/policy/rule';
+        $this->url = $this->APIEndpoint . '/wallet/' . $this->walletId . '/policy/rule';
         $this->params = [
             'id' => $id,
             'type' => $type,
