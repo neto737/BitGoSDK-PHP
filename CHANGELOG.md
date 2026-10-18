@@ -15,6 +15,7 @@ Entries for 2.2.3 and earlier were reconstructed from the git history in October
 - `BitGoExpress` can reach Express over TLS. Prefix the hostname with `https://`, trust a custom or self-signed certificate with `setCaFile()`, or, for local testing only, turn off verification with `setVerifyTls(false)`.
 - `setForceIPv4()` on both clients, to get back the old IPv4-only behaviour.
 - `BitGoSDK::setCaFile()`, to trust a custom CA file, for example behind a TLS-inspecting proxy.
+- Both clients send a `User-Agent: BitGoSDK-PHP/<version>` header. The version is in `BitGoSDK::VERSION`.
 - `BitGoExpress::pingExpress()`, which checks that Express is running without contacting BitGo.
 - `BitGoExpress::fanoutWalletUnspents()`, replacing the misspelled `funoutWalletUnspents()`.
 - `AddressType` constants named after each chain's script type: `P2SH_P2WSH_*` (10/11), `P2WSH_*` (20/21) and `P2TR_*` (30/31).

@@ -712,6 +712,7 @@ class BitGoExpress
         if ($authenticate && isset($this->accessToken)) {
             $headers[] = 'Authorization: Bearer ' . $this->accessToken;
         }
+        $headers[] = 'User-Agent: BitGoSDK-PHP/' . BitGoSDK::VERSION;
         $options[CURLOPT_HTTPHEADER] = $headers;
         // Without a custom CA file, use the system CA store, or composer/ca-bundle's Mozilla bundle if there is none.
         $caPath = $this->caFile ?? CaBundle::getSystemCaRootBundlePath();

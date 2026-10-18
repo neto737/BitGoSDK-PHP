@@ -3,6 +3,7 @@
 namespace neto737\BitGoSDK\Tests;
 
 use neto737\BitGoSDK\BitGoExpress;
+use neto737\BitGoSDK\BitGoSDK;
 use PHPUnit\Framework\TestCase;
 
 /**
@@ -13,11 +14,13 @@ final class ExpressLoginTest extends TestCase
 {
     use AccessesPrivateMembers;
 
+    private const USER_AGENT = 'User-Agent: BitGoSDK-PHP/' . BitGoSDK::VERSION;
+
     public function testRequestWithoutTokenStillSendsContentType(): void
     {
         $express = new BitGoExpress('127.0.0.1', 1, 'tbtc');
 
-        self::assertSame(['Content-Type: application/json'], $this->headers($express));
+        self::assertSame(['Content-Type: application/json', self::USER_AGENT], $this->headers($express));
     }
 
     public function testRequestSendsToken(): void
@@ -25,7 +28,7 @@ final class ExpressLoginTest extends TestCase
         $express = new BitGoExpress('127.0.0.1', 1, 'tbtc');
         $express->accessToken = 'v2xtoken';
 
-        self::assertSame(['Content-Type: application/json', 'Authorization: Bearer v2xtoken'], $this->headers($express));
+        self::assertSame(['Content-Type: application/json', 'Authorization: Bearer v2xtoken', self::USER_AGENT], $this->headers($express));
     }
 
     public function testLoginRequestSendsNoToken(): void
@@ -33,7 +36,7 @@ final class ExpressLoginTest extends TestCase
         $express = new BitGoExpress('127.0.0.1', 1, 'tbtc');
         $express->accessToken = 'v2xtoken';
 
-        self::assertSame(['Content-Type: application/json'], $this->headers($express, false));
+        self::assertSame(['Content-Type: application/json', self::USER_AGENT], $this->headers($express, false));
     }
 
     public function testCallsAfterLoginSendToken(): void
@@ -43,7 +46,7 @@ final class ExpressLoginTest extends TestCase
 
         $express->login('user@example.com', 'password', '000000');
 
-        self::assertSame(['Content-Type: application/json', 'Authorization: Bearer v2xtoken'], $this->headers($express));
+        self::assertSame(['Content-Type: application/json', 'Authorization: Bearer v2xtoken', self::USER_AGENT], $this->headers($express));
     }
 
     public function testSuccessfulLoginStoresToken(): void

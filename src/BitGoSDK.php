@@ -20,6 +20,8 @@ use neto737\BitGoSDK\Enum\AddressType;
 
 class BitGoSDK
 {
+    // Sent in the User-Agent header. Bump it with every release.
+    const VERSION = '2.3.0';
     const BITGO_PRODUCTION_API_ENDPOINT = 'https://app.bitgo.com/api/v2/';
     const BITGO_TESTNET_API_ENDPOINT = 'https://app.bitgo-test.com/api/v2/';
     const DEFAULT_TIMEOUT = 60;
@@ -1060,7 +1062,8 @@ class BitGoSDK
         $options[CURLOPT_RETURNTRANSFER] = true;
         $options[CURLOPT_HTTPHEADER] = [
             'Content-Type: application/json',
-            'Authorization: Bearer ' . $this->accessToken
+            'Authorization: Bearer ' . $this->accessToken,
+            'User-Agent: BitGoSDK-PHP/' . self::VERSION
         ];
         // Without a custom CA file, use the system CA store, or composer/ca-bundle's Mozilla bundle if there is none.
         $caPath = $this->caFile ?? CaBundle::getSystemCaRootBundlePath();

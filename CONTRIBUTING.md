@@ -96,7 +96,7 @@ CI runs these checks on every pull request. PHPUnit and `php -l` run on PHP 7.4 
 
 This section is for maintainers. Releases are tagged from `main` for now, and from `2.x` for 2.x releases once that branch exists.
 
-1. **Prepare the changelog.** In a pull request, rename `## [Unreleased]` in `CHANGELOG.md` to `## [X.Y.Z] - YYYY-MM-DD`, add a new empty `## [Unreleased]` section above it, and update the compare links at the bottom of the file. Merge it once all required checks pass.
+1. **Prepare the changelog.** In a pull request, rename `## [Unreleased]` in `CHANGELOG.md` to `## [X.Y.Z] - YYYY-MM-DD`, add a new empty `## [Unreleased]` section above it, and update the compare links at the bottom of the file. Set `BitGoSDK::VERSION` in `src/BitGoSDK.php` to `X.Y.Z`, since it is sent in the `User-Agent` header. Merge it once all required checks pass.
 2. **Tag the release** on the merged commit. Tags use plain `X.Y.Z` with no `v` prefix, matching the existing tags.
 
    ```sh
