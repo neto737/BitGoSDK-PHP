@@ -14,6 +14,7 @@ Entries for 2.2.3 and earlier were reconstructed from the git history in October
 - Request timeouts: `setTimeout()` and `setConnectTimeout()` on both clients. The defaults are a 10 second connect timeout and a 60 second (`BitGoSDK`) or 310 second (`BitGoExpress`) request timeout.
 - `BitGoExpress` can reach Express over TLS. Prefix the hostname with `https://`, trust a custom or self-signed certificate with `setCaFile()`, or, for local testing only, turn off verification with `setVerifyTls(false)`.
 - `setForceIPv4()` on both clients, to get back the old IPv4-only behaviour.
+- `BitGoSDK::setCaFile()`, to trust a custom CA file, for example behind a TLS-inspecting proxy.
 - `BitGoExpress::pingExpress()`, which checks that Express is running without contacting BitGo.
 - `BitGoExpress::fanoutWalletUnspents()`, replacing the misspelled `funoutWalletUnspents()`.
 - `AddressType` constants named after each chain's script type: `P2SH_P2WSH_*` (10/11), `P2WSH_*` (20/21) and `P2TR_*` (30/31).
@@ -32,6 +33,7 @@ Entries for 2.2.3 and earlier were reconstructed from the git history in October
 - Amounts in `sendTransaction()`, `sendTransactionToMany()` and `buildTransaction()` accept an `int` or a string of digits, and are always sent as strings, so 18-decimal amounts no longer overflow `PHP_INT_MAX`. `toSatoshi()` accepts strings and no longer breaks under locales that use a decimal comma. `toBTC()` no longer converts through a float.
 - Requests no longer force IPv4. cURL uses IPv4 or IPv6 as the system allows. A local address bound with `setRequestIP()` decides the IP version.
 - `BitGoSDK::setRequestIP()` returns `true` if the IP was applied, and `false` on testnet or for an invalid IP.
+- **TLS certificates are checked against the system CA store.** The bundled 2022 `cacert.pem` is gone. If PHP finds no system CA store, the Mozilla bundle from the new `composer/ca-bundle` dependency is used.
 - `ext-bcmath` is no longer required.
 - **The minimum PHP version is now 7.4** (was 7.0).
 - The project is now licensed under MIT. 2.2.3 and earlier were released under GPL-3.0. The file headers say so too.

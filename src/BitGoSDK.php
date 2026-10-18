@@ -14,6 +14,7 @@
 
 namespace neto737\BitGoSDK;
 
+use Composer\CaBundle\CaBundle;
 use neto737\BitGoSDK\Enum\CurrencyCode;
 use neto737\BitGoSDK\Enum\AddressType;
 
@@ -40,6 +41,7 @@ class BitGoSDK
     public bool $testNet;
     private int $timeout = self::DEFAULT_TIMEOUT;
     private int $connectTimeout = self::DEFAULT_CONNECT_TIMEOUT;
+    private ?string $caFile = null;
     private bool $forceIPv4 = false;
 
     /**
@@ -73,6 +75,20 @@ class BitGoSDK
         }
         $this->requestIP = $ipAddress;
         return true;
+    }
+
+    /**
+     * Trust the CA certificates in a PEM file instead of the system CA store, for example behind a TLS-inspecting proxy
+     *
+     * @param string $path  Path to a PEM file
+     * @throws \InvalidArgumentException if the file cannot be read
+     */
+    public function setCaFile(string $path): void
+    {
+        if (!is_file($path) || !is_readable($path)) {
+            throw new \InvalidArgumentException('CA file not found or not readable: ' . $path);
+        }
+        $this->caFile = $path;
     }
 
     /**
@@ -1046,7 +1062,9 @@ class BitGoSDK
             'Content-Type: application/json',
             'Authorization: Bearer ' . $this->accessToken
         ];
-        $options[CURLOPT_CAINFO] = dirname(__FILE__) . '/cacert.pem';
+        // Without a custom CA file, use the system CA store, or composer/ca-bundle's Mozilla bundle if there is none.
+        $caPath = $this->caFile ?? CaBundle::getSystemCaRootBundlePath();
+        $options[is_dir($caPath) ? CURLOPT_CAPATH : CURLOPT_CAINFO] = $caPath;
         if (isset($this->requestIP)) {
             $options[CURLOPT_INTERFACE] = $this->requestIP;
             // A bound local address can only reach hosts of the same IP version.

@@ -62,9 +62,9 @@ BitGo signs transactions on the client, so sending coins, creating wallets and o
 - [BitGo API reference](https://developers.bitgo.com/reference/overview)
 - [Webhooks](https://developers.bitgo.com/docs/webhooks-overview) and [policies](https://developers.bitgo.com/docs/policies-overview)
 
-## Attention
+## TLS certificates
 
-Keep your `cacert.pem` up to date. You can download the latest one from [curl.se](https://curl.se/docs/caextract.html).
+Both clients check certificates against your system's CA store. If PHP can't find one, they use the Mozilla CA bundle from [`composer/ca-bundle`](https://github.com/composer/ca-bundle), so keep your dependencies up to date. To trust a different CA, for example behind a TLS-inspecting proxy, call `setCaFile('/path/to/ca.pem')`.
 
 ## License
 
