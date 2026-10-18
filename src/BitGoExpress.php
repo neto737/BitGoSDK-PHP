@@ -160,13 +160,25 @@ class BitGoExpress
     }
 
     /**
-     * Ping bitgo express to ensure that it is still running. Unlike /ping, this does not try connecting to bitgo.com.
+     * Ping BitGo through BitGo Express, to check that Express is running and can reach BitGo.
+     * Use pingExpress() to check Express alone.
      *
      * @return array
      */
     public function ping()
     {
         $this->url = $this->AuthAPIEndpoint . '/ping';
+        return $this->__execute('GET');
+    }
+
+    /**
+     * Ping BitGo Express to ensure that it is still running. Unlike ping(), this does not try connecting to bitgo.com.
+     *
+     * @return array<string, mixed>
+     */
+    public function pingExpress()
+    {
+        $this->url = $this->AuthAPIEndpoint . '/pingexpress';
         return $this->__execute('GET');
     }
 
