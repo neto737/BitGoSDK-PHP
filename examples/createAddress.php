@@ -1,6 +1,6 @@
 <?php
 
-require 'vendor/autoload.php';
+require __DIR__ . '/../vendor/autoload.php';
 
 use neto737\BitGoSDK\BitGoSDK;
 use neto737\BitGoSDK\Enum\CurrencyCode;
