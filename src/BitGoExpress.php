@@ -595,28 +595,8 @@ class BitGoExpress
         $params = self::withoutNulls($this->params);
         $this->params = [];
 
-        $ch = curl_init($this->url);
-        if ($requestType === 'POST') {
-            curl_setopt($ch, CURLOPT_POST, true);
-            curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode($params));
-        } elseif ($requestType === 'PUT') {
-            curl_setopt($ch, CURLOPT_CUSTOMREQUEST, 'PUT');
-            curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode($params));
-        }
-        curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, true);
-        curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-        if (isset($this->accessToken) && !$this->login) {
-            curl_setopt($ch, CURLOPT_HTTPHEADER, [
-                'Content-Type: application/json',
-                'Authorization: Bearer ' . $this->accessToken
-            ]);
-        }
-        curl_setopt($ch, CURLOPT_CAINFO, dirname(__FILE__) . '/cacert.pem');
-        if (defined('CURLOPT_IPRESOLVE') && defined('CURL_IPRESOLVE_V4')) {
-            curl_setopt($ch, CURLOPT_IPRESOLVE, CURL_IPRESOLVE_V4);
-        }
-        curl_setopt($ch, CURLOPT_TIMEOUT, $this->timeout);
-        curl_setopt($ch, CURLOPT_CONNECTTIMEOUT, $this->connectTimeout);
+        $ch = curl_init();
+        curl_setopt_array($ch, $this->curlOptions($requestType, $params));
 
         $response = curl_exec($ch);
         $errno = curl_errno($ch);
@@ -629,6 +609,39 @@ class BitGoExpress
         }
 
         return self::decodeResponse((string) $response, $status, $array);
+    }
+
+    /**
+     * The cURL options for a request to $this->url.
+     *
+     * @param array<string, mixed> $params
+     * @return array<int, mixed>
+     */
+    private function curlOptions(string $requestType, array $params): array
+    {
+        $options = [CURLOPT_URL => $this->url];
+        if ($requestType === 'POST') {
+            $options[CURLOPT_POST] = true;
+            $options[CURLOPT_POSTFIELDS] = json_encode($params);
+        } elseif ($requestType === 'PUT') {
+            $options[CURLOPT_CUSTOMREQUEST] = 'PUT';
+            $options[CURLOPT_POSTFIELDS] = json_encode($params);
+        }
+        $options[CURLOPT_SSL_VERIFYPEER] = true;
+        $options[CURLOPT_RETURNTRANSFER] = true;
+        if (isset($this->accessToken) && !$this->login) {
+            $options[CURLOPT_HTTPHEADER] = [
+                'Content-Type: application/json',
+                'Authorization: Bearer ' . $this->accessToken
+            ];
+        }
+        $options[CURLOPT_CAINFO] = dirname(__FILE__) . '/cacert.pem';
+        if (defined('CURLOPT_IPRESOLVE') && defined('CURL_IPRESOLVE_V4')) {
+            $options[CURLOPT_IPRESOLVE] = CURL_IPRESOLVE_V4;
+        }
+        $options[CURLOPT_TIMEOUT] = $this->timeout;
+        $options[CURLOPT_CONNECTTIMEOUT] = $this->connectTimeout;
+        return $options;
     }
 
     /**
