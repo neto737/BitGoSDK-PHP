@@ -372,6 +372,8 @@ class BitGoSDK
      * This API call is used to get information about a single wallet address.
      *
      * @param string $addressOrId   Valid address or address id of the wallet.
+     * @param string $dt            Destination tag of the address (XRP only)
+     * @param string $memoId        Memo ID of the address (XLM only)
      * @return array
      */
     public function getWalletAddress(string $addressOrId, ?string $dt = null, ?string $memoId = null)
@@ -388,6 +390,8 @@ class BitGoSDK
      * This API call is used to update fields on a wallet address.
      *
      * @param string $addressOrId   Valid address or address id of the wallet.
+     * @param string $dt            Destination tag of the address (XRP only)
+     * @param string $memoId        Memo ID of the address (XLM only)
      * @param string $label         Human-readable name for the address
      * @return array
      */
@@ -405,9 +409,12 @@ class BitGoSDK
     /**
      * This API call is used to retrieve a wallet’s addresses.
      *
-     * @param int $limit        The maximum number of addresses to be returned.
-     * @param string $prevId    Continue iterating (provided by nextBatchPrevId in the previous list)
-     * @param int $sortOrder    Order the addresses by creation date. -1 is newest first, 1 is for oldest first.
+     * @param string $labelContains Only return addresses whose label contains this text
+     * @param int $limit            The maximum number of addresses to be returned.
+     * @param bool $mine            Only return addresses created by the current user
+     * @param string $prevId        Continue iterating (provided by nextBatchPrevId in the previous list)
+     * @param array<int> $chains    Only return addresses on these chains, see AddressType
+     * @param int $sort             Order the addresses by creation date. -1 is newest first, 1 is for oldest first.
      * @return array
      */
     public function getWalletAddresses(?string $labelContains = null, ?int $limit = null, ?bool $mine = null, ?string $prevId = null, array $chains = [], ?int $sort = null)

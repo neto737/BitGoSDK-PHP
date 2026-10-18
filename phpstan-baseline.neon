@@ -271,12 +271,6 @@ parameters:
 			path: src/BitGoSDK.php
 
 		-
-			message: '#^Method neto737\\BitGoSDK\\BitGoSDK\:\:getWalletAddresses\(\) has parameter \$chains with no value type specified in iterable type array\.$#'
-			identifier: missingType.iterableValue
-			count: 1
-			path: src/BitGoSDK.php
-
-		-
 			message: '#^Method neto737\\BitGoSDK\\BitGoSDK\:\:getWalletAddresses\(\) return type has no value type specified in iterable type array\.$#'
 			identifier: missingType.iterableValue
 			count: 1
@@ -435,12 +429,6 @@ parameters:
 		-
 			message: '#^Method neto737\\BitGoSDK\\BitGoSDK\:\:updateWalletAddress\(\) return type has no value type specified in iterable type array\.$#'
 			identifier: missingType.iterableValue
-			count: 1
-			path: src/BitGoSDK.php
-
-		-
-			message: '#^PHPDoc tag @param references unknown parameter\: \$sortOrder$#'
-			identifier: parameter.notFound
 			count: 1
 			path: src/BitGoSDK.php
 
