@@ -1,0 +1,13 @@
+# Normalise line endings to LF in the repository and on checkout.
+* text=auto eol=lf
+
+*.php diff=php
+
+# Keep development files out of Composer dist archives.
+/.github            export-ignore
+/docs               export-ignore
+/examples           export-ignore
+/tests              export-ignore
+/.editorconfig      export-ignore
+/.gitattributes     export-ignore
+/.gitignore         export-ignore

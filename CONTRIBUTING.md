@@ -1,6 +1,9 @@
 # Contributing
 
-Thanks for helping out with BitGoSDK-PHP. This guide explains which branch to target and how changes get merged.
+Thanks for helping out with BitGoSDK-PHP. This guide explains which branch to target, how to set up and test your changes, and how releases are made.
+
+- **Found a bug or want a feature?** [Open an issue](https://github.com/neto737/BitGoSDK-PHP/issues/new) first, so we can agree on the approach before you write code.
+- **Found a security problem?** Don't open a public issue. Follow [SECURITY.md](SECURITY.md) instead.
 
 ## Branch model
 
@@ -32,3 +35,73 @@ If a fix applies to both lines, open the pull request against `2.x`. A maintaine
 ### Protection rules
 
 `main` (and `2.x`, once it exists) is protected: no force pushes, no deletion, and every change goes through a pull request. Fork the repository or push a topic branch, then open a pull request against the branch you're targeting.
+
+## Local setup
+
+You need:
+
+- PHP 7.0 or newer with the `curl` and `bcmath` extensions. A current PHP 8.x is recommended so you see deprecation notices. 2.3.0 raises the minimum to 7.4.
+- [Composer](https://getcomposer.org/).
+- A [BitGo testnet](https://app.bitgo-test.com/) account and access token, if you want to run requests against the API. Never use production tokens or real funds while developing.
+
+```sh
+git clone https://github.com/<your-username>/BitGoSDK-PHP.git
+cd BitGoSDK-PHP
+composer install
+```
+
+`composer install` only generates the autoloader for now, because there are no dev dependencies yet.
+
+## Coding style
+
+- Follow the style of the surrounding code: 4-space indentation, LF line endings, UTF-8 and a final newline. [.editorconfig](.editorconfig) sets these up for most editors.
+- New code should follow [PSR-12](https://www.php-fig.org/psr/psr-12/). 2.3.0 adds PHP-CS-Fixer to enforce it. Until then, don't reformat code you aren't otherwise changing, so diffs stay reviewable.
+- 2.x changes must not break the public API. Don't rename or remove public methods or reorder their parameters. Widening a type (for example `int` to `int|string`) is fine. Breaking changes go to 3.x.
+- Code must still run on the minimum PHP version in `composer.json`. Don't use syntax or functions newer than that.
+- Give every public method a docblock with a short description, `@param` lines and `@return`, like the existing methods.
+
+## Running tests
+
+There's no automated test suite yet. 2.3.0 adds PHPUnit, PHPStan and CI, and this section will be updated with the `composer test` workflow. Until then:
+
+1. Check every PHP file for syntax errors:
+
+   ```sh
+   find src examples -name '*.php' -exec php -l {} \;
+   ```
+
+2. Exercise your change against BitGo **testnet**. Copy the relevant script from `examples/` into `local_tests/` (which is gitignored), fill in your testnet token and wallet ID there, and run it from the repository root:
+
+   ```sh
+   mkdir -p local_tests
+   cp examples/createAddress.php local_tests/
+   php local_tests/createAddress.php
+   ```
+
+   Never commit tokens, passphrases or wallet IDs.
+
+3. Describe in your pull request what you ran and what you saw.
+
+## Pull requests
+
+- Keep each pull request focused on one change.
+- Add a line under `## [Unreleased]` in [CHANGELOG.md](CHANGELOG.md) for anything a user would notice. Call out behaviour changes clearly.
+- Update the README or `examples/` when you change how something is used.
+
+## Release process
+
+This section is for maintainers. Releases are tagged from `main` for now, and from `2.x` for 2.x releases once that branch exists.
+
+1. **Prepare the changelog.** In a pull request, rename `## [Unreleased]` in `CHANGELOG.md` to `## [X.Y.Z] - YYYY-MM-DD`, add a new empty `## [Unreleased]` section above it, and update the compare links at the bottom of the file. Merge it once all required checks pass.
+2. **Tag the release** on the merged commit. Tags use plain `X.Y.Z` with no `v` prefix, matching the existing tags.
+
+   ```sh
+   git checkout main
+   git pull
+   git tag -a X.Y.Z -m "X.Y.Z"
+   git push origin X.Y.Z
+   ```
+
+   Pre-releases use `X.Y.Z-alpha.N`, `-beta.N` or `-RC.N`.
+3. **Check Packagist.** The GitHub webhook tells [Packagist](https://packagist.org/packages/neto737/bitgosdk-php) about the new tag automatically. Make sure the version shows up within a few minutes. If it doesn't, click **Update** on the package page and check the webhook under the repository's **Settings → Webhooks**.
+4. **Publish the GitHub Release.** Create a release from the tag, titled `X.Y.Z`, and paste that version's `CHANGELOG.md` section as the notes. Tick **Set as a pre-release** for alpha, beta and RC tags.

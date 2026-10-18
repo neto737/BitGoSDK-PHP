@@ -1,0 +1,8 @@
+blank_issues_enabled: false
+contact_links:
+  - name: Report a security vulnerability
+    url: https://github.com/neto737/BitGoSDK-PHP/security/advisories/new
+    about: Report security problems privately. Don't open a public issue.
+  - name: BitGo platform or BitGo Express problems
+    url: https://developers.bitgo.com/
+    about: Problems with BitGo itself, BitGo Express or BitGoJS should be reported to BitGo.

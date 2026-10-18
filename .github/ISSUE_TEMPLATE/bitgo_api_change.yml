@@ -1,0 +1,59 @@
+name: BitGo API change
+description: BitGo added, changed, deprecated or removed something the SDK should follow.
+labels: ["bitgo-api-change"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Use this form when the SDK needs to change because BitGo changed its platform, API or BitGo Express. Problems with BitGo itself should be reported to BitGo.
+  - type: dropdown
+    id: change-type
+    attributes:
+      label: Type of change
+      options:
+        - New endpoint or feature
+        - Changed request or response
+        - Deprecation
+        - Removal
+        - New or delisted coin
+        - BitGo Express change
+    validations:
+      required: true
+  - type: textarea
+    id: summary
+    attributes:
+      label: What changed?
+    validations:
+      required: true
+  - type: input
+    id: source
+    attributes:
+      label: Source
+      description: A link to BitGo's changelog, docs or announcement.
+      placeholder: https://developers.bitgo.com/...
+    validations:
+      required: true
+  - type: input
+    id: effective-date
+    attributes:
+      label: Effective date
+      description: When the change takes effect or the old behaviour stops working, if BitGo has said.
+      placeholder: YYYY-MM-DD
+  - type: textarea
+    id: affected
+    attributes:
+      label: Affected SDK methods or constants
+      description: Which methods, parameters or enum values need to change.
+      placeholder: |
+        BitGoSDK::sendTransaction()
+        CurrencyCode::...
+  - type: dropdown
+    id: breaking
+    attributes:
+      label: Does following this change break existing callers?
+      options:
+        - Not sure
+        - "No"
+        - "Yes"
+    validations:
+      required: true

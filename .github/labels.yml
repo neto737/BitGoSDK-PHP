@@ -1,0 +1,58 @@
+# Repository labels. The labels workflow syncs this file to GitHub on every push to main.
+# Labels that aren't listed here are deleted, so add new labels here rather than in the UI.
+
+# Type
+- name: bug
+  color: d73a4a
+  description: Something doesn't work as documented
+- name: enhancement
+  color: a2eeef
+  description: New feature or improvement
+- name: bitgo-api-change
+  color: 5319e7
+  description: BitGo added, changed or removed something the SDK depends on
+- name: security
+  color: b60205
+  description: Security fix or hardening
+- name: breaking
+  color: e11d21
+  description: Breaks the public API (3.x only)
+- name: dependencies
+  color: 0366d6
+  description: Updates a dependency
+
+# Release line
+- name: 2.x
+  color: c5def5
+  description: Applies to the 2.x line
+- name: 3.x
+  color: 1d76db
+  description: Applies to the 3.x line
+- name: backlog
+  color: ededed
+  description: Not scheduled for a release yet
+
+# Triage
+- name: priority
+  color: fbca04
+  description: Should be handled before other work
+- name: good first issue
+  color: 7057ff
+  description: Good for newcomers
+- name: help wanted
+  color: 008672
+  description: Extra attention is needed
+- name: question
+  color: d876e3
+  description: Further information is requested
+
+# Resolution
+- name: duplicate
+  color: cfd3d7
+  description: This issue or pull request already exists
+- name: invalid
+  color: e4e669
+  description: This doesn't seem right
+- name: wontfix
+  color: ffffff
+  description: This will not be worked on
