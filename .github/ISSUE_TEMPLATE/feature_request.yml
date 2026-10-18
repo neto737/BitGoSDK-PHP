@@ -1,0 +1,53 @@
+name: Feature request
+description: Suggest a new feature or an improvement to an existing one.
+labels: ["enhancement"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for the suggestion. Check the [roadmap](https://github.com/neto737/BitGoSDK-PHP/tree/main/docs/roadmap) first, since it may already be planned.
+
+        If BitGo changed or deprecated something the SDK depends on, use the **BitGo API change** form instead.
+  - type: textarea
+    id: problem
+    attributes:
+      label: What problem does this solve?
+      description: Describe what you're trying to do and why the SDK doesn't let you do it today.
+    validations:
+      required: true
+  - type: textarea
+    id: proposal
+    attributes:
+      label: Proposed solution
+      description: How you'd like it to work. A sketch of the method signature or usage helps.
+      render: php
+    validations:
+      required: true
+  - type: input
+    id: bitgo-docs
+    attributes:
+      label: BitGo API reference
+      description: A link to the relevant page on developers.bitgo.com, if this wraps a BitGo endpoint.
+      placeholder: https://developers.bitgo.com/...
+  - type: dropdown
+    id: line
+    attributes:
+      label: Release line
+      description: 2.x only gets changes that don't break the public API. Everything else goes to 3.x.
+      options:
+        - Not sure
+        - 2.x (no breaking changes)
+        - 3.x
+    validations:
+      required: true
+  - type: textarea
+    id: alternatives
+    attributes:
+      label: Alternatives you've considered
+      description: Workarounds you're using now, or other approaches.
+  - type: checkboxes
+    id: contribute
+    attributes:
+      label: Contributing
+      options:
+        - label: I'd like to open a pull request for this.

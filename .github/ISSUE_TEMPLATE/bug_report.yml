@@ -1,0 +1,94 @@
+name: Bug report
+description: Something in the SDK doesn't work as documented.
+labels: ["bug"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for reporting a bug. Please check the [open issues](https://github.com/neto737/BitGoSDK-PHP/issues) first to see if it has already been reported.
+
+        **Security problems go through [SECURITY.md](https://github.com/neto737/BitGoSDK-PHP/blob/main/SECURITY.md), not public issues.**
+
+        Never paste real access tokens, passphrases, private keys or wallet IDs here.
+  - type: input
+    id: sdk-version
+    attributes:
+      label: BitGoSDK-PHP version
+      description: Run `composer show neto737/bitgosdk-php` to find it.
+      placeholder: e.g. 2.2.3
+    validations:
+      required: true
+  - type: input
+    id: php-version
+    attributes:
+      label: PHP version
+      description: Run `php -v` to find it.
+      placeholder: e.g. 8.3.12
+    validations:
+      required: true
+  - type: dropdown
+    id: component
+    attributes:
+      label: Component
+      description: Which class are you calling?
+      options:
+        - BitGoSDK (BitGo REST API)
+        - BitGoExpress (BitGo Express)
+        - Enums (CurrencyCode, AddressType, ...)
+        - Not sure
+    validations:
+      required: true
+  - type: input
+    id: express-version
+    attributes:
+      label: BitGo Express version
+      description: Only if you're using `BitGoExpress`.
+      placeholder: e.g. 14.2.0
+  - type: dropdown
+    id: environment
+    attributes:
+      label: BitGo environment
+      options:
+        - Testnet
+        - Production
+    validations:
+      required: true
+  - type: input
+    id: coin
+    attributes:
+      label: Coin
+      description: The coin code involved, if any.
+      placeholder: e.g. tbtc4, hteth
+  - type: textarea
+    id: what-happened
+    attributes:
+      label: What happened?
+      description: Include the full error message or the response you got back.
+    validations:
+      required: true
+  - type: textarea
+    id: expected
+    attributes:
+      label: What did you expect to happen?
+    validations:
+      required: true
+  - type: textarea
+    id: reproduction
+    attributes:
+      label: Minimal reproduction
+      description: The smallest piece of code that shows the problem. Replace tokens, passphrases and wallet IDs with placeholders.
+      render: php
+    validations:
+      required: true
+  - type: textarea
+    id: notes
+    attributes:
+      label: Related issues or other notes
+      description: Anything that might help us find the cause.
+  - type: checkboxes
+    id: checks
+    attributes:
+      label: Checks
+      options:
+        - label: I removed all access tokens, passphrases, private keys and wallet IDs from this report.
+          required: true
