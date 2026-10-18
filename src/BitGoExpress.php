@@ -19,6 +19,10 @@ use neto737\BitGoSDK\Enum\CurrencyCode;
 
 class BitGoExpress
 {
+    // A little over BitGo Express's own 305 second request timeout, so Express reports its timeout first.
+    const DEFAULT_TIMEOUT = 310;
+    const DEFAULT_CONNECT_TIMEOUT = 10;
+
     private $APIEndpoint = null;
     private $AuthAPIEndpoint = null;
     private $url = null;
@@ -27,6 +31,8 @@ class BitGoExpress
     private $login = false;
     public $accessToken = null;
     public $walletId = null;
+    private int $timeout = self::DEFAULT_TIMEOUT;
+    private int $connectTimeout = self::DEFAULT_CONNECT_TIMEOUT;
 
     /**
      * BitGoExpress Initialization
@@ -43,6 +49,34 @@ class BitGoExpress
         $this->coin = $coin;
         $this->AuthAPIEndpoint = 'http://' . $this->hostname . ':' . $this->port . '/api/v2';
         $this->APIEndpoint = 'http://' . $this->hostname . ':' . $this->port . '/api/v2/' . $this->coin;
+    }
+
+    /**
+     * Set the maximum time a request may take, connection included
+     *
+     * @param int $seconds  0 waits forever
+     * @throws \InvalidArgumentException
+     */
+    public function setTimeout(int $seconds): void
+    {
+        if ($seconds < 0) {
+            throw new \InvalidArgumentException('Timeout must not be negative.');
+        }
+        $this->timeout = $seconds;
+    }
+
+    /**
+     * Set the maximum time to wait for a connection to BitGo Express
+     *
+     * @param int $seconds  0 uses cURL's built-in default of 300 seconds
+     * @throws \InvalidArgumentException
+     */
+    public function setConnectTimeout(int $seconds): void
+    {
+        if ($seconds < 0) {
+            throw new \InvalidArgumentException('Connect timeout must not be negative.');
+        }
+        $this->connectTimeout = $seconds;
     }
 
     /**
@@ -141,7 +175,7 @@ class BitGoExpress
      * This API call allows you to create and send cryptocurrency to a destination address.
      *
      * @param string $address                   Recipient address
-     * @param int $amount                       Amount to be sent to the recipient
+     * @param int|string $amount                Amount to be sent to the recipient, in base units (e.g. satoshi or wei). Use a string for amounts above PHP_INT_MAX.
      * @param string $walletPassphrase          The passphrase to be used to decrypt the user key on this wallet
      * @param string $prv                       The private key in string form if the walletPassphrase is not available
      * @param int $numBlocks                    Estimates the approximate fee per kilobyte necessary for a transaction confirmation within 'numBlocks' blocks.
@@ -162,12 +196,12 @@ class BitGoExpress
      * @param string $ledgerSequenceDelta       Relative ledger height (in relation to the current ledger) that the transaction should be accepted in, whereafter it will be rejected.
      * @return array
      */
-    public function sendTransaction(string $address, int $amount, string $walletPassphrase, ?string $prv = null, ?int $numBlocks = null, ?int $feeRate = null, ?string $comment = null, ?array $unspents = null, ?int $minConfirms = null, ?bool $enforceMinConfirmsForChange = null, ?int $targetWalletUnspents = null, ?bool $noSplitChange = null, ?int $minValue = null, ?int $maxValue = null, ?int $gasPrice = null, ?int $gasLimit = null, ?int $sequenceId = null, ?bool $segwit = null, ?int $lastLedgerSequence = null, ?string $ledgerSequenceDelta = null)
+    public function sendTransaction(string $address, $amount, string $walletPassphrase, ?string $prv = null, ?int $numBlocks = null, ?int $feeRate = null, ?string $comment = null, ?array $unspents = null, ?int $minConfirms = null, ?bool $enforceMinConfirmsForChange = null, ?int $targetWalletUnspents = null, ?bool $noSplitChange = null, ?int $minValue = null, ?int $maxValue = null, ?int $gasPrice = null, ?int $gasLimit = null, ?int $sequenceId = null, ?bool $segwit = null, ?int $lastLedgerSequence = null, ?string $ledgerSequenceDelta = null)
     {
         $this->url = $this->APIEndpoint . '/wallet/' . $this->walletId . '/sendcoins';
         $this->params = [
             'address' => $address,
-            'amount' => "$amount",
+            'amount' => self::amountToString($amount),
             'walletPassphrase' => $walletPassphrase,
             'prv' => $prv,
             'numBlocks' => in_array($this->coin, $this->UTXObased) ? $numBlocks : null,
@@ -194,7 +228,7 @@ class BitGoExpress
      * This API call allows you to create a transaction and send to multiple addresses.
      * This may be useful if you schedule outgoing transactions in bulk, as you will be able to process multiple recipients and lower the aggregate amount of blockchain fees paid.
      *
-     * @param array $recipients                 Array of recipient objects and the amount to send to each e.g. [{address: ‘38BKDNZbPcLogvVbcx2ekJ9E6Vv94DqDqw’, amount: 1500}, …]
+     * @param array $recipients                 Array of recipient objects and the amount to send to each e.g. [{address: ‘38BKDNZbPcLogvVbcx2ekJ9E6Vv94DqDqw’, amount: 1500}, …]. Amounts are int or string, in base units.
      * @param string $walletPassphrase          The passphrase to be used to decrypt the user key on this wallet
      * @param string $prv                       The private key in string form if the walletPassphrase is not available
      * @param int $numBlocks                    Estimates the approximate fee per kilobyte necessary for a transaction confirmation within 'numBlocks' blocks.
@@ -219,7 +253,7 @@ class BitGoExpress
     {
         $this->url = $this->APIEndpoint . '/wallet/' . $this->walletId . '/sendmany';
         $this->params = [
-            'recipients' => $recipients,
+            'recipients' => self::recipientAmountsToStrings($recipients),
             'walletPassphrase' => $walletPassphrase,
             'prv' => $prv,
             'numBlocks' => in_array($this->coin, $this->UTXObased) ? $numBlocks : null,
@@ -350,7 +384,7 @@ class BitGoExpress
     /**
      * Create a transaction with the specified parameters. This builds a transaction object, but does not sign or send it.
      *
-     * @param array $recipients                 List of recipients in array
+     * @param array $recipients                 List of recipients in array. Amounts are int or string, in base units.
      * @param int $numBlocks                    Estimates the approximate fee per kilobyte necessary for a transaction confirmation within 'numBlocks' blocks.
      * @param int $feeRate                      Fee rate in satoshis/litoshis/atoms per kilobyte.
      * @param int $minConfirms                  Minimum number of confirmations unspents going into this transaction should have.
@@ -369,7 +403,7 @@ class BitGoExpress
     {
         $this->url = $this->APIEndpoint . '/wallet/' . $this->walletId . '/tx/build';
         $this->params = [
-            'recipients' => $recipients,
+            'recipients' => self::recipientAmountsToStrings($recipients),
             'numBlocks' => in_array($this->coin, $this->UTXObased) ? $numBlocks : null,
             'feeRate' => in_array($this->coin, $this->UTXObased) ? $feeRate : null,
             'minConfirms' => in_array($this->coin, $this->UTXObased) ? $minConfirms : null,
@@ -555,13 +589,16 @@ class BitGoExpress
 
     private function __execute(string $requestType = 'POST', bool $array = true)
     {
+        $params = self::withoutNulls($this->params);
+        $this->params = [];
+
         $ch = curl_init($this->url);
         if ($requestType === 'POST') {
             curl_setopt($ch, CURLOPT_POST, true);
-            curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode(array_filter($this->params)));
+            curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode($params));
         } elseif ($requestType === 'PUT') {
             curl_setopt($ch, CURLOPT_CUSTOMREQUEST, 'PUT');
-            curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode(array_filter($this->params)));
+            curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode($params));
         }
         curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, true);
         curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
@@ -575,11 +612,82 @@ class BitGoExpress
         if (defined('CURLOPT_IPRESOLVE') && defined('CURL_IPRESOLVE_V4')) {
             curl_setopt($ch, CURLOPT_IPRESOLVE, CURL_IPRESOLVE_V4);
         }
+        curl_setopt($ch, CURLOPT_TIMEOUT, $this->timeout);
+        curl_setopt($ch, CURLOPT_CONNECTTIMEOUT, $this->connectTimeout);
 
         $response = curl_exec($ch);
-        curl_close($ch);
+        $errno = curl_errno($ch);
+        $error = curl_error($ch);
+        $status = (int) curl_getinfo($ch, CURLINFO_RESPONSE_CODE);
 
-        return json_decode($response, $array);
+        if ($errno !== 0) {
+            $result = ['error' => $error !== '' ? $error : 'cURL error ' . $errno, 'status' => 0];
+            return $array ? $result : (object) $result;
+        }
+
+        return self::decodeResponse((string) $response, $status, $array);
     }
 
+    /**
+     * Decode a response body. A non-2xx status or an invalid JSON body becomes ['error' => …, 'status' => …],
+     * keeping any other fields Express sent. With $array false, the error comes back as an object.
+     *
+     * @return mixed
+     */
+    private static function decodeResponse(string $body, int $status, bool $array)
+    {
+        $decoded = json_decode($body, $array);
+        $jsonError = trim($body) === '' ? null : (json_last_error() === JSON_ERROR_NONE ? null : json_last_error_msg());
+        $ok = $status >= 200 && $status < 300;
+
+        if ($ok && $jsonError === null) {
+            return $decoded;
+        }
+
+        $result = is_array($decoded) ? $decoded : (is_object($decoded) ? get_object_vars($decoded) : []);
+        if (!isset($result['error'])) {
+            $result['error'] = $ok ? 'Invalid JSON response: ' . $jsonError : 'HTTP ' . $status;
+        }
+        $result['status'] = $status;
+        return $array ? $result : (object) $result;
+    }
+
+    /**
+     * Amounts can exceed PHP_INT_MAX (10 ETH is 1e19 wei), so they are always sent as strings.
+     *
+     * @param mixed $amount
+     * @throws \InvalidArgumentException if the amount is not an integer
+     */
+    private static function amountToString($amount): string
+    {
+        return BitGoSDK::fromBaseUnits($amount, 0);
+    }
+
+    /**
+     * @param array<mixed> $recipients
+     * @return array<mixed>
+     * @throws \InvalidArgumentException if an amount is not an integer
+     */
+    private static function recipientAmountsToStrings(array $recipients): array
+    {
+        return array_map(static function ($recipient) {
+            if (is_array($recipient) && isset($recipient['amount'])) {
+                $recipient['amount'] = self::amountToString($recipient['amount']);
+            }
+            return $recipient;
+        }, $recipients);
+    }
+
+    /**
+     * Drop only unset (null) params, so 0, false and '' are still sent.
+     *
+     * @param array<string, mixed> $params
+     * @return array<string, mixed>
+     */
+    private static function withoutNulls(array $params): array
+    {
+        return array_filter($params, static function ($value): bool {
+            return $value !== null;
+        });
+    }
 }

@@ -22,6 +22,8 @@ class BitGoSDK
 {
     const BITGO_PRODUCTION_API_ENDPOINT = 'https://app.bitgo.com/api/v2/';
     const BITGO_TESTNET_API_ENDPOINT = 'https://app.bitgo-test.com/api/v2/';
+    const DEFAULT_TIMEOUT = 60;
+    const DEFAULT_CONNECT_TIMEOUT = 10;
 
     private $APIEndpoint = null;
     private $AuthAPIEndpoint = null;
@@ -29,6 +31,8 @@ class BitGoSDK
     private $params = [];
     public $walletId = null;
     private $requestIP = null;
+    private int $timeout = self::DEFAULT_TIMEOUT;
+    private int $connectTimeout = self::DEFAULT_CONNECT_TIMEOUT;
 
     /**
      * BitGoSDK Initialization
@@ -60,25 +64,115 @@ class BitGoSDK
     }
 
     /**
+     * Set the maximum time a request may take, connection included
+     *
+     * @param int $seconds  0 waits forever
+     * @throws \InvalidArgumentException
+     */
+    public function setTimeout(int $seconds): void
+    {
+        if ($seconds < 0) {
+            throw new \InvalidArgumentException('Timeout must not be negative.');
+        }
+        $this->timeout = $seconds;
+    }
+
+    /**
+     * Set the maximum time to wait for a connection to BitGo
+     *
+     * @param int $seconds  0 uses cURL's built-in default of 300 seconds
+     * @throws \InvalidArgumentException
+     */
+    public function setConnectTimeout(int $seconds): void
+    {
+        if ($seconds < 0) {
+            throw new \InvalidArgumentException('Connect timeout must not be negative.');
+        }
+        $this->connectTimeout = $seconds;
+    }
+
+    /**
      * Converts value in satoshi to BTC value
      *
-     * @param int $amount   amount in satoshi that you want to convert to BTC
-     * @return float        value converted to BTC
+     * @param int|string $amount    amount in satoshi that you want to convert to BTC
+     * @return string               value converted to BTC, with 8 decimal places
+     * @throws \InvalidArgumentException
      */
-    public static function toBTC(int $amount)
+    public static function toBTC($amount)
     {
-        return sprintf('%.8f', bcdiv($amount, 100000000, 8));
+        return self::fromBaseUnits($amount, 8);
     }
 
     /**
      * Converts value in BTC to satoshi value
      *
-     * @param float $amount amount in BTC that you want to convert to satoshi
-     * @return int          value converted to satoshi
+     * @param float|int|string $amount  amount in BTC that you want to convert to satoshi. Pass a string to avoid float rounding.
+     * @return int                      value converted to satoshi
+     * @throws \InvalidArgumentException
      */
-    public static function toSatoshi(float $amount)
+    public static function toSatoshi($amount)
     {
-        return (int) bcmul(sprintf('%.8f', $amount), 100000000, 0);
+        if (is_float($amount)) {
+            $amount = sprintf('%.8F', $amount);
+        }
+        return (int) self::toBaseUnits((string) $amount, 8);
+    }
+
+    /**
+     * Converts a decimal amount to an integer amount of base units, e.g. ETH to wei with 18 decimals.
+     *
+     * @param string $amount    decimal amount, e.g. '1.5'
+     * @param int $decimals     number of decimal places of the coin, e.g. 8 for BTC or 18 for ETH
+     * @return string           amount in base units, e.g. '1500000000000000000'
+     * @throws \InvalidArgumentException if the amount is not a decimal number or has more than $decimals decimal places
+     */
+    public static function toBaseUnits(string $amount, int $decimals): string
+    {
+        if ($decimals < 0) {
+            throw new \InvalidArgumentException('Decimals must not be negative.');
+        }
+        if (!preg_match('/^(-?)(\d*)(?:\.(\d*))?$/', $amount, $matches) || $matches[2] . ($matches[3] ?? '') === '') {
+            throw new \InvalidArgumentException("Amount '$amount' is not a decimal number.");
+        }
+
+        $fraction = rtrim($matches[3] ?? '', '0');
+        if (strlen($fraction) > $decimals) {
+            throw new \InvalidArgumentException("Amount '$amount' has more than $decimals decimal places.");
+        }
+
+        $units = ltrim($matches[2] . str_pad($fraction, $decimals, '0'), '0');
+        return $units === '' ? '0' : $matches[1] . $units;
+    }
+
+    /**
+     * Converts an integer amount of base units to a decimal amount, e.g. wei to ETH with 18 decimals.
+     *
+     * @param int|string|float $amount  amount in base units, e.g. '1500000000000000000'. A float is accepted only if it is a whole number.
+     * @param int $decimals             number of decimal places of the coin, e.g. 8 for BTC or 18 for ETH
+     * @return string                   decimal amount with $decimals decimal places, e.g. '1.500000000000000000'
+     * @throws \InvalidArgumentException if the amount is not an integer
+     */
+    public static function fromBaseUnits($amount, int $decimals): string
+    {
+        if ($decimals < 0) {
+            throw new \InvalidArgumentException('Decimals must not be negative.');
+        }
+        if (is_float($amount) && is_finite($amount) && floor($amount) === $amount && abs($amount) <= 2 ** 53) {
+            $amount = sprintf('%.0F', $amount);
+        }
+        if (!(is_int($amount) || is_string($amount)) || !preg_match('/^(-?)(\d+)$/', (string) $amount, $matches)) {
+            throw new \InvalidArgumentException('Amount must be an integer number of base units, as an int or a string of digits. Use toBaseUnits() to convert a decimal amount.');
+        }
+
+        $units = ltrim($matches[2], '0');
+        if ($units === '') {
+            return $decimals === 0 ? '0' : '0.' . str_repeat('0', $decimals);
+        }
+        if ($decimals > 0) {
+            $units = str_pad($units, $decimals + 1, '0', STR_PAD_LEFT);
+            $units = substr($units, 0, -$decimals) . '.' . substr($units, -$decimals);
+        }
+        return $matches[1] . $units;
     }
 
     /**
@@ -510,7 +604,7 @@ class BitGoSDK
      */
     public function setVelocityPolicyRule(string $id, string $type, string $condition, string $action)
     {
-        $this->url = $this->APIEndpoint . '/wallet/' . $id . '/policy/rule';
+        $this->url = $this->APIEndpoint . '/wallet/' . $this->walletId . '/policy/rule';
         $this->params = [
             'id' => $id,
             'type' => $type,
@@ -531,7 +625,7 @@ class BitGoSDK
      */
     public function updateVelocityPolicyRule(string $id, string $type, string $condition, string $action)
     {
-        $this->url = $this->APIEndpoint . '/wallet/' . $id . '/policy/rule';
+        $this->url = $this->APIEndpoint . '/wallet/' . $this->walletId . '/policy/rule';
         $this->params = [
             'id' => $id,
             'type' => $type,
@@ -553,7 +647,7 @@ class BitGoSDK
      */
     public function removePolicyRule(string $id, string $type, string $condition, string $action)
     {
-        $this->url = $this->APIEndpoint . '/wallet/' . $id . '/policy/rule';
+        $this->url = $this->APIEndpoint . '/wallet/' . $this->walletId . '/policy/rule';
         $this->params = [
             'id' => $id,
             'type' => $type,
@@ -890,19 +984,22 @@ class BitGoSDK
 
     private function __execute(string $requestType = 'POST')
     {
+        $params = self::withoutNulls($this->params);
+        $this->params = [];
+
         $ch = curl_init($this->url);
         if ($requestType === 'GET') {
-            curl_setopt($ch, CURLOPT_URL, $this->url . '?' . http_build_query(array_filter($this->params)));
+            curl_setopt($ch, CURLOPT_URL, $this->url . '?' . self::buildQuery($params));
             curl_setopt($ch, CURLOPT_CUSTOMREQUEST, 'GET');
         } elseif ($requestType === 'PUT') {
             curl_setopt($ch, CURLOPT_CUSTOMREQUEST, 'PUT');
-            curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode(array_filter($this->params)));
+            curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode($params));
         } elseif ($requestType === 'DELETE') {
             curl_setopt($ch, CURLOPT_CUSTOMREQUEST, 'DELETE');
-            curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode(array_filter($this->params)));
+            curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode($params));
         } elseif ($requestType === 'POST') {
             curl_setopt($ch, CURLOPT_POST, true);
-            curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode(array_filter($this->params)));
+            curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode($params));
         }
         curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, true);
         curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
@@ -917,11 +1014,67 @@ class BitGoSDK
         if (defined('CURLOPT_IPRESOLVE') && defined('CURL_IPRESOLVE_V4')) {
             curl_setopt($ch, CURLOPT_IPRESOLVE, CURL_IPRESOLVE_V4);
         }
+        curl_setopt($ch, CURLOPT_TIMEOUT, $this->timeout);
+        curl_setopt($ch, CURLOPT_CONNECTTIMEOUT, $this->connectTimeout);
 
         $response = curl_exec($ch);
-        curl_close($ch);
+        $errno = curl_errno($ch);
+        $error = curl_error($ch);
+        $status = (int) curl_getinfo($ch, CURLINFO_RESPONSE_CODE);
 
-        return json_decode($response, true);
+        if ($errno !== 0) {
+            return ['error' => $error !== '' ? $error : 'cURL error ' . $errno, 'status' => 0];
+        }
+
+        return self::decodeResponse((string) $response, $status);
     }
 
+    /**
+     * Decode a response body. A non-2xx status or an invalid JSON body becomes ['error' => …, 'status' => …],
+     * keeping any other fields BitGo sent.
+     *
+     * @return mixed
+     */
+    private static function decodeResponse(string $body, int $status)
+    {
+        $decoded = json_decode($body, true);
+        $jsonError = trim($body) === '' ? null : (json_last_error() === JSON_ERROR_NONE ? null : json_last_error_msg());
+        $ok = $status >= 200 && $status < 300;
+
+        if ($ok && $jsonError === null) {
+            return $decoded;
+        }
+
+        $result = is_array($decoded) ? $decoded : [];
+        if (!isset($result['error'])) {
+            $result['error'] = $ok ? 'Invalid JSON response: ' . $jsonError : 'HTTP ' . $status;
+        }
+        $result['status'] = $status;
+        return $result;
+    }
+
+    /**
+     * Drop only unset (null) params, so 0, false and '' are still sent.
+     *
+     * @param array<string, mixed> $params
+     * @return array<string, mixed>
+     */
+    private static function withoutNulls(array $params): array
+    {
+        return array_filter($params, static function ($value): bool {
+            return $value !== null;
+        });
+    }
+
+    /**
+     * Build a query string that sends booleans as "true"/"false" instead of http_build_query's 1/0.
+     *
+     * @param array<string, mixed> $params
+     */
+    private static function buildQuery(array $params): string
+    {
+        return http_build_query(array_map(static function ($value) {
+            return is_bool($value) ? ($value ? 'true' : 'false') : $value;
+        }, $params));
+    }
 }

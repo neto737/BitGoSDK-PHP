@@ -523,12 +523,6 @@ parameters:
 			path: src/BitGoSDK.php
 
 		-
-			message: '#^Method neto737\\BitGoSDK\\BitGoSDK\:\:toBTC\(\) should return float but returns string\.$#'
-			identifier: return.type
-			count: 1
-			path: src/BitGoSDK.php
-
-		-
 			message: '#^Method neto737\\BitGoSDK\\BitGoSDK\:\:unlockSession\(\) return type has no value type specified in iterable type array\.$#'
 			identifier: missingType.iterableValue
 			count: 1
@@ -549,24 +543,6 @@ parameters:
 		-
 			message: '#^PHPDoc tag @param references unknown parameter\: \$sortOrder$#'
 			identifier: parameter.notFound
-			count: 1
-			path: src/BitGoSDK.php
-
-		-
-			message: '#^Parameter \#1 \$left_operand of function bcdiv expects numeric\-string, int given\.$#'
-			identifier: argument.type
-			count: 1
-			path: src/BitGoSDK.php
-
-		-
-			message: '#^Parameter \#2 \$right_operand of function bcdiv expects numeric\-string, 100000000 given\.$#'
-			identifier: argument.type
-			count: 1
-			path: src/BitGoSDK.php
-
-		-
-			message: '#^Parameter \#2 \$right_operand of function bcmul expects numeric\-string, 100000000 given\.$#'
-			identifier: argument.type
 			count: 1
 			path: src/BitGoSDK.php
 

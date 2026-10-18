@@ -40,7 +40,7 @@ If a fix applies to both lines, open the pull request against `2.x`. A maintaine
 
 You need:
 
-- PHP 7.4 or newer with the `curl` and `bcmath` extensions. A current PHP 8.x is recommended so you see deprecation notices.
+- PHP 7.4 or newer with the `curl` extension. A current PHP 8.x is recommended so you see deprecation notices.
 - [Composer](https://getcomposer.org/).
 - A [BitGo testnet](https://app.bitgo-test.com/) account and access token, if you want to run requests against the API. Never use production tokens or real funds while developing.
 
