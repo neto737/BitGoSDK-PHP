@@ -31,6 +31,9 @@ class BitGoSDK
     private $params = [];
     public $walletId = null;
     private $requestIP = null;
+    public string $accessToken;
+    public string $coin;
+    public bool $testNet;
     private int $timeout = self::DEFAULT_TIMEOUT;
     private int $connectTimeout = self::DEFAULT_CONNECT_TIMEOUT;
 

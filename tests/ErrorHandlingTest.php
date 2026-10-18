@@ -15,7 +15,7 @@ final class ErrorHandlingTest extends TestCase
 
     public function testSdkReturnsErrorWhenRequestFails(): void
     {
-        $sdk = @new BitGoSDK('token', 'tbtc', true);
+        $sdk = new BitGoSDK('token', 'tbtc', true);
         $this->setPrivate($sdk, 'APIEndpoint', 'http://127.0.0.1:1/api/v2/tbtc');
 
         $result = $sdk->getWallet();
@@ -27,7 +27,7 @@ final class ErrorHandlingTest extends TestCase
 
     public function testExpressReturnsErrorObjectWhenObjectRequestFails(): void
     {
-        $express = @new BitGoExpress('127.0.0.1', 1, 'tbtc');
+        $express = new BitGoExpress('127.0.0.1', 1, 'tbtc');
 
         $result = $express->buildTransaction([['address' => 'a', 'amount' => 1]]);
 
@@ -76,7 +76,7 @@ final class ErrorHandlingTest extends TestCase
 
     public function testTimeoutsDefaultAndCanBeChanged(): void
     {
-        $sdk = @new BitGoSDK('token', 'tbtc', true);
+        $sdk = new BitGoSDK('token', 'tbtc', true);
         self::assertSame(BitGoSDK::DEFAULT_TIMEOUT, $this->getPrivate($sdk, 'timeout'));
         self::assertSame(BitGoSDK::DEFAULT_CONNECT_TIMEOUT, $this->getPrivate($sdk, 'connectTimeout'));
 
@@ -89,7 +89,7 @@ final class ErrorHandlingTest extends TestCase
 
     public function testNegativeTimeoutIsRejected(): void
     {
-        $express = @new BitGoExpress('127.0.0.1', 1, 'tbtc');
+        $express = new BitGoExpress('127.0.0.1', 1, 'tbtc');
 
         $this->expectException(\InvalidArgumentException::class);
         $express->setTimeout(-1);

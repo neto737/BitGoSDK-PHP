@@ -33,7 +33,7 @@ final class PolicyRuleTest extends TestCase
      */
     public function testUrlUsesWalletId(string $method): void
     {
-        $sdk = @new BitGoSDK('token', 'tbtc', true);
+        $sdk = new BitGoSDK('token', 'tbtc', true);
         $this->setPrivate($sdk, 'APIEndpoint', self::UNREACHABLE_ENDPOINT);
         $sdk->walletId = 'wallet-id';
 

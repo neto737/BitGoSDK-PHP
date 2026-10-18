@@ -162,7 +162,7 @@ final class AmountTest extends TestCase
 
     public function testExpressRejectsDecimalAmounts(): void
     {
-        $express = @new BitGoExpress('127.0.0.1', 1, 'tbtc');
+        $express = new BitGoExpress('127.0.0.1', 1, 'tbtc');
 
         $this->expectException(\InvalidArgumentException::class);
         $express->sendTransaction('address', '0.5', 'passphrase');

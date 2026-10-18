@@ -12,9 +12,6 @@ use PHPUnit\Framework\TestCase;
  *
  * Until requests go through a capturable transport, these tests point the client
  * at a closed local port and inspect the internal params state after the call.
- *
- * Clients are constructed with `@` to silence the dynamic-property deprecations
- * tracked as B8; drop it once those properties are declared.
  */
 final class RequestParamsTest extends TestCase
 {
@@ -24,7 +21,7 @@ final class RequestParamsTest extends TestCase
 
     public function testSdkClearsParamsAfterEachCall(): void
     {
-        $sdk = @new BitGoSDK('token', 'tbtc', true);
+        $sdk = new BitGoSDK('token', 'tbtc', true);
         $this->setPrivate($sdk, 'params', ['otp' => '000000', 'duration' => 600]);
         $this->setPrivate($sdk, 'url', self::UNREACHABLE_URL);
 
@@ -35,7 +32,7 @@ final class RequestParamsTest extends TestCase
 
     public function testExpressClearsParamsAfterEachCall(): void
     {
-        $express = @new BitGoExpress('127.0.0.1', 1, 'tbtc');
+        $express = new BitGoExpress('127.0.0.1', 1, 'tbtc');
         $this->setPrivate($express, 'params', ['walletPassphrase' => 'secret']);
         $this->setPrivate($express, 'url', self::UNREACHABLE_URL);
 
@@ -46,7 +43,7 @@ final class RequestParamsTest extends TestCase
 
     public function testSdkDropsOnlyNullParams(): void
     {
-        $sdk = @new BitGoSDK('token', 'tbtc', true);
+        $sdk = new BitGoSDK('token', 'tbtc', true);
 
         self::assertSame(
             ['limit' => 0, 'mine' => false, 'label' => ''],
@@ -56,7 +53,7 @@ final class RequestParamsTest extends TestCase
 
     public function testExpressDropsOnlyNullParams(): void
     {
-        $express = @new BitGoExpress('127.0.0.1', 1, 'tbtc');
+        $express = new BitGoExpress('127.0.0.1', 1, 'tbtc');
 
         self::assertSame(
             ['amount' => 0, 'noSplitChange' => false],
@@ -66,7 +63,7 @@ final class RequestParamsTest extends TestCase
 
     public function testSdkQuerySendsBooleansAsWords(): void
     {
-        $sdk = @new BitGoSDK('token', 'tbtc', true);
+        $sdk = new BitGoSDK('token', 'tbtc', true);
 
         self::assertSame(
             'limit=0&mine=false&allTokens=true',

@@ -31,6 +31,9 @@ class BitGoExpress
     private $login = false;
     public $accessToken = null;
     public $walletId = null;
+    public string $hostname;
+    public int $port;
+    public string $coin;
     private int $timeout = self::DEFAULT_TIMEOUT;
     private int $connectTimeout = self::DEFAULT_CONNECT_TIMEOUT;
 
