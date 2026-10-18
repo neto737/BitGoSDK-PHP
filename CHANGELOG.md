@@ -10,6 +10,14 @@ Entries for 2.2.3 and earlier were reconstructed from the git history in October
 
 ### Added
 
+- `BitGoSDK::toBaseUnits()` and `fromBaseUnits()` convert between decimal amounts and base units exactly, at any number of decimals (for example 18 for ETH).
+- Request timeouts: `setTimeout()` and `setConnectTimeout()` on both clients. The defaults are a 10 second connect timeout and a 60 second (`BitGoSDK`) or 310 second (`BitGoExpress`) request timeout.
+- `BitGoExpress` can reach Express over TLS. Prefix the hostname with `https://`, trust a custom or self-signed certificate with `setCaFile()`, or, for local testing only, turn off verification with `setVerifyTls(false)`.
+- `setForceIPv4()` on both clients, to get back the old IPv4-only behaviour.
+- `BitGoExpress::pingExpress()`, which checks that Express is running without contacting BitGo.
+- `BitGoExpress::fanoutWalletUnspents()`, replacing the misspelled `funoutWalletUnspents()`.
+- `AddressType` constants named after each chain's script type: `P2SH_P2WSH_*` (10/11), `P2WSH_*` (20/21) and `P2TR_*` (30/31).
+- `CurrencyCode` constants for Aptos, Arbitrum, Avalanche C-Chain and P-Chain, BNB Smart Chain, Cardano, Cosmos, Dogecoin, NEAR, Optimism, Polkadot, Polygon, Solana, Sui and TON with their testnets. Also the Bitcoin Gold testnet, Bitcoin testnet4 and signet, the Ethereum Hoodi and Sepolia testnets, and the USDT, USDC, DAI, LINK, WBTC, UNI, AAVE, GLM, REPv2 and KNC2 tokens.
 - `CHANGELOG.md`, `SECURITY.md` and a full `CONTRIBUTING.md` (branch model, local setup, coding style, tests and release process).
 - `.editorconfig` and `.gitattributes`.
 - Dev tooling: PHPUnit 9.6, PHPStan (level 6, with a baseline for the existing code) and PHP-CS-Fixer (PSR-12).
@@ -19,10 +27,37 @@ Entries for 2.2.3 and earlier were reconstructed from the git history in October
 
 ### Changed
 
+- **`0`, `false` and `''` params are now sent.** Only `null` params are dropped. Before, `chain => 0`, `minConfirms => 0`, `numConfirmations => 0` and every `false` flag were silently left out. If you passed `0` or `false` to mean "leave it unset", pass `null` instead. GET query strings now send booleans as `true`/`false` instead of `1`/`0`.
+- **Errors now come back as `['error' => …, 'status' => …]`.** A cURL failure, a non-2xx status or an invalid JSON body used to return `null` or BitGo's raw error body. Any other fields BitGo sent are kept, so `isset($r['error'])` checks keep working. `status` is the HTTP status, or `0` if no response arrived. `buildTransaction()` and `signBuildTransaction()` return the same fields as an object.
+- Amounts in `sendTransaction()`, `sendTransactionToMany()` and `buildTransaction()` accept an `int` or a string of digits, and are always sent as strings, so 18-decimal amounts no longer overflow `PHP_INT_MAX`. `toSatoshi()` accepts strings and no longer breaks under locales that use a decimal comma. `toBTC()` no longer converts through a float.
+- Requests no longer force IPv4. cURL uses IPv4 or IPv6 as the system allows. A local address bound with `setRequestIP()` decides the IP version.
+- `BitGoSDK::setRequestIP()` returns `true` if the IP was applied, and `false` on testnet or for an invalid IP.
+- `ext-bcmath` is no longer required.
 - **The minimum PHP version is now 7.4** (was 7.0).
-- The project is now licensed under MIT. 2.2.3 and earlier were released under GPL-3.0.
+- The project is now licensed under MIT. 2.2.3 and earlier were released under GPL-3.0. The file headers say so too.
+- The README lists the current requirements and links to the docs on developers.bitgo.com.
 - `src/` and `examples/` were reformatted to PSR-12. This is whitespace and brace placement only, with no behaviour change.
 - Composer dist archives no longer include `tests/`, `examples/`, `docs/` or dotfiles. The examples are still available in the repository.
+
+### Deprecated
+
+These still work and will be removed in 3.0.
+
+- `BitGoExpress::funoutWalletUnspents()`. Use `fanoutWalletUnspents()`.
+- `BitGoSDK::addBlockWebhook()`, `listBlockWebhooks()` and `removeBlockWebhook()`. They call the same endpoint as `addUserWebhook()`, `listUserWebhooks()` and `removeUserWebhook()`, so use those instead. The deprecated methods still send any type other than `wallet_confirmation` as `block`. The `User` methods send the type as given.
+- `AddressType::P2SH_DEPOSIT` and `P2SH_CHANGE`. Chains 10 and 11 are SegWit wrapped in P2SH. Use `P2SH_P2WSH_*`, or `LEGACY_*` for plain P2SH.
+- `CurrencyCode::AVAX` and `AVAX_TESTNET` (`avax` is not a BitGo coin code; use `AVALANCHE_C_CHAIN`), and `ETHEREUM_TESTNET` (`teth` is the retired Kovan testnet; use `ETHEREUM_HOODI_TESTNET` or `ETHEREUM_SEPOLIA_TESTNET`).
+- `CurrencyCode::OMISE_GO`, `GOLEM`, `AUGUR_REP`, `KYBER_NETWORK`, `QRL`, `TENXPAY` and `BREAD`, for tokens that migrated or wound down.
+
+### Fixed
+
+- Request params no longer leak from one call to the next. Methods that set no params of their own, such as `getWalletByAddress()`, used to resend the previous call's params, including an `otp` from `unlockSession()`.
+- `setVelocityPolicyRule()`, `updateVelocityPolicyRule()` and `removePolicyRule()` put the rule ID where the wallet ID belongs in the URL.
+- `BitGoExpress::login()` stores the returned access token, and later calls send their `Authorization` and `Content-Type` headers again.
+- Testnet wallets get their coin-specific params (`gasPrice`, `enterprise`, `segwit`, `dt`, `memoId` and others), and the UTXO coin list no longer includes Stacks.
+- `generateWallet()` no longer sends `gasPrice: 0` for non-ETH coins.
+- No deprecation notices on PHP 8.2 and later: every property is declared, no parameter is implicitly nullable, and `curl_close()` is no longer called.
+- The `ping()` and `createWalletAddress()` docblocks describe what the code does, and docblock typos are fixed.
 
 ## [2.2.3] - 2022-06-29
 
