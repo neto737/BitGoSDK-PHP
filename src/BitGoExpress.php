@@ -141,7 +141,7 @@ class BitGoExpress
      * This API call allows you to create and send cryptocurrency to a destination address.
      *
      * @param string $address                   Recipient address
-     * @param int $amount                       Amount to be sent to the recipient
+     * @param int|string $amount                Amount to be sent to the recipient, in base units (e.g. satoshi or wei). Use a string for amounts above PHP_INT_MAX.
      * @param string $walletPassphrase          The passphrase to be used to decrypt the user key on this wallet
      * @param string $prv                       The private key in string form if the walletPassphrase is not available
      * @param int $numBlocks                    Estimates the approximate fee per kilobyte necessary for a transaction confirmation within 'numBlocks' blocks.
@@ -162,12 +162,12 @@ class BitGoExpress
      * @param string $ledgerSequenceDelta       Relative ledger height (in relation to the current ledger) that the transaction should be accepted in, whereafter it will be rejected.
      * @return array
      */
-    public function sendTransaction(string $address, int $amount, string $walletPassphrase, ?string $prv = null, ?int $numBlocks = null, ?int $feeRate = null, ?string $comment = null, ?array $unspents = null, ?int $minConfirms = null, ?bool $enforceMinConfirmsForChange = null, ?int $targetWalletUnspents = null, ?bool $noSplitChange = null, ?int $minValue = null, ?int $maxValue = null, ?int $gasPrice = null, ?int $gasLimit = null, ?int $sequenceId = null, ?bool $segwit = null, ?int $lastLedgerSequence = null, ?string $ledgerSequenceDelta = null)
+    public function sendTransaction(string $address, $amount, string $walletPassphrase, ?string $prv = null, ?int $numBlocks = null, ?int $feeRate = null, ?string $comment = null, ?array $unspents = null, ?int $minConfirms = null, ?bool $enforceMinConfirmsForChange = null, ?int $targetWalletUnspents = null, ?bool $noSplitChange = null, ?int $minValue = null, ?int $maxValue = null, ?int $gasPrice = null, ?int $gasLimit = null, ?int $sequenceId = null, ?bool $segwit = null, ?int $lastLedgerSequence = null, ?string $ledgerSequenceDelta = null)
     {
         $this->url = $this->APIEndpoint . '/wallet/' . $this->walletId . '/sendcoins';
         $this->params = [
             'address' => $address,
-            'amount' => "$amount",
+            'amount' => self::amountToString($amount),
             'walletPassphrase' => $walletPassphrase,
             'prv' => $prv,
             'numBlocks' => in_array($this->coin, $this->UTXObased) ? $numBlocks : null,
@@ -194,7 +194,7 @@ class BitGoExpress
      * This API call allows you to create a transaction and send to multiple addresses.
      * This may be useful if you schedule outgoing transactions in bulk, as you will be able to process multiple recipients and lower the aggregate amount of blockchain fees paid.
      *
-     * @param array $recipients                 Array of recipient objects and the amount to send to each e.g. [{address: ‘38BKDNZbPcLogvVbcx2ekJ9E6Vv94DqDqw’, amount: 1500}, …]
+     * @param array $recipients                 Array of recipient objects and the amount to send to each e.g. [{address: ‘38BKDNZbPcLogvVbcx2ekJ9E6Vv94DqDqw’, amount: 1500}, …]. Amounts are int or string, in base units.
      * @param string $walletPassphrase          The passphrase to be used to decrypt the user key on this wallet
      * @param string $prv                       The private key in string form if the walletPassphrase is not available
      * @param int $numBlocks                    Estimates the approximate fee per kilobyte necessary for a transaction confirmation within 'numBlocks' blocks.
@@ -219,7 +219,7 @@ class BitGoExpress
     {
         $this->url = $this->APIEndpoint . '/wallet/' . $this->walletId . '/sendmany';
         $this->params = [
-            'recipients' => $recipients,
+            'recipients' => self::recipientAmountsToStrings($recipients),
             'walletPassphrase' => $walletPassphrase,
             'prv' => $prv,
             'numBlocks' => in_array($this->coin, $this->UTXObased) ? $numBlocks : null,
@@ -350,7 +350,7 @@ class BitGoExpress
     /**
      * Create a transaction with the specified parameters. This builds a transaction object, but does not sign or send it.
      *
-     * @param array $recipients                 List of recipients in array
+     * @param array $recipients                 List of recipients in array. Amounts are int or string, in base units.
      * @param int $numBlocks                    Estimates the approximate fee per kilobyte necessary for a transaction confirmation within 'numBlocks' blocks.
      * @param int $feeRate                      Fee rate in satoshis/litoshis/atoms per kilobyte.
      * @param int $minConfirms                  Minimum number of confirmations unspents going into this transaction should have.
@@ -369,7 +369,7 @@ class BitGoExpress
     {
         $this->url = $this->APIEndpoint . '/wallet/' . $this->walletId . '/tx/build';
         $this->params = [
-            'recipients' => $recipients,
+            'recipients' => self::recipientAmountsToStrings($recipients),
             'numBlocks' => in_array($this->coin, $this->UTXObased) ? $numBlocks : null,
             'feeRate' => in_array($this->coin, $this->UTXObased) ? $feeRate : null,
             'minConfirms' => in_array($this->coin, $this->UTXObased) ? $minConfirms : null,
@@ -583,6 +583,32 @@ class BitGoExpress
         curl_close($ch);
 
         return json_decode($response, $array);
+    }
+
+    /**
+     * Amounts can exceed PHP_INT_MAX (10 ETH is 1e19 wei), so they are always sent as strings.
+     *
+     * @param mixed $amount
+     * @throws \InvalidArgumentException if the amount is not an integer
+     */
+    private static function amountToString($amount): string
+    {
+        return BitGoSDK::fromBaseUnits($amount, 0);
+    }
+
+    /**
+     * @param array<mixed> $recipients
+     * @return array<mixed>
+     * @throws \InvalidArgumentException if an amount is not an integer
+     */
+    private static function recipientAmountsToStrings(array $recipients): array
+    {
+        return array_map(static function ($recipient) {
+            if (is_array($recipient) && isset($recipient['amount'])) {
+                $recipient['amount'] = self::amountToString($recipient['amount']);
+            }
+            return $recipient;
+        }, $recipients);
     }
 
     /**

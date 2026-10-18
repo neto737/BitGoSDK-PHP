@@ -62,23 +62,85 @@ class BitGoSDK
     /**
      * Converts value in satoshi to BTC value
      *
-     * @param int $amount   amount in satoshi that you want to convert to BTC
-     * @return float        value converted to BTC
+     * @param int|string $amount    amount in satoshi that you want to convert to BTC
+     * @return string               value converted to BTC, with 8 decimal places
+     * @throws \InvalidArgumentException
      */
-    public static function toBTC(int $amount)
+    public static function toBTC($amount)
     {
-        return sprintf('%.8f', bcdiv($amount, 100000000, 8));
+        return self::fromBaseUnits($amount, 8);
     }
 
     /**
      * Converts value in BTC to satoshi value
      *
-     * @param float $amount amount in BTC that you want to convert to satoshi
-     * @return int          value converted to satoshi
+     * @param float|int|string $amount  amount in BTC that you want to convert to satoshi. Pass a string to avoid float rounding.
+     * @return int                      value converted to satoshi
+     * @throws \InvalidArgumentException
      */
-    public static function toSatoshi(float $amount)
+    public static function toSatoshi($amount)
     {
-        return (int) bcmul(sprintf('%.8f', $amount), 100000000, 0);
+        if (is_float($amount)) {
+            $amount = sprintf('%.8F', $amount);
+        }
+        return (int) self::toBaseUnits((string) $amount, 8);
+    }
+
+    /**
+     * Converts a decimal amount to an integer amount of base units, e.g. ETH to wei with 18 decimals.
+     *
+     * @param string $amount    decimal amount, e.g. '1.5'
+     * @param int $decimals     number of decimal places of the coin, e.g. 8 for BTC or 18 for ETH
+     * @return string           amount in base units, e.g. '1500000000000000000'
+     * @throws \InvalidArgumentException if the amount is not a decimal number or has more than $decimals decimal places
+     */
+    public static function toBaseUnits(string $amount, int $decimals): string
+    {
+        if ($decimals < 0) {
+            throw new \InvalidArgumentException('Decimals must not be negative.');
+        }
+        if (!preg_match('/^(-?)(\d*)(?:\.(\d*))?$/', $amount, $matches) || $matches[2] . ($matches[3] ?? '') === '') {
+            throw new \InvalidArgumentException("Amount '$amount' is not a decimal number.");
+        }
+
+        $fraction = rtrim($matches[3] ?? '', '0');
+        if (strlen($fraction) > $decimals) {
+            throw new \InvalidArgumentException("Amount '$amount' has more than $decimals decimal places.");
+        }
+
+        $units = ltrim($matches[2] . str_pad($fraction, $decimals, '0'), '0');
+        return $units === '' ? '0' : $matches[1] . $units;
+    }
+
+    /**
+     * Converts an integer amount of base units to a decimal amount, e.g. wei to ETH with 18 decimals.
+     *
+     * @param int|string|float $amount  amount in base units, e.g. '1500000000000000000'. A float is accepted only if it is a whole number.
+     * @param int $decimals             number of decimal places of the coin, e.g. 8 for BTC or 18 for ETH
+     * @return string                   decimal amount with $decimals decimal places, e.g. '1.500000000000000000'
+     * @throws \InvalidArgumentException if the amount is not an integer
+     */
+    public static function fromBaseUnits($amount, int $decimals): string
+    {
+        if ($decimals < 0) {
+            throw new \InvalidArgumentException('Decimals must not be negative.');
+        }
+        if (is_float($amount) && is_finite($amount) && floor($amount) === $amount && abs($amount) <= 2 ** 53) {
+            $amount = sprintf('%.0F', $amount);
+        }
+        if (!(is_int($amount) || is_string($amount)) || !preg_match('/^(-?)(\d+)$/', (string) $amount, $matches)) {
+            throw new \InvalidArgumentException('Amount must be an integer number of base units, as an int or a string of digits. Use toBaseUnits() to convert a decimal amount.');
+        }
+
+        $units = ltrim($matches[2], '0');
+        if ($units === '') {
+            return $decimals === 0 ? '0' : '0.' . str_repeat('0', $decimals);
+        }
+        if ($decimals > 0) {
+            $units = str_pad($units, $decimals + 1, '0', STR_PAD_LEFT);
+            $units = substr($units, 0, -$decimals) . '.' . substr($units, -$decimals);
+        }
+        return $matches[1] . $units;
     }
 
     /**
