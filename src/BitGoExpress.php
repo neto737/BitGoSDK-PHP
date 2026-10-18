@@ -619,7 +619,6 @@ class BitGoExpress
         $errno = curl_errno($ch);
         $error = curl_error($ch);
         $status = (int) curl_getinfo($ch, CURLINFO_RESPONSE_CODE);
-        curl_close($ch);
 
         if ($errno !== 0) {
             $result = ['error' => $error !== '' ? $error : 'cURL error ' . $errno, 'status' => 0];
