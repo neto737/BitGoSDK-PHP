@@ -24,10 +24,10 @@ class BitGoExpress
     const DEFAULT_CONNECT_TIMEOUT = 10;
 
     // Coin families for coin-specific params. Each lists mainnet and testnet codes, so testnet wallets get the same params.
-    private const UTXO_COINS = ['btc', 'tbtc', 'bch', 'tbch', 'btg', 'tbtg', 'dash', 'tdash', 'doge', 'tdoge', 'ltc', 'tltc', 'zec', 'tzec'];
-    private const BTC_COINS = ['btc', 'tbtc'];
-    private const SEGWIT_COINS = ['btc', 'tbtc', 'btg', 'tbtg', 'ltc', 'tltc'];
-    private const ETH_COINS = ['eth', 'teth', 'gteth', 'hteth'];
+    private const UTXO_COINS = ['btc', 'tbtc', 'tbtc4', 'tbtcsig', 'bch', 'tbch', 'btg', 'tbtg', 'dash', 'tdash', 'doge', 'tdoge', 'ltc', 'tltc', 'zec', 'tzec'];
+    private const BTC_COINS = ['btc', 'tbtc', 'tbtc4', 'tbtcsig'];
+    private const SEGWIT_COINS = ['btc', 'tbtc', 'tbtc4', 'tbtcsig', 'btg', 'tbtg', 'ltc', 'tltc'];
+    private const ETH_COINS = ['eth', 'teth', 'gteth', 'hteth', 'sepeth'];
     private const XRP_COINS = ['xrp', 'txrp'];
 
     private $APIEndpoint = null;

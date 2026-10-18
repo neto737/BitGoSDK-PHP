@@ -26,7 +26,7 @@ class BitGoSDK
     const DEFAULT_CONNECT_TIMEOUT = 10;
 
     // Coin families for coin-specific params. Each lists mainnet and testnet codes, so testnet wallets get the same params.
-    private const ETH_COINS = ['eth', 'teth', 'gteth', 'hteth'];
+    private const ETH_COINS = ['eth', 'teth', 'gteth', 'hteth', 'sepeth'];
     private const XRP_COINS = ['xrp', 'txrp'];
     private const XLM_COINS = ['xlm', 'txlm'];
 
