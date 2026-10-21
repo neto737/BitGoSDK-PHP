@@ -41,7 +41,7 @@ jobs:
           php-version: '8.4'
           extensions: curl
           coverage: none
-      - uses: ramsey/composer-install@v3
+      - uses: ramsey/composer-install@v4
       - run: vendor/bin/phpstan analyse --no-progress --error-format=github
 
   cs:
@@ -53,7 +53,7 @@ jobs:
         with:
           php-version: '8.4'
           coverage: none
-      - uses: ramsey/composer-install@v3
+      - uses: ramsey/composer-install@v4
       - run: vendor/bin/php-cs-fixer fix --dry-run --diff --show-progress=none
 
   phpunit:
@@ -72,7 +72,7 @@ jobs:
           extensions: curl
           coverage: pcov
           ini-values: error_reporting=-1, display_errors=On
-      - uses: ramsey/composer-install@v3
+      - uses: ramsey/composer-install@v4
         with:
           dependency-versions: ${{ matrix.dependencies }}
       - run: vendor/bin/phpunit --coverage-clover=coverage.xml
