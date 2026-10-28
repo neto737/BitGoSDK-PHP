@@ -8,6 +8,8 @@ Entries for 2.2.3 and earlier were reconstructed from the git history in October
 
 ## [Unreleased]
 
+## [2.3.1] - 2026-10-28
+
 ### Security
 
 - **IDs in request paths are now percent-encoded** ([GHSA-qr36-39c2-hp84](https://github.com/neto737/BitGoSDK-PHP/security/advisories/GHSA-qr36-39c2-hp84)). An ID containing `/`, `..`, `?` or `#` could point an authenticated request at a different BitGo endpoint or add query params, for example `getWalletTransaction('../../../user/me')`. This covers every method that takes an ID or address for the path, and `$walletId` on both clients.
@@ -242,7 +244,8 @@ These still work and will be removed in 3.0.
 
 - First release on Packagist: a BitGo API v1 client for wallets, addresses, labels, keychains and transactions. The `1.0` tag points to the same commit.
 
-[Unreleased]: https://github.com/neto737/BitGoSDK-PHP/compare/2.3.0...HEAD
+[Unreleased]: https://github.com/neto737/BitGoSDK-PHP/compare/2.3.1...HEAD
+[2.3.1]: https://github.com/neto737/BitGoSDK-PHP/compare/2.3.0...2.3.1
 [2.3.0]: https://github.com/neto737/BitGoSDK-PHP/compare/2.2.3...2.3.0
 [2.2.3]: https://github.com/neto737/BitGoSDK-PHP/compare/2.2.2...2.2.3
 [2.2.2]: https://github.com/neto737/BitGoSDK-PHP/compare/2.2.1...2.2.2
