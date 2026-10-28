@@ -252,6 +252,7 @@ final class SdkRequestShapeTest extends TestCase
     public function testResponseBodyIsDecoded(): void
     {
         $sdk = new BitGoSDK('v2xtoken', 'tbtc', true);
+        $sdk->walletId = 'w1';
         RecordingTransport::on($sdk)->respond('{"id":"w1","balance":0}');
 
         self::assertSame(['id' => 'w1', 'balance' => 0], $sdk->getWallet());

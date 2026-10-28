@@ -18,12 +18,13 @@ use Composer\CaBundle\CaBundle;
 use neto737\BitGoSDK\Enum\CurrencyCode;
 use neto737\BitGoSDK\Enum\AddressType;
 use neto737\BitGoSDK\Internal\CurlTransport;
+use neto737\BitGoSDK\Internal\Path;
 use neto737\BitGoSDK\Internal\Transport;
 
 class BitGoSDK
 {
     // Sent in the User-Agent header. Bump it with every release.
-    const VERSION = '2.3.0';
+    const VERSION = '2.3.1';
     const BITGO_PRODUCTION_API_ENDPOINT = 'https://app.bitgo.com/api/v2/';
     const BITGO_TESTNET_API_ENDPOINT = 'https://app.bitgo-test.com/api/v2/';
     const DEFAULT_TIMEOUT = 60;
@@ -306,7 +307,7 @@ class BitGoSDK
      */
     public function getWallet(bool $allTokens = false)
     {
-        $this->url = $this->APIEndpoint . '/wallet/' . $this->walletId;
+        $this->url = $this->APIEndpoint . '/wallet/' . Path::segment((string) $this->walletId);
         $this->params = [
             'allTokens' => $this->coinIn(self::ETH_COINS) ? $allTokens : null,
         ];
@@ -321,7 +322,7 @@ class BitGoSDK
      */
     public function getWalletByAddress(string $walletAddress)
     {
-        $this->url = $this->APIEndpoint . '/wallet/address/' . $walletAddress;
+        $this->url = $this->APIEndpoint . '/wallet/address/' . $this->addressSegment($walletAddress);
         return $this->__execute('GET');
     }
 
@@ -334,7 +335,7 @@ class BitGoSDK
      */
     public function listWalletTransfers(?string $prevId = null, bool $allTokens = false)
     {
-        $this->url = $this->APIEndpoint . '/wallet/' . $this->walletId . '/transfer';
+        $this->url = $this->APIEndpoint . '/wallet/' . Path::segment((string) $this->walletId) . '/transfer';
         $this->params = [
             'prevId' => $prevId,
             'allTokens' => $this->coinIn(self::ETH_COINS) ? $allTokens : null,
@@ -350,7 +351,7 @@ class BitGoSDK
      */
     public function getWalletTransfer(string $transactionId)
     {
-        $this->url = $this->APIEndpoint . '/wallet/' . $this->walletId . '/transfer/' . $transactionId;
+        $this->url = $this->APIEndpoint . '/wallet/' . Path::segment((string) $this->walletId) . '/transfer/' . Path::segment($transactionId);
         return $this->__execute('GET');
     }
 
@@ -363,7 +364,7 @@ class BitGoSDK
      */
     public function getWalletTransferBySequenceId(string $sequenceId)
     {
-        $this->url = $this->APIEndpoint . '/wallet/' . $this->walletId . '/transfer/sequenceId/' . $sequenceId;
+        $this->url = $this->APIEndpoint . '/wallet/' . Path::segment((string) $this->walletId) . '/transfer/sequenceId/' . Path::segment($sequenceId);
         return $this->__execute('GET');
     }
 
@@ -379,7 +380,7 @@ class BitGoSDK
      */
     public function createWalletAddress(int $chain = AddressType::P2SH_P2WSH_DEPOSIT, ?string $label = null, bool $lowPriority = false, ?int $gasPrice = null)
     {
-        $this->url = $this->APIEndpoint . '/wallet/' . $this->walletId . '/address';
+        $this->url = $this->APIEndpoint . '/wallet/' . Path::segment((string) $this->walletId) . '/address';
         $this->params = [
             'chain' => $chain,
             'label' => $label,
@@ -399,7 +400,7 @@ class BitGoSDK
      */
     public function getWalletAddress(string $addressOrId, ?string $dt = null, ?string $memoId = null)
     {
-        $this->url = $this->APIEndpoint . '/wallet/' . $this->walletId . '/address/' . $addressOrId;
+        $this->url = $this->APIEndpoint . '/wallet/' . Path::segment((string) $this->walletId) . '/address/' . $this->addressSegment($addressOrId);
         $this->params = [
             'dt' => $this->coinIn(self::XRP_COINS) ? $dt : null,
             'memoId' => $this->coinIn(self::XLM_COINS) ? $memoId : null
@@ -418,7 +419,7 @@ class BitGoSDK
      */
     public function updateWalletAddress(string $addressOrId, ?string $dt = null, ?string $memoId = null, ?string $label = null)
     {
-        $this->url = $this->APIEndpoint . '/wallet/' . $this->walletId . '/address/' . $addressOrId;
+        $this->url = $this->APIEndpoint . '/wallet/' . Path::segment((string) $this->walletId) . '/address/' . $this->addressSegment($addressOrId);
         $this->params = [
             'dt' => $this->coinIn(self::XRP_COINS) ? $dt : null,
             'memoId' => $this->coinIn(self::XLM_COINS) ? $memoId : null,
@@ -440,7 +441,7 @@ class BitGoSDK
      */
     public function getWalletAddresses(?string $labelContains = null, ?int $limit = null, ?bool $mine = null, ?string $prevId = null, array $chains = [], ?int $sort = null)
     {
-        $this->url = $this->APIEndpoint . '/wallet/' . $this->walletId . '/addresses';
+        $this->url = $this->APIEndpoint . '/wallet/' . Path::segment((string) $this->walletId) . '/addresses';
         $this->params = [
             'labelContains' => $labelContains,
             'limit' => $limit,
@@ -461,7 +462,7 @@ class BitGoSDK
      */
     public function getWalletTransactions(?string $prevId = null, bool $allTokens = false)
     {
-        $this->url = $this->APIEndpoint . '/wallet/' . $this->walletId . '/tx';
+        $this->url = $this->APIEndpoint . '/wallet/' . Path::segment((string) $this->walletId) . '/tx';
         $this->params = [
             'prevId' => $prevId,
             'allTokens' => $this->coinIn(self::ETH_COINS) ? $allTokens : null,
@@ -477,7 +478,7 @@ class BitGoSDK
      */
     public function getWalletTransaction(string $transactionId)
     {
-        $this->url = $this->APIEndpoint . '/wallet/' . $this->walletId . '/tx/' . $transactionId;
+        $this->url = $this->APIEndpoint . '/wallet/' . Path::segment((string) $this->walletId) . '/tx/' . Path::segment($transactionId);
         return $this->__execute('GET');
     }
 
@@ -493,7 +494,7 @@ class BitGoSDK
      */
     public function listWalletUnspents(?string $prevId = null, ?int $minValue = null, ?int $maxValue = null, ?int $minHeight = null, ?int $minConfirms = null)
     {
-        $this->url = $this->APIEndpoint . '/wallet/' . $this->walletId . '/unspents';
+        $this->url = $this->APIEndpoint . '/wallet/' . Path::segment((string) $this->walletId) . '/unspents';
         $this->params = [
             'prevId' => $prevId,
             'minValue' => $minValue,
@@ -529,7 +530,7 @@ class BitGoSDK
      */
     public function getMaximumSpendable(?int $limit = null, ?int $minValue = null, ?int $maxValue = null, ?int $minHeight = null, ?int $feeRate = null, ?int $minConfirms = null, ?bool $enforceMinConfirmsForChange = null)
     {
-        $this->url = $this->APIEndpoint . '/wallet/' . $this->walletId . '/maximumSpendable';
+        $this->url = $this->APIEndpoint . '/wallet/' . Path::segment((string) $this->walletId) . '/maximumSpendable';
         $this->params = [
             'limit' => $limit,
             'minValue' => $minValue,
@@ -551,7 +552,7 @@ class BitGoSDK
      */
     public function freezeWallet(string $otp, int $duration = 3600)
     {
-        $this->url = $this->APIEndpoint . '/wallet/' . $this->walletId . '/freeze';
+        $this->url = $this->APIEndpoint . '/wallet/' . Path::segment((string) $this->walletId) . '/freeze';
         $this->params = [
             'otp' => $otp,
             'duration' => $duration
@@ -584,7 +585,7 @@ class BitGoSDK
      */
     public function getKeychain(string $keyId)
     {
-        $this->url = $this->APIEndpoint . '/key/' . $keyId;
+        $this->url = $this->APIEndpoint . '/key/' . Path::segment($keyId);
         return $this->__execute('GET');
     }
 
@@ -655,7 +656,7 @@ class BitGoSDK
      */
     public function setVelocityPolicyRule(string $id, string $type, string $condition, string $action)
     {
-        $this->url = $this->APIEndpoint . '/wallet/' . $this->walletId . '/policy/rule';
+        $this->url = $this->APIEndpoint . '/wallet/' . Path::segment((string) $this->walletId) . '/policy/rule';
         $this->params = [
             'id' => $id,
             'type' => $type,
@@ -676,7 +677,7 @@ class BitGoSDK
      */
     public function updateVelocityPolicyRule(string $id, string $type, string $condition, string $action)
     {
-        $this->url = $this->APIEndpoint . '/wallet/' . $this->walletId . '/policy/rule';
+        $this->url = $this->APIEndpoint . '/wallet/' . Path::segment((string) $this->walletId) . '/policy/rule';
         $this->params = [
             'id' => $id,
             'type' => $type,
@@ -698,7 +699,7 @@ class BitGoSDK
      */
     public function removePolicyRule(string $id, string $type, string $condition, string $action)
     {
-        $this->url = $this->APIEndpoint . '/wallet/' . $this->walletId . '/policy/rule';
+        $this->url = $this->APIEndpoint . '/wallet/' . Path::segment((string) $this->walletId) . '/policy/rule';
         $this->params = [
             'id' => $id,
             'type' => $type,
@@ -727,7 +728,7 @@ class BitGoSDK
      */
     public function getWalletShare(string $shareId)
     {
-        $this->url = $this->APIEndpoint . '/walletshare/' . $shareId;
+        $this->url = $this->APIEndpoint . '/walletshare/' . Path::segment($shareId);
         return $this->__execute('GET');
     }
 
@@ -739,7 +740,7 @@ class BitGoSDK
      */
     public function resendWalletShareInvite(string $shareId)
     {
-        $this->url = $this->APIEndpoint . '/walletshare/' . $shareId . '/resendemail';
+        $this->url = $this->APIEndpoint . '/walletshare/' . Path::segment($shareId) . '/resendemail';
         return $this->__execute();
     }
 
@@ -752,7 +753,7 @@ class BitGoSDK
      */
     public function cancelWalletShare(string $shareId)
     {
-        $this->url = $this->APIEndpoint . '/walletshare/' . $shareId;
+        $this->url = $this->APIEndpoint . '/walletshare/' . Path::segment($shareId);
         $this->params = [
             'walletShareId' => $shareId
         ];
@@ -767,7 +768,7 @@ class BitGoSDK
      */
     public function removeWalletUser(string $userId)
     {
-        $this->url = $this->APIEndpoint . '/wallet/' . $this->walletId . '/user/' . $userId;
+        $this->url = $this->APIEndpoint . '/wallet/' . Path::segment((string) $this->walletId) . '/user/' . Path::segment($userId);
         $this->params = [
             'walletId' => $this->walletId,
             'userId' => $userId
@@ -783,7 +784,7 @@ class BitGoSDK
      */
     public function getPendingApproval(string $pendingApprovalId)
     {
-        $this->url = $this->APIEndpoint . '/pendingapprovals/' . $pendingApprovalId;
+        $this->url = $this->APIEndpoint . '/pendingapprovals/' . Path::segment($pendingApprovalId);
         return $this->__execute('GET');
     }
 
@@ -830,7 +831,7 @@ class BitGoSDK
      */
     public function listWalletWebhooks(bool $allTokens = false)
     {
-        $this->url = $this->APIEndpoint . '/wallet/' . $this->walletId . '/webhooks';
+        $this->url = $this->APIEndpoint . '/wallet/' . Path::segment((string) $this->walletId) . '/webhooks';
         $this->params = [
             'allTokens' => $this->coinIn(self::ETH_COINS) ? $allTokens : null
         ];
@@ -847,7 +848,7 @@ class BitGoSDK
      */
     public function addWalletWebhook(string $url, string $type, ?int $numConfirmations = null)
     {
-        $this->url = $this->APIEndpoint . '/wallet/' . $this->walletId . '/webhooks';
+        $this->url = $this->APIEndpoint . '/wallet/' . Path::segment((string) $this->walletId) . '/webhooks';
         $this->params = [
             'url' => $url,
             'type' => $type,
@@ -865,7 +866,7 @@ class BitGoSDK
      */
     public function removeWalletWebhook(string $url, string $type)
     {
-        $this->url = $this->APIEndpoint . '/wallet/' . $this->walletId . '/webhooks';
+        $this->url = $this->APIEndpoint . '/wallet/' . Path::segment((string) $this->walletId) . '/webhooks';
         $this->params = [
             'url' => $url,
             'type' => $type
@@ -883,7 +884,7 @@ class BitGoSDK
      */
     public function simulateWalletWebhook(string $webhookId, ?string $transferId = null, ?string $pendingApprovalId = null)
     {
-        $this->url = $this->APIEndpoint . '/wallet/' . $this->walletId . '/webhooks/' . $webhookId . '/simulate';
+        $this->url = $this->APIEndpoint . '/wallet/' . Path::segment((string) $this->walletId) . '/webhooks/' . Path::segment($webhookId) . '/simulate';
         $this->params = [
             'webhookId' => $webhookId,
             'transferId' => $transferId,
@@ -949,7 +950,7 @@ class BitGoSDK
      */
     public function simulateUserWebhook(string $webhookId, ?string $blockId = null)
     {
-        $this->url = $this->APIEndpoint . '/webhooks/' . $webhookId . '/simulate';
+        $this->url = $this->APIEndpoint . '/webhooks/' . Path::segment($webhookId) . '/simulate';
         $this->params = [
             'webhookId' => $webhookId,
             'blockId' => $blockId
@@ -1047,7 +1048,8 @@ class BitGoSDK
         $body = json_encode((object) $params);
         if ($requestType === 'GET') {
             $query = self::buildQuery($params);
-            $options[CURLOPT_URL] = $query === '' ? $this->url : $this->url . '?' . $query;
+            // The URL already has a query when an XRP or XLM address carries its tag or memo.
+            $options[CURLOPT_URL] = $query === '' ? $this->url : $this->url . (strpos($this->url, '?') === false ? '?' : '&') . $query;
             $options[CURLOPT_CUSTOMREQUEST] = 'GET';
         } elseif ($requestType === 'PUT') {
             $options[CURLOPT_CUSTOMREQUEST] = 'PUT';
@@ -1098,6 +1100,21 @@ class BitGoSDK
     private function coinIn(array $coins): bool
     {
         return in_array($this->coin, $coins, true);
+    }
+
+    /**
+     * The path segment for an address. BitGo writes XRP addresses with a destination tag as 'r…?dt=123' and XLM addresses
+     * with a memo as 'G…?memoId=…'. That suffix is kept as a query string, as it was sent before path segments were escaped.
+     */
+    private function addressSegment(string $address): string
+    {
+        if ($this->coinIn(self::XRP_COINS) && preg_match('/^([^?]+)\?dt=(\d+)$/', $address, $matches) === 1) {
+            return Path::segment($matches[1]) . '?dt=' . $matches[2];
+        }
+        if ($this->coinIn(self::XLM_COINS) && preg_match('/^([^?]+)\?memoId=([^?&#]+)$/', $address, $matches) === 1) {
+            return Path::segment($matches[1]) . '?memoId=' . rawurlencode($matches[2]);
+        }
+        return Path::segment($address);
     }
 
     /**

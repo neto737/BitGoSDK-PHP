@@ -17,6 +17,7 @@ namespace neto737\BitGoSDK;
 use Composer\CaBundle\CaBundle;
 use neto737\BitGoSDK\Enum\CurrencyCode;
 use neto737\BitGoSDK\Internal\CurlTransport;
+use neto737\BitGoSDK\Internal\Path;
 use neto737\BitGoSDK\Internal\Transport;
 
 class BitGoExpress
@@ -271,7 +272,7 @@ class BitGoExpress
      */
     public function sendTransaction(string $address, $amount, string $walletPassphrase, ?string $prv = null, ?int $numBlocks = null, ?int $feeRate = null, ?string $comment = null, ?array $unspents = null, ?int $minConfirms = null, ?bool $enforceMinConfirmsForChange = null, ?int $targetWalletUnspents = null, ?bool $noSplitChange = null, ?int $minValue = null, ?int $maxValue = null, ?int $gasPrice = null, ?int $gasLimit = null, ?int $sequenceId = null, ?bool $segwit = null, ?int $lastLedgerSequence = null, ?string $ledgerSequenceDelta = null)
     {
-        $this->url = $this->APIEndpoint . '/wallet/' . $this->walletId . '/sendcoins';
+        $this->url = $this->APIEndpoint . '/wallet/' . Path::segment((string) $this->walletId) . '/sendcoins';
         $this->params = [
             'address' => $address,
             'amount' => self::amountToString($amount),
@@ -324,7 +325,7 @@ class BitGoExpress
      */
     public function sendTransactionToMany(array $recipients, string $walletPassphrase, ?string $prv = null, ?int $numBlocks = null, ?int $feeRate = null, ?string $comment = null, ?array $unspents = null, ?int $minConfirms = null, ?bool $enforceMinConfirmsForChange = null, ?int $targetWalletUnspents = null, ?bool $noSplitChange = null, ?int $minValue = null, ?int $maxValue = null, ?int $gasPrice = null, ?int $gasLimit = null, ?int $sequenceId = null, ?bool $segwit = null, ?int $lastLedgerSequence = null, ?string $ledgerSequenceDelta = null)
     {
-        $this->url = $this->APIEndpoint . '/wallet/' . $this->walletId . '/sendmany';
+        $this->url = $this->APIEndpoint . '/wallet/' . Path::segment((string) $this->walletId) . '/sendmany';
         $this->params = [
             'recipients' => self::recipientAmountsToStrings($recipients),
             'walletPassphrase' => $walletPassphrase,
@@ -367,7 +368,7 @@ class BitGoExpress
      */
     public function consolidateWalletUnspents(string $walletPassphrase, ?int $numUnspentsToMake = null, ?int $limit = null, ?int $minValue = null, ?int $maxValue = null, ?int $minHeight = null, ?int $feeRate = null, ?int $feeTxConfirmTarget = null, ?int $maxFeePercentage = null, ?int $minConfirms = null, ?bool $enforceMinConfirmsForChange = null)
     {
-        $this->url = $this->APIEndpoint . '/wallet/' . $this->walletId . '/consolidateunspents';
+        $this->url = $this->APIEndpoint . '/wallet/' . Path::segment((string) $this->walletId) . '/consolidateunspents';
         $this->params = [
             'walletPassphrase' => $walletPassphrase,
             'numUnspentsToMake' => $numUnspentsToMake,
@@ -403,7 +404,7 @@ class BitGoExpress
      */
     public function fanoutWalletUnspents(string $walletPassphrase, ?string $xprv = null, ?int $maxNumInputsToUse = null, ?int $numUnspentsToMake = null, ?int $minValue = null, ?int $maxValue = null, ?int $minHeight = null, ?int $maxFeePercentage = null, ?int $minConfirms = null, ?bool $enforceMinConfirmsForChange = null, ?int $feeRate = null, ?int $feeTxConfirmTarget = null)
     {
-        $this->url = $this->APIEndpoint . '/wallet/' . $this->walletId . '/fanoutunspents';
+        $this->url = $this->APIEndpoint . '/wallet/' . Path::segment((string) $this->walletId) . '/fanoutunspents';
         $this->params = [
             'walletPassphrase' => $walletPassphrase,
             'xprv' => $xprv,
@@ -448,7 +449,7 @@ class BitGoExpress
      */
     public function sweep(string $address, string $walletPassphrase, ?string $xprv = null, ?string $otp = null, ?int $feeRate = null, ?int $feeTxConfirmTarget = null, ?int $gasPrice = null, ?int $sequenceId = null, ?int $lastLedgerSequence = null, ?string $ledgerSequenceDelta = null)
     {
-        $this->url = $this->APIEndpoint . '/wallet/' . $this->walletId . '/sweep';
+        $this->url = $this->APIEndpoint . '/wallet/' . Path::segment((string) $this->walletId) . '/sweep';
         $this->params = [
             'address' => $address,
             'walletPassphrase' => $walletPassphrase,
@@ -484,7 +485,7 @@ class BitGoExpress
      */
     public function buildTransaction(array $recipients, ?int $numBlocks = null, ?int $feeRate = null, ?int $minConfirms = null, ?bool $enforceMinConfirmsForChange = null, ?array $unspents = null, ?int $targetWalletUnspents = null, ?bool $noSplitChange = null, ?int $minValue = null, ?int $maxValue = null, ?int $gasPrice = null, ?int $lastLedgerSequence = null, ?string $ledgerSequenceDelta = null)
     {
-        $this->url = $this->APIEndpoint . '/wallet/' . $this->walletId . '/tx/build';
+        $this->url = $this->APIEndpoint . '/wallet/' . Path::segment((string) $this->walletId) . '/tx/build';
         $this->params = [
             'recipients' => self::recipientAmountsToStrings($recipients),
             'numBlocks' => $this->coinIn(self::UTXO_COINS) ? $numBlocks : null,
@@ -516,7 +517,7 @@ class BitGoExpress
      */
     public function signBuildTransaction($txPrebuild, ?string $prv = null, ?string $coldDerivationSeed = null, $keychain = null, ?string $walletPassphrase = null)
     {
-        $this->url = $this->APIEndpoint . '/wallet/' . $this->walletId . '/signtx';
+        $this->url = $this->APIEndpoint . '/wallet/' . Path::segment((string) $this->walletId) . '/signtx';
         $this->params = [
             'txPrebuild' => $txPrebuild,
             'prv' => $prv,
@@ -538,7 +539,7 @@ class BitGoExpress
      */
     public function sendBuildTransaction($halfSigned, string $otp, ?string $txHex = null, ?string $comment = null)
     {
-        $this->url = $this->APIEndpoint . '/wallet/' . $this->walletId . '/tx/send';
+        $this->url = $this->APIEndpoint . '/wallet/' . Path::segment((string) $this->walletId) . '/tx/send';
         $this->params = [
             'halfSigned' => $halfSigned,
             'otp' => $otp,
@@ -571,7 +572,7 @@ class BitGoExpress
      */
     public function shareWallet(string $email, string $permissions, ?string $walletPassphrase = null, ?bool $skipKeychain = null, ?bool $disableEmail = null)
     {
-        $this->url = $this->APIEndpoint . '/wallet/' . $this->walletId . '/share';
+        $this->url = $this->APIEndpoint . '/wallet/' . Path::segment((string) $this->walletId) . '/share';
         $this->params = [
             'email' => $email,
             'permissions' => $permissions,
@@ -593,7 +594,7 @@ class BitGoExpress
      */
     public function acceptWalletShare(string $walletShareId, ?string $newWalletPassphrase = null, ?string $userPassword = null, ?string $overrideEncryptedPrv = null)
     {
-        $this->url = $this->APIEndpoint . '/walletshare/' . $walletShareId . '/acceptshare';
+        $this->url = $this->APIEndpoint . '/walletshare/' . Path::segment($walletShareId) . '/acceptshare';
         $this->params = [
             'walletShareId' => $walletShareId,
             'newWalletPassphrase' => $newWalletPassphrase,
@@ -613,7 +614,7 @@ class BitGoExpress
      */
     public function updatePendingApproval(string $pendingApprovalId, string $state, string $otp)
     {
-        $this->url = $this->APIEndpoint . '/pendingapprovals/' . $pendingApprovalId;
+        $this->url = $this->APIEndpoint . '/pendingapprovals/' . Path::segment($pendingApprovalId);
         $this->params = [
             'state' => $state,
             'otp' => $otp

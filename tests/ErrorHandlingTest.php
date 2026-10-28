@@ -15,6 +15,7 @@ final class ErrorHandlingTest extends TestCase
     public function testSdkReturnsErrorWhenRequestFails(): void
     {
         $sdk = new BitGoSDK('token', 'tbtc', true);
+        $sdk->walletId = 'w1';
         RecordingTransport::on($sdk)->fail(CURLE_COULDNT_CONNECT, 'Failed to connect to app.bitgo-test.com');
 
         self::assertSame(['error' => 'Failed to connect to app.bitgo-test.com', 'status' => 0], $sdk->getWallet());
@@ -23,6 +24,7 @@ final class ErrorHandlingTest extends TestCase
     public function testErrorWithoutMessageNamesTheCurlErrno(): void
     {
         $sdk = new BitGoSDK('token', 'tbtc', true);
+        $sdk->walletId = 'w1';
         RecordingTransport::on($sdk)->fail(CURLE_OPERATION_TIMEDOUT);
 
         self::assertSame(['error' => 'cURL error ' . CURLE_OPERATION_TIMEDOUT, 'status' => 0], $sdk->getWallet());
@@ -39,6 +41,7 @@ final class ErrorHandlingTest extends TestCase
     public function testExpressReturnsErrorObjectWhenObjectRequestFails(): void
     {
         $express = new BitGoExpress('localhost', 3080, 'tbtc');
+        $express->walletId = 'w1';
         RecordingTransport::on($express)->fail(CURLE_COULDNT_CONNECT, 'Connection refused');
 
         self::assertEquals((object) ['error' => 'Connection refused', 'status' => 0], $express->buildTransaction([['address' => 'a', 'amount' => 1]]));
@@ -47,6 +50,7 @@ final class ErrorHandlingTest extends TestCase
     public function testSuccessfulResponseIsReturnedUnchanged(): void
     {
         $sdk = new BitGoSDK('token', 'tbtc', true);
+        $sdk->walletId = 'w1';
         RecordingTransport::on($sdk)->respond('{"id":"w1"}')->respond('', 204);
 
         self::assertSame(['id' => 'w1'], $sdk->getWallet());
@@ -56,6 +60,7 @@ final class ErrorHandlingTest extends TestCase
     public function testBitGoErrorKeepsItsFieldsAndGainsStatus(): void
     {
         $sdk = new BitGoSDK('token', 'tbtc', true);
+        $sdk->walletId = 'w1';
         RecordingTransport::on($sdk)->respond('{"error":"wallet not found","name":"WalletNotFound"}', 404);
 
         self::assertSame(['error' => 'wallet not found', 'name' => 'WalletNotFound', 'status' => 404], $sdk->getWallet());
@@ -64,6 +69,7 @@ final class ErrorHandlingTest extends TestCase
     public function testNonJsonErrorReportsStatus(): void
     {
         $sdk = new BitGoSDK('token', 'tbtc', true);
+        $sdk->walletId = 'w1';
         RecordingTransport::on($sdk)->respond('<html>Bad Gateway</html>', 502);
 
         self::assertSame(['error' => 'HTTP 502', 'status' => 502], $sdk->getWallet());
@@ -72,6 +78,7 @@ final class ErrorHandlingTest extends TestCase
     public function testInvalidJsonOnSuccessIsAnError(): void
     {
         $sdk = new BitGoSDK('token', 'tbtc', true);
+        $sdk->walletId = 'w1';
         RecordingTransport::on($sdk)->respond('{"id":', 200);
 
         $result = $sdk->getWallet();
@@ -83,6 +90,7 @@ final class ErrorHandlingTest extends TestCase
     public function testExpressObjectErrorKeepsItsFields(): void
     {
         $express = new BitGoExpress('localhost', 3080, 'tbtc');
+        $express->walletId = 'w1';
         RecordingTransport::on($express)->respond('{"error":"insufficient funds","name":"Error"}', 400);
 
         self::assertEquals((object) ['error' => 'insufficient funds', 'name' => 'Error', 'status' => 400], $express->buildTransaction([]));
