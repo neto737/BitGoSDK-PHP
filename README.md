@@ -125,6 +125,12 @@ if (isset($transfer['error'])) {
 
 `buildTransaction()` and `signBuildTransaction()` return the same fields as an object.
 
+IDs and addresses you pass in are percent-encoded into the URL, so they can't change which endpoint a request reaches. An empty ID, `.` or `..` would still reach a different endpoint, so the call throws an `InvalidArgumentException` instead of sending the request. So does any wallet method called before `walletId` is set.
+
+## Receiving webhooks
+
+Anyone who knows your webhook URL can POST to it, so treat the payload as untrusted. Check that `hash` looks like a transaction hash, then look the transfer up on BitGo with `getWalletTransaction()` and act on what BitGo returns, not on the webhook body. [`examples/receiveWebhook.php`](examples/receiveWebhook.php) shows how, and answers BitGo before the lookup so slow handlers don't trigger retries.
+
 ## BitGo Express
 
 BitGo signs transactions on the client, so sending coins, creating wallets and other calls that use your keys go through `BitGoExpress`, which talks to your own BitGo Express instance. See [Install BitGo Express](https://developers.bitgo.com/docs/get-started-express-install) to run one.
@@ -172,7 +178,9 @@ Both clients check certificates against your system's CA store. If PHP can't fin
 - [BitGo API reference](https://developers.bitgo.com/reference/overview) and [Express API reference](https://developers.bitgo.com/reference/express-overview)
 - [Webhooks](https://developers.bitgo.com/docs/webhooks-overview) and [policies](https://developers.bitgo.com/docs/policies-overview)
 
-**Upgrading from 2.2.x?** 2.3 is a drop-in upgrade, but two behaviours changed: `0` and `false` params are now sent, and errors come back as `['error' => …, 'status' => …]`. Read the [Changed section of CHANGELOG.md](CHANGELOG.md#changed) before you upgrade.
+**Upgrading from 2.2.x?** 2.3 keeps the same methods, but it needs PHP 7.4 or later, and two behaviours changed: `0` and `false` params are now sent, and errors come back as `['error' => …, 'status' => …]`. Read the [2.3.0 changelog](CHANGELOG.md#230---2026-10-18) before you upgrade.
+
+**Upgrading from 2.3.0?** 2.3.1 is a security fix ([GHSA-qr36-39c2-hp84](https://github.com/neto737/BitGoSDK-PHP/security/advisories/GHSA-qr36-39c2-hp84)). Wallet methods now throw an `InvalidArgumentException` if `walletId` isn't set, so set it before you call them.
 
 ## Contributing
 
