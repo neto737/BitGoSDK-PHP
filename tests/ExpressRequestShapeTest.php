@@ -329,6 +329,7 @@ final class ExpressRequestShapeTest extends TestCase
     public function testObjectResponsesAreDecodedAsObjects(): void
     {
         $express = new BitGoExpress('localhost', 3080, 'tbtc');
+        $express->walletId = 'w1';
         RecordingTransport::on($express)->respond('{"txHex":"00","feeInfo":{"fee":100}}');
 
         self::assertEquals((object) ['txHex' => '00', 'feeInfo' => (object) ['fee' => 100]], $express->buildTransaction([]));

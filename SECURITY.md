@@ -6,11 +6,9 @@ BitGoSDK-PHP handles access tokens, wallet passphrases and transaction data, so 
 
 | Version | Supported | Notes |
 |---|---|---|
-| 3.x | Not released yet | In development on the `v3` branch. |
-| 2.3.x / 2.4.x | ✅ | Bug fixes until 3.0.0 is released. Security fixes for 12 months after 3.0.0. |
-| ≤ 2.2.x | ❌ | Upgrade to the latest 2.x release. 2.3.0 is meant as a drop-in upgrade from 2.2.x. |
-
-Until 2.3.0 is released, fixes for vulnerabilities found in 2.2.3 ship in 2.3.0 rather than as 2.2.x patches.
+| 3.x | Not released yet | Planned; not started. |
+| 2.3.x | ✅ | Bug fixes until 3.0.0 is released. Security fixes for 12 months after 3.0.0. |
+| ≤ 2.2.x | ❌ | Upgrade to the latest 2.3.x release. 2.3.0 requires PHP 7.4 and changes some behaviour, so read the changelog first. |
 
 ## Reporting a vulnerability
 
@@ -39,4 +37,4 @@ Out of scope:
 
 - Vulnerabilities in the BitGo platform, BitGo Express or BitGoJS. Report those to BitGo directly.
 - Problems that require an attacker to already control the server running your application.
-- Running BitGo Express over plain HTTP on a network you don't trust. This is a known limitation of 2.2.x, and TLS support is planned for 2.3.0.
+- Running BitGo Express over plain HTTP on a network you don't trust. Reach Express over TLS by prefixing the hostname with `https://`.

@@ -56,6 +56,7 @@ final class CurlTransportTest extends TestCase
     {
         // cURL rejects the scheme before anything leaves the machine.
         $this->setPrivate($client, 'APIEndpoint', 'nosuchscheme://example.com/api/v2/tbtc');
+        $client->walletId = 'w1';
 
         $result = (array) $request($client);
 

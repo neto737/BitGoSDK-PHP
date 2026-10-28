@@ -8,6 +8,17 @@ Entries for 2.2.3 and earlier were reconstructed from the git history in October
 
 ## [Unreleased]
 
+### Security
+
+- **IDs in request paths are now percent-encoded** ([GHSA-qr36-39c2-hp84](https://github.com/neto737/BitGoSDK-PHP/security/advisories/GHSA-qr36-39c2-hp84)). An ID containing `/`, `..`, `?` or `#` could point an authenticated request at a different BitGo endpoint or add query params, for example `getWalletTransaction('../../../user/me')`. This covers every method that takes an ID or address for the path, and `$walletId` on both clients.
+- An empty ID, `.` or `..` in a request path, including an unset `$walletId`, now throws an `InvalidArgumentException` instead of sending the request. Set `$walletId` before calling wallet methods.
+- XRP addresses with a destination tag (`r…?dt=123`) and XLM addresses with a memo (`G…?memoId=…`) are still sent with the tag or memo as a query string, as before, in `getWalletAddress()`, `updateWalletAddress()` and `getWalletByAddress()`.
+- `examples/receiveWebhook.php` accepts only a transaction hash from the webhook body, answers BitGo before looking the transaction up, and explains that anyone can POST to a webhook URL.
+
+### Changed
+
+- `SECURITY.md` lists 2.3.x as the supported line and no longer points to the `v3` branch.
+
 ## [2.3.0] - 2026-10-18
 
 ### Added

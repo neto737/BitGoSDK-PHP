@@ -40,6 +40,7 @@ final class RequestParamsTest extends TestCase
     public function testExpressParamsDoNotLeakIntoTheNextCall(): void
     {
         $express = new BitGoExpress('localhost', 3080, 'tbtc');
+        $express->walletId = 'w1';
         $transport = RecordingTransport::on($express);
 
         $express->sendTransaction('address', 1000, 'secret');
@@ -51,6 +52,7 @@ final class RequestParamsTest extends TestCase
     public function testSdkSendsFalsyBodyParams(): void
     {
         $sdk = new BitGoSDK('token', 'tbtc', true);
+        $sdk->walletId = 'w1';
         $transport = RecordingTransport::on($sdk);
 
         $sdk->createWalletAddress(0, '');
@@ -72,6 +74,7 @@ final class RequestParamsTest extends TestCase
     public function testExpressSendsFalsyParams(): void
     {
         $express = new BitGoExpress('localhost', 3080, 'tbtc');
+        $express->walletId = 'w1';
         $transport = RecordingTransport::on($express);
 
         $express->sendTransaction('address', 0, '', null, null, null, '', null, 0, false);
