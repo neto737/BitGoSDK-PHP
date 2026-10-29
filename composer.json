@@ -56,8 +56,9 @@
 
     "require-dev": {
         "friendsofphp/php-cs-fixer": "^3.95",
-        "nyholm/psr7": "^1.8",
-        "php-http/mock-client": "^1.6",
+        "nyholm/psr7": "^1.8.2",
+        "php-http/httplug": "^2.4.1",
+        "php-http/mock-client": "^1.6.1",
         "phpstan/phpstan": "^2.1",
         "phpunit/phpunit": "^11.5"
     },
