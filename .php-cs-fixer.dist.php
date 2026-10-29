@@ -1,12 +1,12 @@
 <?php
 
 $finder = PhpCsFixer\Finder::create()
-    ->in([__DIR__ . '/src', __DIR__ . '/tests', __DIR__ . '/examples']);
+    ->in([__DIR__ . '/src', __DIR__ . '/tests']);
 
 return (new PhpCsFixer\Config())
+    ->setRiskyAllowed(true)
     ->setRules([
         '@PSR12' => true,
-        // Constant visibility needs PHP 7.1. Add 'const' back once the minimum PHP is raised to 7.4.
-        'modifier_keywords' => ['elements' => ['method', 'property']],
+        'declare_strict_types' => true,
     ])
     ->setFinder($finder);

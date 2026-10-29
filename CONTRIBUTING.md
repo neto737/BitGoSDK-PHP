@@ -23,7 +23,7 @@ If a fix applies to both lines, open the pull request against `2.x`. A maintaine
 
 You need:
 
-- PHP 7.4 or newer with the `curl` extension. A current PHP 8.x is recommended so you see deprecation notices.
+- PHP 8.3 or newer for `main`, or PHP 7.4 or newer with the `curl` extension for `2.x`. A current PHP is recommended so you see deprecation notices.
 - [Composer](https://getcomposer.org/).
 - A [BitGo testnet](https://app.bitgo-test.com/) account and access token, if you want to run requests against the API. Never use production tokens or real funds while developing.
 
@@ -33,19 +33,20 @@ cd BitGoSDK-PHP
 composer install
 ```
 
-`composer install` also installs the dev tools: PHPUnit, PHPStan and PHP-CS-Fixer.
+`composer install` also installs the dev tools: PHPUnit, PHPStan and PHP-CS-Fixer. On `main` it also installs a mock HTTP client and PSR-7 factories for the tests.
 
 ## Coding style
 
 - Follow the style of the surrounding code: 4-space indentation, LF line endings, UTF-8 and a final newline. [.editorconfig](.editorconfig) sets these up for most editors.
-- Code must follow [PSR-12](https://www.php-fig.org/psr/psr-12/). CI enforces it with PHP-CS-Fixer. Run `composer cs:fix` before you push.
+- Code must follow [PSR-12](https://www.php-fig.org/psr/psr-12/). CI enforces it with PHP-CS-Fixer. Run `composer cs:fix` before you push. On `main`, every file also starts with `declare(strict_types=1)`.
 - 2.x changes must not break the public API. Don't rename or remove public methods or reorder their parameters. Widening a type (for example `int` to `int|string`) is fine. Breaking changes go to 3.x.
 - Code must still run on the minimum PHP version in `composer.json`. Don't use syntax or functions newer than that.
 - Give every public method a docblock with a short description, `@param` lines and `@return`, like the existing methods.
+- On `main`, follow the 3.0 structure: methods named after a thing (`coin()`, `wallet()`, `addresses()`) only navigate and never send a request. Methods named after an action send exactly one request (or, for `list()`, one per batch). Each action takes its params as named arguments, plus `array $extra = []` for params the SDK doesn't name yet, and returns BitGo's response as an array. Document the main fields with an open array shape such as `@return array{id: string, label?: string, ...}`.
 
 ## Running tests
 
-CI runs these checks on every pull request. PHPUnit and `php -l` run on PHP 7.4 to 8.5, and PHPUnit runs with both the lowest and the highest allowed dependencies.
+CI runs these checks on every pull request. PHPUnit and `php -l` run on every supported PHP version (8.3 to 8.5 on `main`, 7.4 to 8.5 on `2.x`), and PHPUnit runs with both the lowest and the highest allowed dependencies.
 
 1. Run the same checks locally:
 
@@ -55,15 +56,14 @@ CI runs these checks on every pull request. PHPUnit and `php -l` run on PHP 7.4 
    composer cs
    ```
 
-   PHPStan runs at level 6 against a baseline (`phpstan-baseline.neon`) of the errors in the existing code. Don't add new entries to it. When a fix removes an error, regenerate the baseline with `vendor/bin/phpstan analyse --generate-baseline phpstan-baseline.neon`.
+   On `main`, PHPStan runs at level 8 with no baseline. On `2.x`, it runs at level 6 against `phpstan-baseline.neon`. Don't add new entries to that baseline.
 
-   Tests never touch the network. To check what a method sends, install `Tests\Fixtures\RecordingTransport` on the client with `RecordingTransport::on($client)`, then read the captured method, URL, headers and body. You can queue responses or cURL failures on it too. When you add a public method, add a case for it to `SdkRequestShapeTest` or `ExpressRequestShapeTest`. A guard test fails until you do.
+   Tests never touch the network. On `main`, tests extend `Tests\TestCase`, which wires the client to a mock PSR-18 client: queue responses with `respond()`, then check what was sent with `requests()`, `lastRequest()` and `assertRequest()`. Every new endpoint needs a test of its method, URL and body. On `2.x`, see the testing notes in that branch's CONTRIBUTING.md.
 
-2. Exercise your change against BitGo **testnet**. Copy the relevant script from `examples/` into `local_tests/` (which is gitignored), fill in your testnet token and wallet ID there, and run it from the repository root:
+2. Exercise your change against BitGo **testnet**. Write a short script in `local_tests/` (which is gitignored), fill in your testnet token and wallet ID there, and run it from the repository root:
 
    ```sh
    mkdir -p local_tests
-   cp examples/createAddress.php local_tests/
    php local_tests/createAddress.php
    ```
 
@@ -81,7 +81,7 @@ CI runs these checks on every pull request. PHPUnit and `php -l` run on PHP 7.4 
 
 This section is for maintainers. 2.x releases are tagged from `2.x`, and 3.x releases from `main`.
 
-1. **Prepare the changelog.** In a pull request, rename `## [Unreleased]` in `CHANGELOG.md` to `## [X.Y.Z] - YYYY-MM-DD`, add a new empty `## [Unreleased]` section above it, and update the compare links at the bottom of the file. Set `BitGoSDK::VERSION` in `src/BitGoSDK.php` to `X.Y.Z`, since it is sent in the `User-Agent` header. Merge it once all required checks pass.
+1. **Prepare the changelog.** In a pull request, rename `## [Unreleased]` in `CHANGELOG.md` to `## [X.Y.Z] - YYYY-MM-DD`, add a new empty `## [Unreleased]` section above it, and update the compare links at the bottom of the file. Set the version constant to `X.Y.Z`, since it is sent in the `User-Agent` header: `BitGo::VERSION` in `src/BitGo.php` on `main`, or `BitGoSDK::VERSION` in `src/BitGoSDK.php` on `2.x`. Merge it once all required checks pass.
 2. **Tag the release** on the merged commit. Tags use plain `X.Y.Z` with no `v` prefix, matching the existing tags.
 
    ```sh
