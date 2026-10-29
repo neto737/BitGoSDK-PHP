@@ -7,34 +7,17 @@ Thanks for helping out with BitGoSDK-PHP. This guide explains which branch to ta
 
 ## Branch model
 
-### Now: 2.x on `main`
-
-| Branch | What it's for |
-|---|---|
-| `main` | 2.x development. All fixes and features for the 2.x line go here. |
-| `v3` | The unfinished 3.0 rewrite. It gets merged into `main` when 3.0 work starts (see below). |
-
-Open your pull request against `main`.
-
-### After 3.0 work starts
-
-When work on 3.0 begins:
-
-1. A `2.x` maintenance branch is cut from `main` at the latest 2.3.x tag.
-2. `v3` is merged into `main`, and `main` becomes the 3.x development branch.
-
-From then on:
-
 | Branch | What it's for | Target it with |
 |---|---|---|
-| `2.x` | 2.x maintenance: bug fixes and security fixes. | Fixes for the 2.x line |
-| `main` | 3.x development. | New features and everything else |
+| `2.x` | 2.x maintenance: bug fixes and security fixes. Cut from `2.3.1`. | Fixes for the 2.x line |
+| `main` | 3.x development. 3.0 is being written here with a new structure. | New features and everything else |
+| `v3` | An unfinished 2022 rewrite, kept for reference only. It won't be merged. Once `3.0.0-alpha.1` is tagged, it's archived as the tag `v3-prototype` and deleted. | Nothing |
 
 If a fix applies to both lines, open the pull request against `2.x`. A maintainer ports it to `main`.
 
 ### Protection rules
 
-`main` (and `2.x`, once it exists) is protected: no force pushes, no deletion, and every change goes through a pull request. Fork the repository or push a topic branch, then open a pull request against the branch you're targeting.
+`main` and `2.x` are protected: no force pushes, no deletion, every change goes through a pull request, and the CI checks must pass. Fork the repository or push a topic branch, then open a pull request against the branch you're targeting.
 
 ## Local setup
 
@@ -96,13 +79,13 @@ CI runs these checks on every pull request. PHPUnit and `php -l` run on PHP 7.4 
 
 ## Release process
 
-This section is for maintainers. Releases are tagged from `main` for now, and from `2.x` for 2.x releases once that branch exists.
+This section is for maintainers. 2.x releases are tagged from `2.x`, and 3.x releases from `main`.
 
 1. **Prepare the changelog.** In a pull request, rename `## [Unreleased]` in `CHANGELOG.md` to `## [X.Y.Z] - YYYY-MM-DD`, add a new empty `## [Unreleased]` section above it, and update the compare links at the bottom of the file. Set `BitGoSDK::VERSION` in `src/BitGoSDK.php` to `X.Y.Z`, since it is sent in the `User-Agent` header. Merge it once all required checks pass.
 2. **Tag the release** on the merged commit. Tags use plain `X.Y.Z` with no `v` prefix, matching the existing tags.
 
    ```sh
-   git checkout main
+   git checkout 2.x   # or main for a 3.x release
    git pull
    git tag -a X.Y.Z -m "X.Y.Z"
    git push origin X.Y.Z
