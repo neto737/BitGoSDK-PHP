@@ -12,7 +12,7 @@ Thanks for helping out with BitGoSDK-PHP. This guide explains which branch to ta
 | Branch | What it's for |
 |---|---|
 | `main` | 2.x development. All fixes and features for the 2.x line go here. |
-| `v3` | The unfinished 3.0 rewrite. It gets merged into `main` when 3.0 work starts (see below). |
+| `v3` | An unfinished 2022 rewrite, kept for reference only. 3.0 doesn't build on it and it won't be merged (see below). |
 
 Open your pull request against `main`.
 
@@ -21,7 +21,8 @@ Open your pull request against `main`.
 When work on 3.0 begins:
 
 1. A `2.x` maintenance branch is cut from `main` at the latest 2.3.x tag.
-2. `v3` is merged into `main`, and `main` becomes the 3.x development branch.
+2. `main` becomes the 3.x development branch, and 3.0 is written there with a new structure.
+3. Once `3.0.0-alpha.1` is tagged, the `v3` branch is archived as the tag `v3-prototype` and deleted.
 
 From then on:
 
