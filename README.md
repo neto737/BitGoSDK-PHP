@@ -16,6 +16,9 @@
 
 ---
 
+> [!NOTE]
+> **You're on `main`, where 3.0 is being built.** It isn't finished or released yet, and it needs PHP 8.3. The current stable release is 2.3.x. Its code is on the [`2.x` branch](https://github.com/neto737/BitGoSDK-PHP/tree/2.x), and the rest of this README describes 2.3.x.
+
 ## Features
 
 - **Two clients:** `BitGoSDK` talks to the BitGo API for wallets, addresses, transfers, keychains, policies, sharing, approvals and webhooks. `BitGoExpress` talks to your own [BitGo Express](#bitgo-express) instance for anything that needs your keys, such as creating wallets and sending coins.

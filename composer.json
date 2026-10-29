@@ -44,16 +44,23 @@
     },
 
     "require": {
-        "php": "^7.4 || ^8.0",
-        "ext-curl": "*",
+        "php": "^8.3",
         "ext-json": "*",
-        "composer/ca-bundle": "^1.5"
+        "php-http/discovery": "^1.20",
+        "psr/http-client": "^1.0",
+        "psr/http-client-implementation": "^1.0",
+        "psr/http-factory": "^1.1",
+        "psr/http-factory-implementation": "^1.0",
+        "psr/http-message": "^1.1 || ^2.0"
     },
 
     "require-dev": {
         "friendsofphp/php-cs-fixer": "^3.95",
+        "nyholm/psr7": "^1.8.2",
+        "php-http/httplug": "^2.4.1",
+        "php-http/mock-client": "^1.6.1",
         "phpstan/phpstan": "^2.1",
-        "phpunit/phpunit": "^9.6.33"
+        "phpunit/phpunit": "^11.5"
     },
 
     "scripts": {
@@ -76,7 +83,16 @@
         "check": "Run the coding standard check, static analysis and tests."
     },
 
+    "extra": {
+        "branch-alias": {
+            "dev-main": "3.x-dev"
+        }
+    },
+
     "config": {
-        "sort-packages": true
+        "sort-packages": true,
+        "allow-plugins": {
+            "php-http/discovery": false
+        }
     }
 }
