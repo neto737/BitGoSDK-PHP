@@ -8,6 +8,28 @@ Entries for 2.2.3 and earlier were reconstructed from the git history in October
 
 ## [Unreleased]
 
+3.0 is in development on `main`. 2.x fixes continue on the `2.x` branch.
+
+### Added
+
+- The 3.0 client. Start with `new BitGo(Config::testnet($accessToken))`, then go from the coin to the wallet to what's under it: `$bitgo->coin('tbtc')->wallet($walletId)->addresses()->create(label: 'Deposit 42')`. Methods named after a thing only navigate and never send a request. Methods named after an action send one each time you call them.
+- `Wallet::get()`, which fetches the wallet fresh on every call. A `Wallet` holds only the coin and ID, so its data can't go stale.
+- Addresses: `create()`, `get()`, `update()` and `list()`. `list()` returns a `Paginator` that fetches the next batch as you iterate.
+- Any PSR-18 HTTP client works. If you don't pass one, the SDK finds the one installed in your project, such as Guzzle or Symfony HttpClient.
+- Errors throw exceptions that all implement `BitGoException`. `ApiException` carries the HTTP status, BitGo's error name and request ID, and the response, with subclasses for 401/403, 404, 429 and 5xx. `TransportException` covers network failures.
+- Each action takes named arguments plus `array $extra` for params the SDK doesn't name yet. Responses are BitGo's JSON as arrays, with the main fields documented as array shapes for IDEs and PHPStan.
+- Tagged XRP and XLM addresses (`r…?dt=123`, `G…?memoId=123`) are escaped whole as one path segment, instead of having the tag split into a query string as in 2.3.1.
+
+### Changed
+
+- **PHP 8.3 or later is required.**
+- `ext-curl` and `composer/ca-bundle` are no longer dependencies. TLS, timeouts and proxies are configured on your HTTP client.
+- The base URL must use `https://`, since the access token is sent with every request.
+
+### Removed
+
+- The 2.x API (`BitGoSDK`, `BitGoExpress`, `Enum\CurrencyCode` and `Enum\AddressType`) and the 2.x examples. They remain on the `2.x` branch and in the 2.3.x releases. Express and the remaining endpoints come back in the 3.0 betas.
+
 ## [2.3.1] - 2026-10-28
 
 ### Security
