@@ -101,6 +101,75 @@ final class Addresses
     }
 
     /**
+     * EVM coins: deploy the forwarder contract of a receive address now, instead of when it first receives funds.
+     *
+     * @param string $address                                                   The address or its ID
+     * @param bool|null $forceDeploy                                            Deploy even if the address isn't pending deployment
+     * @param int|null $gasPrice                                                In wei. Leave null to use BitGo's network estimate.
+     * @param array{maxFeePerGas: int, maxPriorityFeePerGas: int}|null $eip1559 EIP-1559 fees, in wei, instead of $gasPrice
+     * @param array<string, mixed> $extra                                       More body params, for ones this method doesn't name yet
+     * @return array{txId: string, ...}
+     * @throws BitGoException
+     */
+    public function deploy(string $address, ?bool $forceDeploy = null, ?int $gasPrice = null, ?array $eip1559 = null, array $extra = []): array
+    {
+        /** @var array{txId: string, ...} $deployed BitGo's documented shape, not checked at runtime */
+        $deployed = $this->http->post('{coin}/wallet/{walletId}/address/{address}/deployment', [...$this->path(), 'address' => $address], [
+            'forceDeploy' => $forceDeploy,
+            'gasPrice' => $gasPrice,
+            'eip1559' => $eip1559,
+        ], $extra);
+        return $deployed;
+    }
+
+    /**
+     * EVM coins: move the tokens that a receive address holds into the wallet.
+     *
+     * @param string $address                                                   The address or its ID
+     * @param string|null $tokenName                                            The token to forward, for example 'hteth:usdc'
+     * @param bool|null $forceFlush                                             Forward even if BitGo doesn't see a balance on the address
+     * @param int|null $gasPrice                                                In wei. Leave null to use BitGo's network estimate.
+     * @param array{maxFeePerGas: int, maxPriorityFeePerGas: int}|null $eip1559 EIP-1559 fees, in wei, instead of $gasPrice
+     * @param array<string, mixed> $extra                                       More body params, for ones this method doesn't name yet
+     * @return array{txId: string, ...}
+     * @throws BitGoException
+     */
+    public function forwardTokens(
+        string $address,
+        ?string $tokenName = null,
+        ?bool $forceFlush = null,
+        ?int $gasPrice = null,
+        ?array $eip1559 = null,
+        array $extra = [],
+    ): array {
+        /** @var array{txId: string, ...} $forwarded BitGo's documented shape, not checked at runtime */
+        $forwarded = $this->http->post('{coin}/wallet/{walletId}/address/{address}/tokenforward', [...$this->path(), 'address' => $address], [
+            'tokenName' => $tokenName,
+            'forceFlush' => $forceFlush,
+            'gasPrice' => $gasPrice,
+            'eip1559' => $eip1559,
+        ], $extra);
+        return $forwarded;
+    }
+
+    /**
+     * Get a proof that the wallet owns a receive address, for Travel Rule checks.
+     *
+     * BTC trust wallets only, and BitGo has to set up your enterprise's VASP ID first.
+     *
+     * @param string $address               The address or its ID
+     * @param array<string, mixed> $extra   Query params, for ones this method doesn't name yet
+     * @return array{iou: bool, address?: string, signature?: string, prefix?: string, proofType?: string, auxProofData?: list<array{type: string, data: array<string, mixed>}>, ...}
+     * @throws BitGoException
+     */
+    public function getOwnershipProof(string $address, array $extra = []): array
+    {
+        /** @var array{iou: bool, address?: string, signature?: string, prefix?: string, proofType?: string, auxProofData?: list<array{type: string, data: array<string, mixed>}>, ...} $proof BitGo's documented shape, not checked at runtime */
+        $proof = $this->http->get('{coin}/wallet/{walletId}/address/{address}/proof', [...$this->path(), 'address' => $address], [], $extra);
+        return $proof;
+    }
+
+    /**
      * List the wallet's receive addresses. Sends nothing until you iterate, then one request per batch.
      *
      * Each item has the same shape as get() returns.
