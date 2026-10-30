@@ -17,6 +17,7 @@ declare(strict_types=1);
 namespace neto737\BitGoSDK;
 
 use neto737\BitGoSDK\Coin\BlockWebhooks;
+use neto737\BitGoSDK\Coin\Wallets;
 use neto737\BitGoSDK\Exception\InvalidArgumentException;
 use neto737\BitGoSDK\Internal\Http;
 use neto737\BitGoSDK\Internal\Path;
@@ -42,6 +43,14 @@ final class Coin
     {
         Path::check($id);
         return new Wallet($this->http, $this->code, $id);
+    }
+
+    /**
+     * Your wallets of this coin, to list them or find one by address. Sends no request.
+     */
+    public function wallets(): Wallets
+    {
+        return new Wallets($this->http, $this->code);
     }
 
     /**
