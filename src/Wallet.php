@@ -19,6 +19,7 @@ namespace neto737\BitGoSDK;
 use neto737\BitGoSDK\Exception\BitGoException;
 use neto737\BitGoSDK\Internal\Http;
 use neto737\BitGoSDK\Wallet\Addresses;
+use neto737\BitGoSDK\Wallet\Webhooks;
 
 /**
  * One wallet. It holds only the coin and the wallet ID, never the wallet's data, so nothing in it can go stale.
@@ -53,6 +54,14 @@ final class Wallet
     public function addresses(): Addresses
     {
         return new Addresses($this->http, $this->coin, $this->id);
+    }
+
+    /**
+     * The wallet's webhooks. Sends no request.
+     */
+    public function webhooks(): Webhooks
+    {
+        return new Webhooks($this->http, $this->coin, $this->id);
     }
 
     /**
