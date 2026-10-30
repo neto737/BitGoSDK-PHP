@@ -75,12 +75,14 @@ final class BitGo
     }
 
     /**
-     * A coin, by its BitGo code, for example 'btc', 'tbtc' or 'hteth'. Sends no request.
+     * A coin, by its BitGo code: CoinCode::TBTC, or any code as a string, for example 'tbtc' or 'ttao'. Sends no
+     * request.
      *
      * @throws InvalidArgumentException if $coin is empty, '.' or '..'
      */
-    public function coin(string $coin): Coin
+    public function coin(CoinCode|string $coin): Coin
     {
+        $coin = $coin instanceof CoinCode ? $coin->value : $coin;
         Path::check($coin);
         return new Coin($this->http, $coin);
     }
