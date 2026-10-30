@@ -26,6 +26,7 @@ use neto737\BitGoSDK\Exception\UnexpectedResponseException;
 use Psr\Http\Client\ClientExceptionInterface;
 use Psr\Http\Client\ClientInterface;
 use Psr\Http\Message\RequestFactoryInterface;
+use Psr\Http\Message\RequestInterface;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\StreamFactoryInterface;
 
@@ -35,18 +36,33 @@ use Psr\Http\Message\StreamFactoryInterface;
  * Path params fill the {name} placeholders of a path template. Params passed by name win over $extra, and null params
  * are never sent, so a method's defaults leave BitGo's defaults in place.
  *
+ * GET, PUT and DELETE requests are retried as the config's RetryPolicy says. POST requests are sent once.
+ *
  * @internal Not part of the public API. It may change or go away in any release.
  */
 final class Http
 {
+    // Sending one of these twice has the same effect as sending it once, so only these are retried.
+    private const IDEMPOTENT_METHODS = ['GET', 'PUT', 'DELETE'];
+
     private ?ResponseInterface $lastResponse = null;
 
+    /** @var \Closure(int): void */
+    private readonly \Closure $sleep;
+
+    /**
+     * @param (\Closure(int): void)|null $sleep    Waits the given milliseconds between attempts. Tests pass their own.
+     */
     public function __construct(
         private readonly Config $config,
         private readonly ClientInterface $client,
         private readonly RequestFactoryInterface $requestFactory,
         private readonly StreamFactoryInterface $streamFactory,
+        ?\Closure $sleep = null,
     ) {
+        $this->sleep = $sleep ?? static function (int $ms): void {
+            usleep($ms * 1000);
+        };
     }
 
     /**
@@ -150,23 +166,48 @@ final class Http
         if ($query !== []) {
             $url .= '?' . self::buildQuery($query);
         }
+        $json = $body === null ? null : self::encode($body);
+        $policy = $this->config->retryPolicy;
+        $idempotent = in_array($method, self::IDEMPOTENT_METHODS, true);
 
+        for ($attempt = 1; ; $attempt++) {
+            $canRetry = $idempotent && $attempt < $policy->maxAttempts;
+            $this->lastResponse = null;
+            try {
+                $response = $this->client->sendRequest($this->request($method, $url, $json));
+            } catch (ClientExceptionInterface $e) {
+                if (!$canRetry) {
+                    throw new TransportException($e);
+                }
+                ($this->sleep)($policy->backoffMs($attempt));
+                continue;
+            }
+
+            $this->lastResponse = $response;
+            $status = $response->getStatusCode();
+            $delay = $canRetry && ($status === 429 || $status >= 500) ? $policy->delayMs($attempt, $response->getHeaderLine('Retry-After')) : null;
+            if ($delay === null) {
+                return $response;
+            }
+            ($this->sleep)($delay);
+        }
+    }
+
+    /**
+     * A new request for each attempt, since sending one can consume its body stream.
+     */
+    private function request(string $method, string $url, ?string $json): RequestInterface
+    {
         $request = $this->requestFactory->createRequest($method, $url)
             ->withHeader('Authorization', 'Bearer ' . $this->config->accessToken)
             ->withHeader('Accept', 'application/json')
             ->withHeader('User-Agent', 'BitGoSDK-PHP/' . BitGo::VERSION);
-        if ($body !== null) {
+        if ($json !== null) {
             $request = $request
                 ->withHeader('Content-Type', 'application/json')
-                ->withBody($this->streamFactory->createStream(self::encode($body)));
+                ->withBody($this->streamFactory->createStream($json));
         }
-
-        $this->lastResponse = null;
-        try {
-            return $this->lastResponse = $this->client->sendRequest($request);
-        } catch (ClientExceptionInterface $e) {
-            throw new TransportException($e);
-        }
+        return $request;
     }
 
     /**

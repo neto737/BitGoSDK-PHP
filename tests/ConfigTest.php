@@ -6,6 +6,7 @@ namespace neto737\BitGoSDK\Tests;
 
 use neto737\BitGoSDK\Config;
 use neto737\BitGoSDK\Exception\InvalidArgumentException;
+use neto737\BitGoSDK\RetryPolicy;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 
@@ -47,6 +48,43 @@ final class ConfigTest extends TestCase
     {
         $this->expectException(InvalidArgumentException::class);
         new Config('t', $url);
+    }
+
+    public function testRetriesAreOffByDefault(): void
+    {
+        self::assertSame(1, Config::testnet('t')->retryPolicy->maxAttempts);
+        self::assertSame(1, RetryPolicy::none()->maxAttempts);
+    }
+
+    public function testWithRetryPolicyReturnsACopy(): void
+    {
+        $config = Config::testnet('t');
+        $policy = new RetryPolicy(maxAttempts: 4);
+        $retrying = $config->withRetryPolicy($policy);
+
+        self::assertSame($policy, $retrying->retryPolicy);
+        self::assertSame(1, $config->retryPolicy->maxAttempts);
+        self::assertSame('t', $retrying->accessToken);
+        self::assertSame(Config::TESTNET_URL, $retrying->baseUrl);
+    }
+
+    /**
+     * @return array<string, array{int, int, int}>
+     */
+    public static function badPolicies(): array
+    {
+        return [
+            'no attempts' => [0, 500, 30_000],
+            'negative base delay' => [3, -1, 30_000],
+            'negative max delay' => [3, 500, -1],
+        ];
+    }
+
+    #[DataProvider('badPolicies')]
+    public function testBadRetryPolicyIsRejected(int $maxAttempts, int $baseDelayMs, int $maxDelayMs): void
+    {
+        $this->expectException(InvalidArgumentException::class);
+        new RetryPolicy($maxAttempts, $baseDelayMs, $maxDelayMs);
     }
 
     public function testDumpsHideTheAccessToken(): void
