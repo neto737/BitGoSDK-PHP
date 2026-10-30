@@ -115,6 +115,20 @@ final class Http
     }
 
     /**
+     * A DELETE with a JSON body, which is how BitGo's remove endpoints, such as removing a webhook, take their params.
+     *
+     * @param array<string, string> $path
+     * @param array<string, mixed> $body
+     * @param array<string, mixed> $extra
+     * @return array<string, mixed>
+     * @throws BitGoException
+     */
+    public function delete(string $template, array $path, array $body = [], array $extra = []): array
+    {
+        return self::decode($this->send('DELETE', $template, $path, [], self::merge($body, $extra)));
+    }
+
+    /**
      * @param array<string, string> $path
      * @param array<string, mixed> $query
      * @param array<string, mixed>|null $body    null sends no body at all

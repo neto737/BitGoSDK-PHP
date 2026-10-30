@@ -16,6 +16,7 @@ declare(strict_types=1);
 
 namespace neto737\BitGoSDK;
 
+use neto737\BitGoSDK\Coin\BlockWebhooks;
 use neto737\BitGoSDK\Exception\InvalidArgumentException;
 use neto737\BitGoSDK\Internal\Http;
 use neto737\BitGoSDK\Internal\Path;
@@ -41,5 +42,13 @@ final class Coin
     {
         Path::check($id);
         return new Wallet($this->http, $this->code, $id);
+    }
+
+    /**
+     * Your webhooks on this coin that aren't tied to a wallet, such as new-block notifications. Sends no request.
+     */
+    public function blockWebhooks(): BlockWebhooks
+    {
+        return new BlockWebhooks($this->http, $this->code);
     }
 }
