@@ -38,12 +38,12 @@ use Psr\Http\Message\StreamFactoryInterface;
  * $address = $bitgo->coin('tbtc')->wallet($walletId)->addresses()->create(label: 'Deposit 42');
  * ```
  */
-final class BitGo
+final readonly class BitGo
 {
     // Sent in the User-Agent header. Bump it with every release.
-    public const VERSION = '3.0.0-dev';
+    public const string VERSION = '3.0.0-dev';
 
-    private readonly Http $http;
+    private Http $http;
 
     /**
      * Any PSR-18 HTTP client works. Timeouts, proxies and TLS settings belong to the client, so configure them there.

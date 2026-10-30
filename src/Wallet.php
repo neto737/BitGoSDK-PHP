@@ -24,12 +24,12 @@ use neto737\BitGoSDK\Wallet\Webhooks;
 /**
  * One wallet. It holds only the coin and the wallet ID, never the wallet's data, so nothing in it can go stale.
  */
-final class Wallet
+final readonly class Wallet
 {
     /**
      * @internal Use Coin::wallet().
      */
-    public function __construct(private readonly Http $http, public readonly string $coin, public readonly string $id)
+    public function __construct(private Http $http, public string $coin, public string $id)
     {
     }
 

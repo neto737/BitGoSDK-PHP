@@ -25,12 +25,12 @@ use neto737\BitGoSDK\Paginator;
  *
  * To work with one wallet, take its ID from here and use Coin::wallet($id).
  */
-final class Wallets
+final readonly class Wallets
 {
     /**
      * @internal Use Coin::wallets().
      */
-    public function __construct(private readonly Http $http, private readonly string $coin)
+    public function __construct(private Http $http, private string $coin)
     {
     }
 

@@ -12,8 +12,8 @@ use PHPUnit\Framework\Attributes\DataProvider;
 
 final class AddressesTest extends TestCase
 {
-    private const URL = self::API . 'tbtc/wallet/w1/address';
-    private const XRP_TAGGED = 'rLHzPsX6oXkzU2qL12kHCH8G8cnZv1rBJh?dt=123';
+    private const string URL = self::API . 'tbtc/wallet/w1/address';
+    private const string XRP_TAGGED = 'rLHzPsX6oXkzU2qL12kHCH8G8cnZv1rBJh?dt=123';
 
     private function addresses(): Addresses
     {
@@ -141,11 +141,11 @@ final class AddressesTest extends TestCase
     public static function verbsWithAnEmptyAddress(): array
     {
         return [
-            'get' => [static fn (Addresses $addresses) => $addresses->get('')],
-            'update' => [static fn (Addresses $addresses) => $addresses->update('')],
-            'deploy' => [static fn (Addresses $addresses) => $addresses->deploy('')],
-            'forwardTokens' => [static fn (Addresses $addresses) => $addresses->forwardTokens('')],
-            'getOwnershipProof' => [static fn (Addresses $addresses) => $addresses->getOwnershipProof('')],
+            'get' => [static fn (Addresses $addresses): array => $addresses->get('')],
+            'update' => [static fn (Addresses $addresses): array => $addresses->update('')],
+            'deploy' => [static fn (Addresses $addresses): array => $addresses->deploy('')],
+            'forwardTokens' => [static fn (Addresses $addresses): array => $addresses->forwardTokens('')],
+            'getOwnershipProof' => [static fn (Addresses $addresses): array => $addresses->getOwnershipProof('')],
         ];
     }
 

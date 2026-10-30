@@ -22,7 +22,7 @@ use PHPUnit\Framework\Attributes\DataProvider;
  */
 final class HttpTest extends TestCase
 {
-    private const PATH = ['coin' => 'tbtc', 'walletId' => 'w1'];
+    private const array PATH = ['coin' => 'tbtc', 'walletId' => 'w1'];
 
     public function testHeaders(): void
     {

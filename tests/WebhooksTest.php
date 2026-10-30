@@ -11,8 +11,8 @@ use neto737\BitGoSDK\Wallet\Webhooks;
 
 final class WebhooksTest extends TestCase
 {
-    private const URL = self::API . 'tbtc/wallet/w1/webhooks';
-    private const HOOK = 'https://example.com/bitgo';
+    private const string URL = self::API . 'tbtc/wallet/w1/webhooks';
+    private const string HOOK = 'https://example.com/bitgo';
 
     private function webhooks(): Webhooks
     {

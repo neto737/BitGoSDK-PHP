@@ -60,7 +60,8 @@
         "php-http/httplug": "^2.4.1",
         "php-http/mock-client": "^1.6.1",
         "phpstan/phpstan": "^2.1",
-        "phpunit/phpunit": "^11.5"
+        "phpunit/phpunit": "^11.5",
+        "rector/rector": "^2.8"
     },
 
     "scripts": {
@@ -68,8 +69,11 @@
         "analyse": "phpstan analyse",
         "cs": "php-cs-fixer fix --dry-run --diff",
         "cs:fix": "php-cs-fixer fix",
+        "rector": "rector process --dry-run",
+        "rector:fix": "rector process",
         "check": [
             "@cs",
+            "@rector",
             "@analyse",
             "@test"
         ]
@@ -80,7 +84,9 @@
         "analyse": "Run PHPStan static analysis.",
         "cs": "Check the coding standard without changing files.",
         "cs:fix": "Fix coding standard violations.",
-        "check": "Run the coding standard check, static analysis and tests."
+        "rector": "Check for Rector changes without changing files.",
+        "rector:fix": "Apply Rector changes.",
+        "check": "Run the coding standard and Rector checks, static analysis and tests."
     },
 
     "extra": {

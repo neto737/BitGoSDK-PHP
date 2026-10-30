@@ -26,12 +26,12 @@ use neto737\BitGoSDK\Paginator;
  * Wherever a method takes an address, it also takes the address ID. XRP and XLM addresses can carry their destination
  * tag or memo ID, as in 'r…?dt=123' or 'G…?memoId=123'.
  */
-final class Addresses
+final readonly class Addresses
 {
     /**
      * @internal Use Wallet::addresses().
      */
-    public function __construct(private readonly Http $http, private readonly string $coin, private readonly string $walletId)
+    public function __construct(private Http $http, private string $coin, private string $walletId)
     {
     }
 
@@ -39,7 +39,6 @@ final class Addresses
      * Create a receive address.
      *
      * @param int|null $chain               The address type, as a chain number. Leave null to let BitGo use the wallet's default.
-     * @param string|null $label
      * @param bool|null $lowPriority        Account-based coins: deploy the address later, when it's cheaper
      * @param int|null $forwarderVersion    EVM coins: the forwarder contract version
      * @param string|null $onToken          Coins with tokens: create the address for this token
@@ -88,7 +87,6 @@ final class Addresses
      * Update a receive address.
      *
      * @param string $address               The address or its ID
-     * @param string|null $label
      * @param array<string, mixed> $extra   More body params, for ones this method doesn't name yet
      * @return array{id: string, address: string, coin: string, wallet: string, chain: int, index: int, label?: string, ...}
      * @throws BitGoException

@@ -27,7 +27,7 @@ use neto737\BitGoSDK\Internal\Http;
  *
  * @implements \IteratorAggregate<int, array<string, mixed>>
  */
-final class Paginator implements \IteratorAggregate
+final readonly class Paginator implements \IteratorAggregate
 {
     /**
      * @internal Returned by list methods, such as Addresses::list().
@@ -37,12 +37,12 @@ final class Paginator implements \IteratorAggregate
      * @param string $itemsKey    The key that holds the items in each batch, for example 'addresses'
      */
     public function __construct(
-        private readonly Http $http,
-        private readonly string $template,
-        private readonly array $path,
-        private readonly array $query,
-        private readonly array $extra,
-        private readonly string $itemsKey,
+        private Http $http,
+        private string $template,
+        private array $path,
+        private array $query,
+        private array $extra,
+        private string $itemsKey,
     ) {
     }
 

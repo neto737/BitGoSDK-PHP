@@ -33,12 +33,13 @@ cd BitGoSDK-PHP
 composer install
 ```
 
-`composer install` also installs the dev tools: PHPUnit, PHPStan and PHP-CS-Fixer. On `main` it also installs a mock HTTP client and PSR-7 factories for the tests.
+`composer install` also installs the dev tools: PHPUnit, PHPStan and PHP-CS-Fixer. On `main` it also installs Rector, and a mock HTTP client and PSR-7 factories for the tests.
 
 ## Coding style
 
 - Follow the style of the surrounding code: 4-space indentation, LF line endings, UTF-8 and a final newline. [.editorconfig](.editorconfig) sets these up for most editors.
 - Code must follow [PSR-12](https://www.php-fig.org/psr/psr-12/). CI enforces it with PHP-CS-Fixer. Run `composer cs:fix` before you push. On `main`, every file also starts with `declare(strict_types=1)`.
+- On `main`, CI also runs [Rector](https://getrector.com/) as a dry run with the rules in [rector.php](rector.php): PHP 8.3 syntax, dead code, code quality and type declarations. Run `composer rector:fix` to apply what it finds, then `composer cs:fix`.
 - 2.x changes must not break the public API. Don't rename or remove public methods or reorder their parameters. Widening a type (for example `int` to `int|string`) is fine. Breaking changes go to 3.x.
 - Code must still run on the minimum PHP version in `composer.json`. Don't use syntax or functions newer than that.
 - Give every public method a docblock with a short description, `@param` lines and `@return`, like the existing methods.
@@ -56,7 +57,9 @@ CI runs these checks on every pull request. PHPUnit and `php -l` run on every su
    composer cs
    ```
 
-   On `main`, PHPStan runs at level 8 with no baseline. On `2.x`, it runs at level 6 against `phpstan-baseline.neon`. Don't add new entries to that baseline.
+   On `main`, `composer check` runs all of these plus `composer rector`.
+
+   On `main`, PHPStan runs at level 8 with no baseline, and line coverage must stay at 100%: CI fails below it, and Codecov reports the coverage of each pull request. On `2.x`, it runs at level 6 against `phpstan-baseline.neon`. Don't add new entries to that baseline.
 
    Tests never touch the network. On `main`, tests extend `Tests\TestCase`, which wires the client to a mock PSR-18 client: queue responses with `respond()`, then check what was sent with `requests()`, `lastRequest()` and `assertRequest()`. Every new endpoint needs a test of its method, URL and body. On `2.x`, see the testing notes in that branch's CONTRIBUTING.md.
 

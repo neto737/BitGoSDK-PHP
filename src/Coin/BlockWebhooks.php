@@ -26,12 +26,12 @@ use neto737\BitGoSDK\Paginator;
  * Their type is 'block', which fires when BitGo sees a new block on the coin's network, or 'wallet_confirmation',
  * which fires when a wallet of the coin is initialized.
  */
-final class BlockWebhooks
+final readonly class BlockWebhooks
 {
     /**
      * @internal Use Coin::blockWebhooks().
      */
-    public function __construct(private readonly Http $http, private readonly string $coin)
+    public function __construct(private Http $http, private string $coin)
     {
     }
 
@@ -40,7 +40,6 @@ final class BlockWebhooks
      *
      * @param string $type                  'block' or 'wallet_confirmation'
      * @param string $url                   Where BitGo sends the notification
-     * @param string|null $label
      * @param int|null $numConfirmations    Notify after this many confirmations
      * @param array<string, mixed> $extra   More body params, for ones this method doesn't name yet
      * @return array{id: string, coin: string, url: string, type?: string, label?: string, numConfirmations?: int, state?: string, ...}
@@ -74,7 +73,6 @@ final class BlockWebhooks
      * Remove the webhooks with this type and URL, or only the one with this ID among them.
      *
      * @param string $type                  'block' or 'wallet_confirmation'
-     * @param string $url
      * @param string|null $id               The webhook ID, as add() and list() return it
      * @param array<string, mixed> $extra   More body params, for ones this method doesn't name yet
      * @return array{removed: int, ...}     How many webhooks were removed
@@ -94,7 +92,6 @@ final class BlockWebhooks
     /**
      * Send a test notification to the webhook's URL.
      *
-     * @param string $webhookId
      * @param string|null $blockId          The block to notify about. Leave null to let BitGo choose.
      * @param array<string, mixed> $extra   More body params, for ones this method doesn't name yet
      * @return array{webhookNotifications: list<array<string, mixed>>, ...}

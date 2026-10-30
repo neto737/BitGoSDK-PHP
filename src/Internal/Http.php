@@ -44,7 +44,7 @@ use Psr\Http\Message\StreamFactoryInterface;
 final class Http
 {
     // Sending one of these twice has the same effect as sending it once, so only these are retried.
-    private const IDEMPOTENT_METHODS = ['GET', 'PUT', 'DELETE'];
+    private const array IDEMPOTENT_METHODS = ['GET', 'PUT', 'DELETE'];
 
     private ?ResponseInterface $lastResponse = null;
 
@@ -100,7 +100,7 @@ final class Http
     {
         $response = $this->send('GET', $template, $path, self::merge($query, $extra), null);
         $batch = self::decode($response);
-        $invalid = static fn () => new UnexpectedResponseException('BitGo returned a batch whose "' . $itemsKey . '" isn\'t a list of objects.', $response, $batch);
+        $invalid = static fn (): UnexpectedResponseException => new UnexpectedResponseException('BitGo returned a batch whose "' . $itemsKey . '" isn\'t a list of objects.', $response, $batch);
         $raw = $batch[$itemsKey] ?? [];
         if (!is_array($raw) || !array_is_list($raw)) {
             throw $invalid();
@@ -220,7 +220,7 @@ final class Http
      */
     private static function merge(array $params, array $extra): array
     {
-        $notNull = static fn ($value) => $value !== null;
+        $notNull = static fn ($value): bool => $value !== null;
         return array_merge(array_filter($extra, $notNull), array_filter($params, $notNull));
     }
 

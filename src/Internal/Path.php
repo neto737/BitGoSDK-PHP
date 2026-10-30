@@ -60,7 +60,7 @@ final class Path
      */
     public static function check(string $value): void
     {
-        if ($value === '' || $value === '.' || $value === '..') {
+        if (in_array($value, ['', '.', '..'], true)) {
             throw new InvalidArgumentException('Invalid ID in the request path: ' . var_export($value, true));
         }
     }
