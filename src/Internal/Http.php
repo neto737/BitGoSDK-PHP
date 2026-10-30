@@ -16,6 +16,7 @@ declare(strict_types=1);
 
 namespace neto737\BitGoSDK\Internal;
 
+use neto737\BitGoSDK\Amount;
 use neto737\BitGoSDK\BitGo;
 use neto737\BitGoSDK\Config;
 use neto737\BitGoSDK\Exception\ApiException;
@@ -224,13 +225,18 @@ final class Http
     }
 
     /**
-     * A query string that sends booleans as "true"/"false" instead of http_build_query's 1/0.
+     * A query string that sends booleans as "true"/"false" instead of http_build_query's 1/0, and an Amount as its
+     * base units instead of its properties.
      *
      * @param array<string, mixed> $params
      */
     private static function buildQuery(array $params): string
     {
-        return http_build_query(array_map(static fn ($value) => is_bool($value) ? ($value ? 'true' : 'false') : $value, $params));
+        return http_build_query(array_map(static fn ($value) => match (true) {
+            is_bool($value) => $value ? 'true' : 'false',
+            $value instanceof Amount => $value->baseUnits,
+            default => $value,
+        }, $params));
     }
 
     /**
