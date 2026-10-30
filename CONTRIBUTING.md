@@ -43,6 +43,7 @@ composer install
 - 2.x changes must not break the public API. Don't rename or remove public methods or reorder their parameters. Widening a type (for example `int` to `int|string`) is fine. Breaking changes go to 3.x.
 - Code must still run on the minimum PHP version in `composer.json`. Don't use syntax or functions newer than that.
 - Give every public method a docblock with a short description, `@param` lines and `@return`, like the existing methods.
+- On `main`, the design decisions behind the 3.0 core are written down as [architecture decision records](docs/adr/). Read the relevant one before changing how something works, and add one for a change that sets a new rule (see [docs/adr/README.md](docs/adr/README.md)).
 - On `main`, follow the 3.0 structure: methods named after a thing (`coin()`, `wallet()`, `addresses()`) only navigate and never send a request. Methods named after an action send exactly one request (or, for `list()`, one per batch). Each action takes its params as named arguments, plus `array $extra = []` for params the SDK doesn't name yet, and returns BitGo's response as an array. Document the main fields with an open array shape such as `@return array{id: string, label?: string, ...}`.
 
 ## Running tests
