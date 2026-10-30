@@ -39,12 +39,22 @@ use Psr\Http\Message\StreamFactoryInterface;
  */
 final class Http
 {
+    private ?ResponseInterface $lastResponse = null;
+
     public function __construct(
         private readonly Config $config,
         private readonly ClientInterface $client,
         private readonly RequestFactoryInterface $requestFactory,
         private readonly StreamFactoryInterface $streamFactory,
     ) {
+    }
+
+    /**
+     * The response to the latest request sent, or null before the first one and after one that got no response.
+     */
+    public function lastResponse(): ?ResponseInterface
+    {
+        return $this->lastResponse;
     }
 
     /**
@@ -151,8 +161,9 @@ final class Http
                 ->withBody($this->streamFactory->createStream(self::encode($body)));
         }
 
+        $this->lastResponse = null;
         try {
-            return $this->client->sendRequest($request);
+            return $this->lastResponse = $this->client->sendRequest($request);
         } catch (ClientExceptionInterface $e) {
             throw new TransportException($e);
         }

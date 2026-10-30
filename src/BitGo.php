@@ -24,6 +24,7 @@ use neto737\BitGoSDK\Internal\Http;
 use neto737\BitGoSDK\Internal\Path;
 use Psr\Http\Client\ClientInterface;
 use Psr\Http\Message\RequestFactoryInterface;
+use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\StreamFactoryInterface;
 
 /**
@@ -82,5 +83,24 @@ final class BitGo
     {
         Path::check($coin);
         return new Coin($this->http, $coin);
+    }
+
+    /**
+     * The HTTP response to the latest request this client sent, for its status and headers. Verbs return only the
+     * decoded body, so read this right after the call.
+     *
+     * It is shared by every coin and wallet you got from this client. After an error it is the error response, the
+     * same one as ApiException::getResponse(). While you iterate a list(), it is the latest batch fetched.
+     *
+     * ```php
+     * $address = $wallet->addresses()->create(label: 'Deposit 42');
+     * $date = $bitgo->lastResponse()?->getHeaderLine('Date');
+     * ```
+     *
+     * @return ResponseInterface|null null before the first request, and after a request that got no response, such as a network error
+     */
+    public function lastResponse(): ?ResponseInterface
+    {
+        return $this->http->lastResponse();
     }
 }
