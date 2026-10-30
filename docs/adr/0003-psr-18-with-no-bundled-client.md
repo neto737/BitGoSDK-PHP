@@ -14,7 +14,8 @@ PSR-18 (`psr/http-client`) and PSR-17 (`psr/http-factory`) define a client and f
 ## Decision
 
 - **The SDK depends only on the PSR-18 and PSR-17 interfaces.** It requires `psr/http-client-implementation` and `psr/http-factory-implementation`, so Composer insists that one is installed, but it doesn't choose which.
-- **The caller may pass a client and factories** to `new BitGo(...)`. If they don't, `php-http/discovery` finds the ones installed in the project, such as Guzzle or Symfony HttpClient. The discovery Composer plugin stays disabled, so nothing is installed behind the caller's back.
+- **The caller may pass a client and factories** to `new BitGo(...)`. If they don't, `php-http/discovery` finds the ones installed in the project at runtime, such as Guzzle or Symfony HttpClient.
+- **Installing one is the application's choice.** `php-http/discovery` is also an optional Composer plugin, and Composer asks the application whether to allow it. If allowed and the project has no PSR-18 client, it installs one (Guzzle or Symfony HttpClient) and adds it to the application's `composer.json`. If not, the application installs a client itself. This repository disables the plugin for its own development install only, since Composer reads `allow-plugins` from the root package alone.
 - **The SDK never builds or configures a client.** `Config` has no timeout, proxy, TLS or CA bundle options. Those are set on the client the caller passes.
 - **`Config` accepts only `https://` base URLs**, since the access token is sent with every request.
 - **The SDK never writes output.** No debug printing and no logging of its own.
