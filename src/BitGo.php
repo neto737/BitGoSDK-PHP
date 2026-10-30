@@ -41,7 +41,7 @@ use Psr\Http\Message\StreamFactoryInterface;
 final readonly class BitGo
 {
     // Sent in the User-Agent header. Bump it with every release.
-    public const string VERSION = '3.0.0-dev';
+    public const string VERSION = '3.0.0-alpha.1';
 
     private Http $http;
 

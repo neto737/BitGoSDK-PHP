@@ -8,7 +8,9 @@ Entries for 2.2.3 and earlier were reconstructed from the git history in October
 
 ## [Unreleased]
 
-3.0 is in development on `main`. 2.x fixes continue on the `2.x` branch.
+## [3.0.0-alpha.1] - 2026-10-30
+
+The first pre-release of 3.0, a new client written from scratch. It covers addresses, wallets and webhooks, and its API may still change before 3.0.0. It can't send coins yet: BitGo Express, transfers and sending come in the 3.0 betas, so stay on 2.3.x for production. 2.x fixes continue on the `2.x` branch.
 
 ### Added
 
@@ -29,7 +31,7 @@ Entries for 2.2.3 and earlier were reconstructed from the git history in October
 ### Changed
 
 - **PHP 8.3 or later is required.**
-- `ext-curl` and `composer/ca-bundle` are no longer dependencies. TLS, timeouts and proxies are configured on your HTTP client.
+- `ext-curl` and `composer/ca-bundle` are no longer dependencies. TLS, timeouts and proxies are configured on your HTTP client. The SDK sets no timeout, and Guzzle's default is none, so pass a client with one (see the README).
 - The base URL must use `https://`, since the access token is sent with every request.
 
 ### Removed
@@ -272,7 +274,8 @@ These still work and will be removed in 3.0.
 
 - First release on Packagist: a BitGo API v1 client for wallets, addresses, labels, keychains and transactions. The `1.0` tag points to the same commit.
 
-[Unreleased]: https://github.com/neto737/BitGoSDK-PHP/compare/2.3.1...HEAD
+[Unreleased]: https://github.com/neto737/BitGoSDK-PHP/compare/3.0.0-alpha.1...HEAD
+[3.0.0-alpha.1]: https://github.com/neto737/BitGoSDK-PHP/compare/2.3.1...3.0.0-alpha.1
 [2.3.1]: https://github.com/neto737/BitGoSDK-PHP/compare/2.3.0...2.3.1
 [2.3.0]: https://github.com/neto737/BitGoSDK-PHP/compare/2.2.3...2.3.0
 [2.2.3]: https://github.com/neto737/BitGoSDK-PHP/compare/2.2.2...2.2.3
