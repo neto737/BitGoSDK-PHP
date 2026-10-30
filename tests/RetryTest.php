@@ -21,7 +21,7 @@ use PHPUnit\Framework\Attributes\DataProvider;
  */
 final class RetryTest extends TestCase
 {
-    private const PATH = ['coin' => 'tbtc', 'walletId' => 'w1'];
+    private const array PATH = ['coin' => 'tbtc', 'walletId' => 'w1'];
 
     /** @var list<int> Each wait between attempts, in milliseconds */
     private array $sleeps = [];

@@ -55,6 +55,8 @@ jobs:
           coverage: none
       - uses: ramsey/composer-install@v4
       - run: vendor/bin/php-cs-fixer fix --dry-run --diff --show-progress=none
+      - name: Rector
+        run: vendor/bin/rector process --dry-run --no-progress-bar
 
   phpunit:
     name: PHPUnit (PHP ${{ matrix.php }}, ${{ matrix.dependencies }})
@@ -76,6 +78,23 @@ jobs:
         with:
           dependency-versions: ${{ matrix.dependencies }}
       - run: vendor/bin/phpunit --coverage-clover=coverage.xml
+      # Keep MIN_COVERAGE in step with the targets in codecov.yml.
+      - name: Check coverage
+        if: matrix.php == '8.4' && matrix.dependencies == 'highest'
+        env:
+          MIN_COVERAGE: 100
+        run: |
+          php -r '
+            $metrics = simplexml_load_file("coverage.xml")->project->metrics;
+            $covered = (int) $metrics["coveredstatements"];
+            $total = (int) $metrics["statements"];
+            $min = (int) getenv("MIN_COVERAGE");
+            printf("Line coverage: %d of %d lines, minimum %d%%\n", $covered, $total, $min);
+            if ($covered * 100 < $total * $min) {
+                fwrite(STDERR, "::error::Line coverage is below the {$min}% minimum.\n");
+                exit(1);
+            }
+          '
       - name: Upload coverage
         if: matrix.php == '8.4' && matrix.dependencies == 'highest'
         uses: codecov/codecov-action@v7

@@ -10,7 +10,7 @@ use neto737\BitGoSDK\Exception\NotFoundException;
 
 final class WalletsTest extends TestCase
 {
-    private const URL = self::API . 'tbtc/wallet';
+    private const string URL = self::API . 'tbtc/wallet';
 
     private function wallets(): Wallets
     {

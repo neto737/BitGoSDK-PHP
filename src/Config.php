@@ -23,8 +23,8 @@ use neto737\BitGoSDK\Exception\InvalidArgumentException;
  */
 final readonly class Config
 {
-    public const PRODUCTION_URL = 'https://app.bitgo.com/api/v2/';
-    public const TESTNET_URL = 'https://app.bitgo-test.com/api/v2/';
+    public const string PRODUCTION_URL = 'https://app.bitgo.com/api/v2/';
+    public const string TESTNET_URL = 'https://app.bitgo-test.com/api/v2/';
 
     /** The API base URL, always ending in '/'. */
     public string $baseUrl;

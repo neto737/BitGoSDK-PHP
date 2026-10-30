@@ -25,12 +25,12 @@ use neto737\BitGoSDK\Internal\Path;
 /**
  * One coin, for example 'tbtc'. Everything under /api/v2/{coin}/ starts here.
  */
-final class Coin
+final readonly class Coin
 {
     /**
      * @internal Use BitGo::coin().
      */
-    public function __construct(private readonly Http $http, public readonly string $code)
+    public function __construct(private Http $http, public string $code)
     {
     }
 

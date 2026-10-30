@@ -27,12 +27,12 @@ use neto737\BitGoSDK\Paginator;
  * BitGo POSTs to the webhook's URL when the event happens, for example a 'transfer' or a 'pendingapproval'. Anyone
  * can POST to that URL, so treat the notification as a hint and fetch the transfer from BitGo before acting on it.
  */
-final class Webhooks
+final readonly class Webhooks
 {
     /**
      * @internal Use Wallet::webhooks().
      */
-    public function __construct(private readonly Http $http, private readonly string $coin, private readonly string $walletId)
+    public function __construct(private Http $http, private string $coin, private string $walletId)
     {
     }
 
@@ -41,7 +41,6 @@ final class Webhooks
      *
      * @param string $type                                  The event, for example 'transfer', 'pendingapproval', 'address_confirmation' or 'txRequest'
      * @param string $url                                   Where BitGo sends the notification
-     * @param string|null $label
      * @param int|null $numConfirmations                    Notify after this many confirmations. With 0 or null, BitGo notifies when the transfer is first seen and when it confirms.
      * @param bool|null $allToken                           ETH and XLM: also notify on token transfers. Trade accounts need true.
      * @param bool|null $listenToFailureStates              Also notify when the transaction fails on-chain
@@ -95,8 +94,6 @@ final class Webhooks
     /**
      * Remove the webhooks that match every param you pass, for example one webhook by its ID, or by its type and URL.
      *
-     * @param string|null $type
-     * @param string|null $url
      * @param string|null $id                   The webhook ID, as add() and list() return it
      * @param array<string, mixed> $extra       More body params, for ones this method doesn't name yet
      * @return array{removed: int, ...}         How many webhooks were removed
@@ -122,7 +119,6 @@ final class Webhooks
      * Send a test notification to the webhook's URL. Pass the ID that matches the webhook's type, or
      * usePlaceholderData: true to let BitGo make up the data.
      *
-     * @param string $webhookId
      * @param string|null $transferId           'transfer' webhooks: a transfer on this wallet
      * @param string|null $pendingApprovalId    'pendingapproval' webhooks: a pending approval on this wallet
      * @param string|null $txRequestId          'txRequest' and 'txRequestTransaction' webhooks: a transaction request on this wallet

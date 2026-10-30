@@ -11,8 +11,8 @@ use neto737\BitGoSDK\Exception\NotFoundException;
 
 final class BlockWebhooksTest extends TestCase
 {
-    private const URL = self::API . 'tbtc/webhooks';
-    private const HOOK = 'https://example.com/bitgo';
+    private const string URL = self::API . 'tbtc/webhooks';
+    private const string HOOK = 'https://example.com/bitgo';
 
     private function webhooks(): BlockWebhooks
     {

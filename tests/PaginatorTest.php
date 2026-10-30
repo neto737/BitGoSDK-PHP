@@ -8,7 +8,7 @@ use neto737\BitGoSDK\Paginator;
 
 final class PaginatorTest extends TestCase
 {
-    private const URL = self::API . 'tbtc/wallet/w1/addresses';
+    private const string URL = self::API . 'tbtc/wallet/w1/addresses';
 
     /**
      * @param array<string, mixed> $query
@@ -37,7 +37,7 @@ final class PaginatorTest extends TestCase
         self::assertSame([['id' => '1'], ['id' => '2'], ['id' => '3'], ['id' => '4']], $items);
         self::assertSame(
             [self::URL . '?limit=2', self::URL . '?limit=2&prevId=p2', self::URL . '?limit=2&prevId=p3'],
-            array_map(static fn ($request) => (string) $request->getUri(), $this->requests())
+            array_map(static fn (\Psr\Http\Message\RequestInterface $request): string => (string) $request->getUri(), $this->requests())
         );
     }
 
@@ -78,7 +78,7 @@ final class PaginatorTest extends TestCase
 
         self::assertSame(
             [self::URL . '?prevId=p5', self::URL . '?prevId=p6'],
-            array_map(static fn ($request) => (string) $request->getUri(), $this->requests())
+            array_map(static fn (\Psr\Http\Message\RequestInterface $request): string => (string) $request->getUri(), $this->requests())
         );
     }
 }

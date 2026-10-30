@@ -1,0 +1,9 @@
+# Coverage on main stays at 100% of lines. CI fails below it too: see MIN_COVERAGE in .github/workflows/ci.yml.
+coverage:
+  status:
+    project:
+      default:
+        target: 100%
+    patch:
+      default:
+        target: 100%
