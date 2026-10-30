@@ -1,14 +1,14 @@
 <h1 align="center">BitGoSDK PHP</h1>
 
 <p align="center">
-  A PHP client for the <a href="https://www.bitgo.com">BitGo</a> API and BitGo Express.<br>
-  Manage wallets, addresses, transfers, policies and webhooks, and send coins, from your PHP code.
+  A PHP client for the <a href="https://www.bitgo.com">BitGo</a> API.<br>
+  Manage wallets, addresses and webhooks from your PHP code, with exact amounts and typed errors.
 </p>
 
 <p align="center">
-  <a href="https://packagist.org/packages/neto737/bitgosdk-php"><img src="https://img.shields.io/packagist/v/neto737/bitgosdk-php?label=packagist" alt="Latest Stable Version"></a>
+  <a href="https://packagist.org/packages/neto737/bitgosdk-php"><img src="https://img.shields.io/packagist/v/neto737/bitgosdk-php?include_prereleases&label=packagist" alt="Latest Version"></a>
   <a href="https://packagist.org/packages/neto737/bitgosdk-php"><img src="https://img.shields.io/packagist/dt/neto737/bitgosdk-php" alt="Total Downloads"></a>
-  <img src="https://img.shields.io/badge/php-%E2%89%A5%207.4-777BB4?logo=php&logoColor=white" alt="PHP 7.4 or later">
+  <img src="https://img.shields.io/badge/php-%E2%89%A5%208.3-777BB4?logo=php&logoColor=white" alt="PHP 8.3 or later">
   <a href="https://github.com/neto737/BitGoSDK-PHP/actions/workflows/ci.yml"><img src="https://github.com/neto737/BitGoSDK-PHP/actions/workflows/ci.yml/badge.svg?branch=main" alt="CI"></a>
   <a href="https://codecov.io/gh/neto737/BitGoSDK-PHP"><img src="https://codecov.io/gh/neto737/BitGoSDK-PHP/branch/main/graph/badge.svg" alt="Coverage"></a>
   <a href="LICENSE"><img src="https://img.shields.io/github/license/neto737/BitGoSDK-PHP" alt="License"></a>
@@ -16,187 +16,239 @@
 
 ---
 
-> [!NOTE]
-> **You're on `main`, where 3.0 is being built.** It isn't finished or released yet, and it needs PHP 8.3. The current stable release is 2.3.x. Its code is on the [`2.x` branch](https://github.com/neto737/BitGoSDK-PHP/tree/2.x), and the rest of this README describes 2.3.x.
+> [!WARNING]
+> **This is 3.0, an alpha pre-release.** It covers addresses, wallets and webhooks, and its API may still change before 3.0.0. It can't send coins yet: BitGo Express, transfers and sending come in the 3.0 betas.
+>
+> **For production, use 2.3.x.** Its code and README are on the [`2.x` branch](https://github.com/neto737/BitGoSDK-PHP/tree/2.x#readme), and `composer require neto737/bitgosdk-php` still installs it.
 
 ## Features
 
-- **Two clients:** `BitGoSDK` talks to the BitGo API for wallets, addresses, transfers, keychains, policies, sharing, approvals and webhooks. `BitGoExpress` talks to your own [BitGo Express](#bitgo-express) instance for anything that needs your keys, such as creating wallets and sending coins.
-- **Any BitGo coin,** mainnet or testnet, with `CurrencyCode` constants for 95 coins and tokens and `AddressType` constants for every UTXO address type.
-- **Exact amounts:** pass an `int` or a string of digits, and amounts are always sent as strings. `toBaseUnits()` and `fromBaseUnits()` convert at any number of decimals without floats, so 18-decimal ETH amounts don't overflow.
-- **Errors you can check:** a failed call returns `['error' => …, 'status' => …]` instead of throwing, so an `isset($r['error'])` check is all you need.
-- **TLS verification on by default,** against the system CA store, with a custom CA option for Express or a TLS-inspecting proxy.
-- **Request timeouts,** opt-in IPv4 forcing and binding to a local IP.
-- **Plain PHP arrays** as results. The only dependencies are `ext-curl` and `composer/ca-bundle`.
-- Tested on PHP 7.4 to 8.5.
+- **Reads like BitGo's API:** `$bitgo->coin('tbtc')->wallet($id)->addresses()->create()`. Methods named after a thing only navigate. Methods named after an action send one request.
+- **Any PSR-18 HTTP client,** such as Guzzle or Symfony HttpClient. Timeouts, proxies and TLS settings stay on your client.
+- **Typed exceptions** for every failure, with the status, BitGo's error name, the request ID and the response.
+- **Exact amounts:** `Amount` converts between `'0.5'` BTC and `'50000000'` satoshis with no floats, so 18-decimal amounts don't overflow.
+- **Lazy pagination:** `list()` fetches the next batch as you iterate.
+- **Opt-in retries** for reads and updates, with backoff and `Retry-After`. Requests that create or send are never retried.
+- **Plain arrays** as results, with their main fields documented as array shapes for your IDE and PHPStan.
+- Tested on PHP 8.3 to 8.5, with 100% line coverage.
 
 ## Requirements
 
-- PHP 7.4 or later, with the cURL extension
+- PHP 8.3 or later
+- A PSR-18 HTTP client and PSR-17 factories, such as [Guzzle](https://docs.guzzlephp.org/) or [Symfony HttpClient](https://symfony.com/doc/current/http_client.html)
 - A BitGo account and an [access token](https://developers.bitgo.com/docs/get-started-access-tokens)
-- A [BitGo Express](#bitgo-express) instance, version 14.1.3 or later, for anything that needs your keys
 
 ## Installation
 
+Install the alpha together with an HTTP client:
+
 ```sh
-composer require neto737/bitgosdk-php
+composer require neto737/bitgosdk-php:^3.0@alpha guzzlehttp/guzzle
 ```
+
+If your project already has a PSR-18 client, leave `guzzlehttp/guzzle` out. The SDK finds the installed one with [`php-http/discovery`](https://github.com/php-http/discovery).
+
+Composer may ask whether to trust the `php-http/discovery` plugin. If you allow it and your project has no PSR-18 client, it installs one for you and adds it to your `composer.json`. If you don't, install a client yourself as above.
 
 ## Quick start
 
 ```php
-use neto737\BitGoSDK\BitGoExpress;
-use neto737\BitGoSDK\BitGoSDK;
-use neto737\BitGoSDK\Enum\CurrencyCode;
+use neto737\BitGoSDK\BitGo;
+use neto737\BitGoSDK\Config;
 
-// Calls that don't need your keys go straight to BitGo. The third argument selects testnet.
-$bitgo = new BitGoSDK('YOUR_ACCESS_TOKEN', CurrencyCode::BITCOIN_TESTNET, true);
-$bitgo->walletId = 'YOUR_WALLET_ID';
+$bitgo = new BitGo(Config::testnet('YOUR_ACCESS_TOKEN'));   // Config::production() for mainnet
+$wallet = $bitgo->coin('tbtc')->wallet('YOUR_WALLET_ID');   // sends no request
 
-$wallet = $bitgo->getWallet();              // ['id' => '...', 'label' => '...', 'balanceString' => '...', ...]
-$address = $bitgo->createWalletAddress();   // ['address' => '2N...', 'chain' => 10, ...]
+$data = $wallet->get();                                     // GET /api/v2/tbtc/wallet/{id}
+echo $data['label'], ': ', $data['balanceString'] ?? '0', "\n";
 
-// Sending needs an unlocked session. The OTP is always 000000 on testnet.
-$unlock = $bitgo->unlockSession('000000');
-if (isset($unlock['error'])) {
-    exit($unlock['error']);
+$address = $wallet->addresses()->create(label: 'Deposit 42');
+echo $address['address'], "\n";
+
+foreach ($wallet->addresses()->list(labelContains: 'Deposit') as $address) {
+    echo $address['address'], ' ', $address['label'] ?? '', "\n";
 }
-
-// Anything that signs goes through your BitGo Express instance
-$express = new BitGoExpress('localhost', 3080, CurrencyCode::BITCOIN_TESTNET);
-$express->accessToken = 'YOUR_ACCESS_TOKEN';
-$express->walletId = 'YOUR_WALLET_ID';
-
-$amount = BitGoSDK::toSatoshi('0.001');     // 100000. Pass BTC amounts as strings to avoid float rounding.
-$tx = $express->sendTransaction('DESTINATION_ADDRESS', $amount, 'YOUR_WALLET_PASSPHRASE');
 ```
 
-More examples are in [`examples/`](examples/).
+`wallet()` only holds the coin and the wallet ID, so `get()` fetches fresh data every time you call it.
 
-> [!NOTE]
-> Requests to Express carry wallet passphrases and private keys. Use plain `http://` only when Express runs on the same host. Otherwise see [Use TLS unless Express is on the same host](#use-tls-unless-express-is-on-the-same-host).
+## Setting a timeout
+
+**The SDK doesn't set a timeout, and Guzzle's default is none**, so a stuck connection can block your process forever. Pass your own client with the timeouts you want:
+
+```php
+use GuzzleHttp\Client;
+
+$bitgo = new BitGo(
+    Config::production('YOUR_ACCESS_TOKEN'),
+    new Client(['timeout' => 30, 'connect_timeout' => 10]),
+);
+```
+
+Proxies, TLS settings and CA bundles go on that client too. The PSR-17 factories are still discovered. To pass your own, give them as the third and fourth arguments.
+
+With Symfony HttpClient, pass `new Psr18Client(HttpClient::create(['timeout' => 30]))`.
 
 ## What's covered
 
-### `BitGoSDK`: the BitGo API
-
-| Area | Methods |
+| From | Methods |
 | --- | --- |
-| User and session | `getCurrentUserProfile()`, `getSessionInfo()`, `lockSession()`, `unlockSession()`, `logout()` |
-| Wallets | `listWallets()`, `getWallet()`, `getWalletByAddress()`, `getTotalBalances()`, `getMaximumSpendable()`, `freezeWallet()` |
-| Addresses | `createWalletAddress()`, `getWalletAddress()`, `getWalletAddresses()`, `updateWalletAddress()` |
-| Transfers and unspents | `listWalletTransfers()`, `getWalletTransfer()`, `getWalletTransferBySequenceId()`, `getWalletTransactions()`, `getWalletTransaction()`, `listWalletUnspents()` |
-| Keychains | `listKeychains()`, `getKeychain()`, `createBitGoKeychain()`, `createBackupKeychain()`, `addKeychain()` |
-| Policies | `setVelocityPolicyRule()`, `updateVelocityPolicyRule()`, `removePolicyRule()` |
-| Wallet sharing | `listWalletShares()`, `getWalletShare()`, `resendWalletShareInvite()`, `cancelWalletShare()`, `removeWalletUser()` |
-| Pending approvals | `listPendingApprovals()`, `getPendingApproval()` |
-| Webhooks | Wallet and user webhooks: `list…`, `add…`, `remove…` and `simulate…Webhook()`. `getWebhookPayload()` reads an incoming webhook. |
-| Fees and prices | `estimateTransactionFees()`, `getMarketPriceData()` |
-| Amounts | `toSatoshi()`, `toBTC()`, `toBaseUnits()`, `fromBaseUnits()` |
+| `$bitgo` | `coin($code)`, `lastResponse()` |
+| `$bitgo->coin('tbtc')` | `wallet($id)`, `wallets()`, `blockWebhooks()` |
+| `->wallets()` | `list()`, `findByAddress($address)` |
+| `->wallet($id)` | `get()`, `addresses()`, `webhooks()` |
+| `->addresses()` | `create()`, `get()`, `update()`, `list()`, `deploy()`, `forwardTokens()`, `getOwnershipProof()` |
+| `->webhooks()` (wallet) | `add()`, `list()`, `remove()`, `simulate()` |
+| `->blockWebhooks()` (coin) | `add()`, `list()`, `remove()`, `simulate()` |
 
-### `BitGoExpress`: your BitGo Express instance
+Each method's parameters are documented in its docblock. For what each endpoint does, see the [BitGo API reference](https://developers.bitgo.com/reference/overview).
 
-| Area | Methods |
-| --- | --- |
-| Status and login | `ping()`, `pingExpress()`, `login()` |
-| Wallets | `generateWallet()`, `addWallet()`, `createKeychain()` |
-| Sending | `sendTransaction()`, `sendTransactionToMany()` |
-| Build, sign and send in steps | `buildTransaction()`, `signBuildTransaction()`, `sendBuildTransaction()` |
-| Unspent management | `consolidateWalletUnspents()`, `fanoutWalletUnspents()`, `sweep()` |
-| Sharing and approvals | `shareWallet()`, `acceptWalletShare()`, `updatePendingApproval()` |
-| Utilities | `encrypt()`, `decrypt()`, `verifyAddress()` |
+**Not in the alpha yet:** BitGo Express, sending coins, transfers, transactions and unspents, keychains, wallet creation, policies, sharing, pending approvals, and user and session calls. Use 2.3.x for these until the 3.0 betas add them.
 
-Each method's parameters are documented in its docblock. For what each endpoint does, see the [BitGo API reference](https://developers.bitgo.com/reference/overview) and the [Express API reference](https://developers.bitgo.com/reference/express-overview).
+## Usage
 
-## Error handling
+### Arguments
 
-Calls don't throw on API or network errors. They return an array with an `error` message and the HTTP `status`, plus any other fields BitGo sent:
+Every action takes named arguments. A `null` argument isn't sent, so BitGo's default applies. For a param the SDK doesn't name yet, use `extra`:
 
 ```php
-$transfer = $bitgo->getWalletTransfer('TRANSFER_ID');
+$wallet->addresses()->create(chain: 10, label: 'Deposit 42', extra: ['someNewParam' => true]);
+```
 
-if (isset($transfer['error'])) {
-    if ($transfer['status'] === 0) {
-        // no response: timeout, DNS, TLS, ...
-    } elseif ($transfer['status'] === 404) {
-        // no such transfer
-    } else {
-        // any other non-2xx status, or an invalid JSON body
-    }
+Named arguments win over the same key in `extra`.
+
+### Coin codes
+
+`coin()` takes any BitGo coin code as a string. `CoinCode` lists the major coins and their testnets, so your IDE can complete them:
+
+```php
+use neto737\BitGoSDK\CoinCode;
+
+$bitgo->coin(CoinCode::TBTC);    // same as $bitgo->coin('tbtc')
+$bitgo->coin(CoinCode::HTETH);   // Ethereum on Hoodi
+$bitgo->coin('ttao');            // any code works as a string
+```
+
+### Pagination
+
+`list()` returns a `Paginator`. It sends nothing until you iterate it, then fetches one batch per request:
+
+```php
+foreach ($bitgo->coin('tbtc')->wallets()->list(limit: 100) as $walletData) {
+    echo $walletData['id'], ' ', $walletData['label'], "\n";
+}
+
+$all = iterator_to_array($wallet->addresses()->list());
+```
+
+`limit` is the batch size, not a total. Iterating again starts over and fetches everything again.
+
+### Amounts
+
+BitGo sends and expects amounts as strings of base units, such as satoshis or wei, and results keep them that way. `Amount` converts them without floats:
+
+```php
+use neto737\BitGoSDK\Amount;
+
+Amount::fromDisplay('0.5', decimals: 8)->baseUnits;                     // '50000000'
+Amount::fromBaseUnits($data['balanceString'] ?? '0', decimals: 8)->toDisplay(); // for example '1.25'
+Amount::fromDisplay('10', CoinCode::ETH->decimals())->baseUnits;        // '10000000000000000000'
+```
+
+An `Amount` with more decimal places than the coin has throws instead of rounding. Anywhere a request takes an amount, an `Amount` is sent as its base units.
+
+### Errors
+
+Every failure throws an exception that implements `BitGoException`:
+
+```php
+use neto737\BitGoSDK\Exception\ApiException;
+use neto737\BitGoSDK\Exception\AuthenticationException;
+use neto737\BitGoSDK\Exception\NotFoundException;
+use neto737\BitGoSDK\Exception\TransportException;
+
+try {
+    $data = $wallet->get();
+} catch (NotFoundException) {
+    // no such wallet
+} catch (AuthenticationException $e) {
+    // 401 or 403: a bad or expired token, or one without access to this wallet
+} catch (ApiException $e) {
+    // any other non-2xx status
+    error_log($e->getStatusCode() . ' ' . $e->getErrorName() . ' ' . $e->getRequestId());
+} catch (TransportException $e) {
+    // no response: network error or timeout
 }
 ```
 
-`buildTransaction()` and `signBuildTransaction()` return the same fields as an object.
+| Exception | When |
+| --- | --- |
+| `AuthenticationException` | 401 or 403 |
+| `NotFoundException` | 404 |
+| `RateLimitException` | 429 |
+| `ServerException` | 5xx |
+| `ApiException` | any other non-2xx status (the parent of the four above) |
+| `UnexpectedResponseException` | a 2xx whose body isn't a JSON object |
+| `TransportException` | no response at all |
+| `InvalidArgumentException` | a value rejected before sending, such as an empty wallet ID |
 
-IDs and addresses you pass in are percent-encoded into the URL, so they can't change which endpoint a request reaches. An empty ID, `.` or `..` would still reach a different endpoint, so the call throws an `InvalidArgumentException` instead of sending the request. So does any wallet method called before `walletId` is set.
+`ApiException::getRequestId()` is BitGo's ID for the failed request. Quote it when you contact BitGo support.
 
-## Receiving webhooks
+### Retries
 
-Anyone who knows your webhook URL can POST to it, so treat the payload as untrusted. Check that `hash` looks like a transaction hash, then look the transfer up on BitGo with `getWalletTransaction()` and act on what BitGo returns, not on the webhook body. [`examples/receiveWebhook.php`](examples/receiveWebhook.php) shows how, and answers BitGo before the lookup so slow handlers don't trigger retries.
-
-## BitGo Express
-
-BitGo signs transactions on the client, so sending coins, creating wallets and other calls that use your keys go through `BitGoExpress`, which talks to your own BitGo Express instance. See [Install BitGo Express](https://developers.bitgo.com/docs/get-started-express-install) to run one.
-
-### Use TLS unless Express is on the same host
-
-Over plain `http://`, Express is only safe when it listens on `localhost`. Otherwise, run Express with a TLS certificate and prefix the hostname with `https://`:
-
-```php
-$express = new BitGoExpress('https://express.internal', 3080, CurrencyCode::BITCOIN);
-
-// For a self-signed or private-CA certificate, trust that certificate or CA file.
-$express->setCaFile('/path/to/express.crt');
-```
-
-`setCaFile()` throws an `InvalidArgumentException` if the file can't be read. Certificates are verified by default. `setVerifyTls(false)` turns verification off, so use it only for local testing.
-
-### Minimum Express version
-
-Use BitGo Express **14.1.3 or later**. Older versions fail on two changes BitGo made on its side:
-
-- **UTXO withdrawals from cold wallets** must use PSBT in production. BitGo needs Express 14.1.3 or later for this ([changelog](https://developers.bitgo.com/changelog/20251007)).
-- **Send-to-many on EVM assets** (`sendTransactionToMany()` on ETH and other EVM coins) uses a new batcher contract since May 22, 2025, so Express releases from before that date can't send it ([changelog](https://developers.bitgo.com/changelog/20250522)).
-
-## Client settings
-
-Both clients have these settings:
+Retries are off by default. To retry after a 429, a 5xx or a network error:
 
 ```php
-$bitgo->setTimeout(30);          // request timeout in seconds. Default: 60 (BitGoSDK) or 310 (BitGoExpress)
-$bitgo->setConnectTimeout(5);    // connect timeout in seconds. Default: 10
-$bitgo->setForceIPv4(true);      // use IPv4 only. Default: whatever the system allows
-$bitgo->setCaFile('/path/to/ca.pem');
+use neto737\BitGoSDK\RetryPolicy;
+
+$config = Config::production('YOUR_ACCESS_TOKEN')
+    ->withRetryPolicy(new RetryPolicy(maxAttempts: 3, baseDelayMs: 500, maxDelayMs: 30_000));
 ```
 
-`BitGoSDK::setRequestIP('203.0.113.10')` sends requests from that local IP. It returns `false` on testnet or for an invalid IP.
+Only `GET`, `PUT` and `DELETE` requests are retried, with exponential backoff and jitter, and `Retry-After` is followed. `POST` requests, such as creating an address, are never retried, because sending one twice could do the work twice.
 
-### TLS certificates
+### Response headers
 
-Both clients check certificates against your system's CA store. If PHP can't find one, they use the Mozilla CA bundle from [`composer/ca-bundle`](https://github.com/composer/ca-bundle), so keep your dependencies up to date. To trust a different CA, for example behind a TLS-inspecting proxy, call `setCaFile('/path/to/ca.pem')`.
+Actions return the decoded body. For the status and headers of the latest request, use `lastResponse()` right after the call:
 
-## Documentation
+```php
+$address = $wallet->addresses()->create(label: 'Deposit 42');
+$date = $bitgo->lastResponse()?->getHeaderLine('Date');
+```
 
-- [BitGo developer portal](https://developers.bitgo.com/)
-- [BitGo API reference](https://developers.bitgo.com/reference/overview) and [Express API reference](https://developers.bitgo.com/reference/express-overview)
-- [Webhooks](https://developers.bitgo.com/docs/webhooks-overview) and [policies](https://developers.bitgo.com/docs/policies-overview)
+### Receiving webhooks
 
-**Upgrading from 2.2.x?** 2.3 keeps the same methods, but it needs PHP 7.4 or later, and two behaviours changed: `0` and `false` params are now sent, and errors come back as `['error' => …, 'status' => …]`. Read the [2.3.0 changelog](CHANGELOG.md#230---2026-10-18) before you upgrade.
+Anyone who knows your webhook URL can POST to it, so treat the body as a hint. Look the transfer up on BitGo and act on what BitGo returns, not on the webhook body.
 
-**Upgrading from 2.3.0?** 2.3.1 is a security fix ([GHSA-qr36-39c2-hp84](https://github.com/neto737/BitGoSDK-PHP/security/advisories/GHSA-qr36-39c2-hp84)). Wallet methods now throw an `InvalidArgumentException` if `walletId` isn't set, so set it before you call them.
+```php
+$wallet->webhooks()->add(type: 'transfer', url: 'https://example.com/bitgo', numConfirmations: 1);
+```
+
+### Security
+
+- `Config` accepts only `https://` URLs, since the access token is sent with every request.
+- The access token is hidden from `var_dump()`, `print_r()` and stack traces.
+- IDs and addresses are escaped into the request path, so they can't change which endpoint a request reaches. An empty ID, `.` or `..` throws before anything is sent.
+- TLS certificates are verified by your HTTP client. Every mainstream client does this by default.
+
+If requests fail with a `TransportException` such as `cURL error 60: unable to get local issuer certificate`, PHP has no CA bundle, which is common on Windows. Download [Mozilla's CA bundle](https://curl.se/docs/caextract.html) and set `curl.cainfo` and `openssl.cafile` in `php.ini` to its path, or pass it to your client, as in Guzzle's `['verify' => '/path/to/cacert.pem']`. Don't turn verification off.
+
+## Upgrading from 2.x
+
+3.0 is a new API, not a drop-in upgrade. 2.x's `BitGoSDK` and `BitGoExpress` classes are gone. An upgrade guide comes with the 3.0 betas, once Express and sending are in place. Until then, stay on 2.3.x for production. The [CHANGELOG](CHANGELOG.md) lists what has changed so far.
 
 ## Contributing
 
-Bug reports and pull requests are welcome. See [CONTRIBUTING.md](CONTRIBUTING.md) for the branch model and release process. To run the checks:
+Bug reports and pull requests are welcome. See [CONTRIBUTING.md](CONTRIBUTING.md) for the branch model and release process, and [docs/adr/](docs/adr/) for the design decisions behind 3.0. To run the checks:
 
 ```sh
 composer install
-composer check    # coding standard, static analysis and tests
+composer check    # coding standard, Rector, static analysis and tests
 ```
 
-Each check can also run on its own: `composer test` (PHPUnit), `composer analyse` (PHPStan) and `composer cs` (PHP-CS-Fixer). `composer cs:fix` fixes the coding style. The code follows PSR-12, with 4-space indentation and LF line endings.
+Each check can also run on its own: `composer cs`, `composer rector`, `composer analyse` and `composer test`. `composer cs:fix` and `composer rector:fix` apply their changes.
 
-The tests replace the HTTP transport with a recorder, so they don't need a BitGo account or network access.
+The tests run against a mock PSR-18 client, so they don't need a BitGo account or network access.
 
 To report a security issue, follow [SECURITY.md](SECURITY.md) instead of opening a public issue.
 
