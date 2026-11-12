@@ -64,6 +64,27 @@ final class WalletsTest extends TestCase
         }
     }
 
+    public function testBalances(): void
+    {
+        $totals = ['balanceString' => '150000', 'confirmedBalanceString' => '100000', 'spendableBalanceString' => '90000'];
+        $this->respond($totals);
+
+        self::assertSame($totals, $this->wallets()->balances());
+        self::assertRequest($this->lastRequest(), 'GET', self::URL . '/balances', null);
+    }
+
+    public function testBalancesSendsItsFilters(): void
+    {
+        $this->bitgo()->coin('hteth')->wallets()->balances(allTokens: true, enterprise: ['e1'], showAllWallets: false, includeStakingBalances: true, extra: ['x' => 1]);
+
+        self::assertRequest(
+            $this->lastRequest(),
+            'GET',
+            self::API . 'hteth/wallet/balances?x=1&allTokens=true&enterprise%5B0%5D=e1&showAllWallets=false&includeStakingBalances=true',
+            null,
+        );
+    }
+
     public function testFindByAnUnknownAddressThrowsNotFound(): void
     {
         $this->respond('', 404);

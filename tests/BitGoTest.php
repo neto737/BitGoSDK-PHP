@@ -35,7 +35,7 @@ final class BitGoTest extends TestCase
     {
         $coin = $this->bitgo()->coin('tbtc');
         $wallet = $coin->wallet('w1');
-        $lists = [$coin->wallets()->list(), $wallet->addresses()->list(), $wallet->webhooks()->list(), $coin->blockWebhooks()->list()];
+        $lists = [$this->bitgo()->wallets()->list(), $coin->wallets()->list(), $wallet->addresses()->list(), $wallet->webhooks()->list(), $coin->blockWebhooks()->list()];
 
         self::assertSame('tbtc', $coin->code);
         self::assertSame('tbtc', $wallet->coin);
@@ -44,7 +44,7 @@ final class BitGoTest extends TestCase
         foreach ($lists as $list) {
             iterator_to_array($list);
         }
-        self::assertCount(4, $this->requests());
+        self::assertCount(5, $this->requests());
     }
 
     public function testWalletGetFetchesEveryTime(): void

@@ -88,6 +88,14 @@ final readonly class BitGo
     }
 
     /**
+     * Your wallets of every coin, to list them or add up their balances. Sends no request.
+     */
+    public function wallets(): Wallets
+    {
+        return new Wallets($this->http);
+    }
+
+    /**
      * The HTTP response to the latest request this client sent, for its status and headers. Verbs return only the
      * decoded body, so read this right after the call.
      *

@@ -79,6 +79,36 @@ final readonly class Wallets
     }
 
     /**
+     * The total balances of your wallets of this coin, added up. Amounts are strings in base units.
+     *
+     * For every coin at once, use BitGo::wallets()->balances().
+     *
+     * @param bool|null $allTokens                  Include the totals of the coin's tokens, keyed by token code under 'tokens'
+     * @param list<string>|null $enterprise         Only wallets in these enterprises, by ID
+     * @param bool|null $showAllWallets             Also count deleted wallets and wallets whose creation failed
+     * @param bool|null $includeStakingBalances     Also return the staked and reward totals
+     * @param array<string, mixed> $extra           More query params, for ones this method doesn't name yet
+     * @return array{balanceString: string, confirmedBalanceString: string, spendableBalanceString: string, stakedBalanceString?: string, tokens?: array<string, array{balanceString: string, confirmedBalanceString: string, spendableBalanceString: string, ...}>, ...}
+     * @throws BitGoException
+     */
+    public function balances(
+        ?bool $allTokens = null,
+        ?array $enterprise = null,
+        ?bool $showAllWallets = null,
+        ?bool $includeStakingBalances = null,
+        array $extra = [],
+    ): array {
+        /** @var array{balanceString: string, confirmedBalanceString: string, spendableBalanceString: string, stakedBalanceString?: string, tokens?: array<string, array{balanceString: string, confirmedBalanceString: string, spendableBalanceString: string, ...}>, ...} $balances BitGo's documented shape, not checked at runtime */
+        $balances = $this->http->get('{coin}/wallet/balances', $this->path(), [
+            'allTokens' => $allTokens,
+            'enterprise' => $enterprise,
+            'showAllWallets' => $showAllWallets,
+            'includeStakingBalances' => $includeStakingBalances,
+        ], $extra);
+        return $balances;
+    }
+
+    /**
      * @return array{coin: string}
      */
     private function path(): array

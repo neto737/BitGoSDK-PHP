@@ -93,10 +93,11 @@ With Symfony HttpClient, pass `new Psr18Client(HttpClient::create(['timeout' => 
 
 | From | Methods |
 | --- | --- |
-| `$bitgo` | `coin($code)`, `lastResponse()` |
+| `$bitgo` | `coin($code)`, `wallets()`, `lastResponse()` |
+| `$bitgo->wallets()` (every coin) | `list()`, `balances()` |
 | `$bitgo->coin('tbtc')` | `wallet($id)`, `wallets()`, `blockWebhooks()` |
-| `->wallets()` | `list()`, `findByAddress($address)` |
-| `->wallet($id)` | `get()`, `addresses()`, `webhooks()` |
+| `->wallets()` (coin) | `list()`, `findByAddress($address)`, `balances()` |
+| `->wallet($id)` | `get()`, `update()`, `freeze()`, `maximumSpendable()`, `addresses()`, `webhooks()` |
 | `->addresses()` | `create()`, `get()`, `update()`, `list()`, `deploy()`, `forwardTokens()`, `getOwnershipProof()` |
 | `->webhooks()` (wallet) | `add()`, `list()`, `remove()`, `simulate()` |
 | `->blockWebhooks()` (coin) | `add()`, `list()`, `remove()`, `simulate()` |
