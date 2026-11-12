@@ -8,6 +8,14 @@ Entries for 2.2.3 and earlier were reconstructed from the git history in October
 
 ## [Unreleased]
 
+### Added
+
+- `Wallet::update()` changes a wallet's label, `approvalsRequired`, `disableTransactionNotifications`, `buildDefaults` and `coinSpecific` settings, and returns the updated wallet.
+- `Wallet::freeze()` blocks every send from the wallet for `duration` seconds, one hour by default, with an optional `reason` and `referenceId`.
+- `Wallet::maximumSpendable()` returns the most the wallet can send in one transaction. The UTXO filters (`minValue`, `maxValue`, `minConfirms`, `feeRate`, `unspentIds`…) are named params, and `minValue` and `maxValue` take an `Amount`.
+- `$coin->wallets()->balances()` adds up the balances of your wallets of one coin (`/api/v2/{coin}/wallet/balances`).
+- `$bitgo->wallets()` covers every coin at once: `list()` pages through all your wallets (`/api/v2/wallets`), filtered by coin, enterprise, type or label, and `balances()` returns the totals per coin (`/api/v2/wallet/balances`). The `coin` filter takes `CoinCode`s or strings.
+
 ## [3.0.0-alpha.1] - 2026-10-30
 
 The first pre-release of 3.0, a new client written from scratch. It covers addresses, wallets and webhooks, and its API may still change before 3.0.0. It can't send coins yet: BitGo Express, transfers and sending come in the 3.0 betas, so stay on 2.3.x for production. 2.x fixes continue on the `2.x` branch.
